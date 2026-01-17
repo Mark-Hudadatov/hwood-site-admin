@@ -552,3 +552,63 @@ export async function getProductBreadcrumb(productSlug: string) {
 
   return { service, subservice, category, product };
 }
+
+// Alias for backward compatibility
+export const getProductWithBreadcrumb = getProductBreadcrumb;
+
+// ============================================================================
+// NAVIGATION DATA
+// ============================================================================
+
+export async function getNavigationData(): Promise<{
+  services: (Service & { subservices: Subservice[] })[];
+}> {
+  const [services, subservices] = await Promise.all([
+    getServices(),
+    getSubservices(),
+  ]);
+
+  const servicesWithSubs = services.map((service) => ({
+    ...service,
+    subservices: subservices.filter((sub) => sub.serviceId === service.id),
+  }));
+
+  return { services: servicesWithSubs };
+}
+
+// ============================================================================
+// SERVICE-BASED QUERIES
+// ============================================================================
+
+export async function getSubservicesByServiceSlug(serviceSlug: string): Promise<Subservice[]> {
+  const service = await getServiceBySlug(serviceSlug);
+  if (!service) return [];
+  return getSubservicesByService(service.id);
+}
+
+// ============================================================================
+// SUBSERVICE PAGE DATA
+// ============================================================================
+
+export async function getSubservicePageData(subserviceSlug: string): Promise<{
+  service: Service;
+  subservice: Subservice;
+  categories: ProductCategory[];
+  products: Product[];
+} | null> {
+  const subservice = await getSubserviceBySlug(subserviceSlug);
+  if (!subservice) return null;
+
+  const services = await getServices();
+  const service = services.find((s) => s.id === subservice.serviceId);
+  if (!service) return null;
+
+  const categories = await getCategoriesBySubservice(subservice.id);
+  
+  // Get all products for all categories in this subservice
+  const categoryIds = categories.map((c) => c.id);
+  const allProducts = await getProducts();
+  const products = allProducts.filter((p) => categoryIds.includes(p.categoryId));
+
+  return { service, subservice, categories, products };
+}
