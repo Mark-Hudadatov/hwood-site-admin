@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Upload, Send, ArrowLeft, FileText, CheckCircle } from 'lucide-react';
 import { getProductBySlug, getServices, getCompanyInfo } from '../services/data/dataService';
-import { Product, Service } from '../domain/types';
+import { Product, Service, CompanyInfo  } from '../domain/types';
 
 export const QuotePage: React.FC = () => {
   const { productSlug } = useParams();
