@@ -29,7 +29,7 @@ import { AdminSubservices } from './admin/pages/AdminSubservices';
 import { AdminCategories } from './admin/pages/AdminCategories';
 import { AdminProducts } from './admin/pages/AdminProducts';
 import { AdminStories } from './admin/pages/AdminStories';
-import { AdminHeroSlides } from './admin/pages/AdminHeroSlides';
+import { AdminMainPage } from './admin/pages/AdminMainPage';
 import { AdminCompanyInfo } from './admin/pages/AdminCompanyInfo';
 import { AdminSubmissions } from './admin/pages/AdminSubmissions';
 
@@ -83,7 +83,7 @@ const routes: RouteObject[] = [
       { path: 'categories', element: <AdminCategories /> },
       { path: 'products', element: <AdminProducts /> },
       { path: 'stories', element: <AdminStories /> },
-      { path: 'hero-slides', element: <AdminHeroSlides /> },
+      { path: 'main-page', element: <AdminMainPage /> },
       { path: 'company-info', element: <AdminCompanyInfo /> },
       { path: 'submissions', element: <AdminSubmissions /> },
     ],
@@ -112,7 +112,7 @@ export const ROUTES = {
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_STORIES: '/admin/stories',
-  ADMIN_HERO_SLIDES: '/admin/hero-slides',
+  ADMIN_MAIN_PAGE: '/admin/main-page',
   ADMIN_COMPANY_INFO: '/admin/company-info',
   ADMIN_SUBMISSIONS: '/admin/submissions',
 } as const;
