@@ -1,14 +1,35 @@
 /**
- * GLOBAL STYLES
- * =============
- * Tailwind CSS imports and custom utilities.
+ * GLOBAL STYLES - PREMIUM EDITION
+ * ================================
+ * Biesse-inspired quality with:
+ * - Smooth animations
+ * - Premium transitions
+ * - Professional effects
  */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar hiding utility */
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000;
+}
+
+/* =============================================================================
+   SCROLLBAR HIDING
+   ============================================================================= */
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -18,19 +39,142 @@
   scrollbar-width: none;
 }
 
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
+/* =============================================================================
+   MARQUEE ANIMATION (Partners)
+   ============================================================================= */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.33%);
+  }
 }
 
-/* Base font */
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
 
-/* Line clamp utilities for older browsers */
+.animate-marquee:hover,
+.hover\:pause:hover {
+  animation-play-state: paused;
+}
+
+/* =============================================================================
+   SLOW ZOOM (Hero Images)
+   ============================================================================= */
+
+@keyframes slow-zoom {
+  0% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-slow-zoom {
+  animation: slow-zoom 20s ease-out forwards;
+}
+
+/* =============================================================================
+   SCROLL INDICATOR
+   ============================================================================= */
+
+@keyframes scroll-down {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200%);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-down {
+  animation: scroll-down 2s ease-in-out infinite;
+}
+
+/* =============================================================================
+   FADE ANIMATIONS
+   ============================================================================= */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.8s ease-out forwards;
+}
+
+/* =============================================================================
+   PULSE GLOW (CTA Buttons)
+   ============================================================================= */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 95, 95, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(0, 95, 95, 0);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* =============================================================================
+   LINE CLAMP UTILITIES
+   ============================================================================= */
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -43,4 +187,235 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* =============================================================================
+   SNAP SCROLL
+   ============================================================================= */
+
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}
+
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* =============================================================================
+   FOCUS STYLES
+   ============================================================================= */
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #005f5f;
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   BACKDROP BLUR (Safari support)
+   ============================================================================= */
+
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* =============================================================================
+   CUSTOM EASING
+   ============================================================================= */
+
+.ease-out-expo {
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.ease-in-out-expo {
+  transition-timing-function: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* =============================================================================
+   TEXT RENDERING
+   ============================================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Large headings - tighter tracking */
+.tracking-tight {
+  letter-spacing: -0.025em;
+}
+
+/* =============================================================================
+   RTL SUPPORT
+   ============================================================================= */
+
+[dir="rtl"] .animate-marquee {
+  animation-direction: reverse;
+}
+
+[dir="rtl"] .translate-x-1 {
+  --tw-translate-x: -0.25rem;
+}
+
+/* =============================================================================
+   SELECTION
+   ============================================================================= */
+
+::selection {
+  background-color: #005f5f;
+  color: white;
+}
+
+/* =============================================================================
+   LOADING SPINNER
+   ============================================================================= */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* =============================================================================
+   SMOOTH IMAGE LOADING
+   ============================================================================= */
+
+img {
+  transition: opacity 0.5s ease-out;
+}
+
+img[loading="lazy"] {
+  opacity: 0;
+}
+
+img[loading="lazy"].loaded,
+img:not([loading="lazy"]) {
+  opacity: 1;
+}
+
+/* =============================================================================
+   GRADIENT TEXT (for premium headings)
+   ============================================================================= */
+
+.text-gradient {
+  background: linear-gradient(135deg, #005f5f 0%, #00d4aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* =============================================================================
+   GLASS EFFECT
+   ============================================================================= */
+
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =============================================================================
+   BUTTON HOVER EFFECTS
+   ============================================================================= */
+
+.btn-hover-fill {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-hover-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.btn-hover-fill:hover::before {
+  opacity: 0.1;
+}
+
+/* =============================================================================
+   CARD HOVER LIFT
+   ============================================================================= */
+
+.card-hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* =============================================================================
+   SMOOTH UNDERLINE
+   ============================================================================= */
+
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* =============================================================================
+   RESPONSIVE TYPOGRAPHY SCALE
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1536px) {
+  html {
+    font-size: 18px;
+  }
 }
