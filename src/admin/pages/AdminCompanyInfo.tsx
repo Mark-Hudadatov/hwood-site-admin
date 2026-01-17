@@ -1,32 +1,21 @@
 /**
  * ADMIN COMPANY INFO PAGE
  * ========================
- * Company details + social media links
  */
 
 import React, { useEffect, useState } from 'react';
-import { Save, Facebook, Linkedin, Instagram, MessageCircle, Send } from 'lucide-react';
+import { Save, Facebook, Linkedin, Instagram, Music2, MessageCircle, Send } from 'lucide-react';
+import type { AdminCompanyInfo as AdminCompanyInfoType, AdminSocialLink } from '../adminStore';
 import {
-  AdminCompanyInfo,
-  AdminSocialLink,
   getAdminCompanyInfo,
-  getSocialLinks,
   updateCompanyInfo,
+  getSocialLinks,
   updateSocialLink,
 } from '../adminStore';
 import { BilingualInput } from '../components';
 
-const socialIcons: Record<string, React.ElementType> = {
-  facebook: Facebook,
-  linkedin: Linkedin,
-  instagram: Instagram,
-  tiktok: () => <span className="text-lg">📱</span>,
-  whatsapp: MessageCircle,
-  telegram: Send,
-};
-
 export const AdminCompanyInfo: React.FC = () => {
-  const [info, setInfo] = useState<AdminCompanyInfo | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<AdminCompanyInfoType | null>(null);
   const [socialLinks, setSocialLinks] = useState<AdminSocialLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,12 +36,13 @@ export const AdminCompanyInfo: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const [infoData, socialData] = await Promise.all([
+      const [infoData, linksData] = await Promise.all([
         getAdminCompanyInfo(),
         getSocialLinks(),
       ]);
+      
       if (infoData) {
-        setInfo(infoData);
+        setCompanyInfo(infoData);
         setFormData({
           name_en: infoData.name_en || '',
           name_he: infoData.name_he || '',
@@ -66,9 +56,9 @@ export const AdminCompanyInfo: React.FC = () => {
           address_he: infoData.address_he || '',
         });
       }
-      setSocialLinks(socialData);
+      setSocialLinks(linksData);
     } catch (error) {
-      console.error('Failed to load:', error);
+      console.error('Failed to load data:', error);
     } finally {
       setLoading(false);
     }
@@ -93,7 +83,7 @@ export const AdminCompanyInfo: React.FC = () => {
     }
   };
 
-  const handleSocialUpdate = async (id: string, field: 'url' | 'is_visible', value: string | boolean) => {
+  const handleSocialChange = async (id: string, field: 'url' | 'is_visible', value: string | boolean) => {
     try {
       await updateSocialLink(id, { [field]: value });
       setSocialLinks(links => 
@@ -106,6 +96,18 @@ export const AdminCompanyInfo: React.FC = () => {
     }
   };
 
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'facebook': return Facebook;
+      case 'linkedin': return Linkedin;
+      case 'instagram': return Instagram;
+      case 'tiktok': return Music2;
+      case 'whatsapp': return MessageCircle;
+      case 'telegram': return Send;
+      default: return MessageCircle;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -115,19 +117,19 @@ export const AdminCompanyInfo: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="space-y-6 max-w-4xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Company Info</h2>
-          <p className="text-gray-500">Manage company details shown in footer & contact page</p>
+          <p className="text-gray-500">Edit your company details displayed on the website</p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             saved 
-              ? 'bg-green-500 text-white'
+              ? 'bg-green-500 text-white' 
               : 'bg-[#005f5f] text-white hover:bg-[#004d4d]'
           } disabled:opacity-50`}
         >
@@ -138,10 +140,8 @@ export const AdminCompanyInfo: React.FC = () => {
 
       {/* Company Details */}
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">
-          Company Details
-        </h3>
-
+        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">Company Details</h3>
+        
         <BilingualInput
           label="Company Name"
           nameEn="name_en"
@@ -161,7 +161,7 @@ export const AdminCompanyInfo: React.FC = () => {
           valueHe={formData.tagline_he}
           onChangeEn={(v) => setFormData({ ...formData, tagline_en: v })}
           onChangeHe={(v) => setFormData({ ...formData, tagline_he: v })}
-          placeholder="Short company tagline"
+          helpText="Short description shown under logo"
         />
 
         <BilingualInput
@@ -173,40 +173,33 @@ export const AdminCompanyInfo: React.FC = () => {
           onChangeEn={(v) => setFormData({ ...formData, description_en: v })}
           onChangeHe={(v) => setFormData({ ...formData, description_he: v })}
           type="textarea"
-          placeholder="About the company"
+          helpText="About section description"
         />
       </div>
 
       {/* Contact Info */}
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">
-          Contact Information
-        </h3>
-
+        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">Contact Information</h3>
+        
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
             <input
-              type="tel"
+              type="text"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="+972-54-922-2804"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+              placeholder="+972-54-000-0000"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="office@company.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent"
             />
           </div>
         </div>
@@ -219,65 +212,45 @@ export const AdminCompanyInfo: React.FC = () => {
           valueHe={formData.address_he}
           onChangeEn={(v) => setFormData({ ...formData, address_en: v })}
           onChangeHe={(v) => setFormData({ ...formData, address_he: v })}
-          placeholder="Full street address"
         />
       </div>
 
-      {/* Social Media Links */}
+      {/* Social Media */}
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">
-          Social Media Links
-        </h3>
-
+        <h3 className="text-lg font-semibold text-gray-900 border-b pb-3">Social Media Links</h3>
+        <p className="text-sm text-gray-500">Add URLs for each platform. Toggle visibility to show/hide on website.</p>
+        
         <div className="space-y-4">
           {socialLinks.map((link) => {
-            const Icon = socialIcons[link.platform] || (() => null);
-            const isWhatsApp = link.platform === 'whatsapp';
-            
+            const Icon = getSocialIcon(link.platform);
             return (
               <div key={link.id} className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                   <Icon className="w-5 h-5 text-gray-600" />
                 </div>
-                
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 capitalize mb-1">
-                    {link.platform}
-                  </label>
+                <span className="w-24 text-sm font-medium text-gray-700 capitalize">
+                  {link.platform}
+                </span>
+                <input
+                  type="text"
+                  value={link.url || ''}
+                  onChange={(e) => handleSocialChange(link.id, 'url', e.target.value)}
+                  placeholder={link.platform === 'whatsapp' ? 'Phone number' : 'https://...'}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent text-sm"
+                />
+                <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    type={isWhatsApp ? 'tel' : 'url'}
-                    value={link.url || ''}
-                    onChange={(e) => handleSocialUpdate(link.id, 'url', e.target.value)}
-                    placeholder={isWhatsApp ? '+972544567890' : `https://${link.platform}.com/yourpage`}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none text-sm"
+                    type="checkbox"
+                    checked={link.is_visible}
+                    onChange={(e) => handleSocialChange(link.id, 'is_visible', e.target.checked)}
+                    className="w-4 h-4 text-[#005f5f] rounded focus:ring-[#005f5f]"
                   />
-                  {isWhatsApp && (
-                    <p className="text-xs text-gray-500 mt-1">Phone number with country code, no spaces</p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={link.is_visible}
-                      onChange={(e) => handleSocialUpdate(link.id, 'is_visible', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#005f5f] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#005f5f]"></div>
-                    <span className="ml-2 text-sm text-gray-500">
-                      {link.is_visible ? 'Visible' : 'Hidden'}
-                    </span>
-                  </label>
-                </div>
+                  <span className="text-sm text-gray-600">Show</span>
+                </label>
               </div>
             );
           })}
         </div>
-
-        <p className="text-sm text-gray-500">
-          Social links will appear in the footer. Toggle visibility to show/hide each platform.
-        </p>
       </div>
     </div>
   );
