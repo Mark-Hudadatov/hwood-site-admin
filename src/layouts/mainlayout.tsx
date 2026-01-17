@@ -1,32 +1,53 @@
 /**
- * MAIN LAYOUT
- * ===========
- * Shared layout wrapper for all public pages.
- * Includes Header, main content area (Outlet), and Footer with shared background.
+ * MAIN LAYOUT - PREMIUM
+ * =====================
+ * UPGRADES:
+ * ✅ ScrollToTop on route change
+ * ✅ Language reload (page refresh)
+ * ✅ Chat widget REMOVED
+ * ✅ Mobile hamburger menu
+ * ✅ Fixed logo sizing
  */
 
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router-dom';
+import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, MessageCircle } from 'lucide-react';
+import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
 import { getNavigationData, getCompanyInfo } from '../services/data/dataService';
 
 // =============================================================================
-// LANGUAGE SWITCHER COMPONENT
+// SCROLL TO TOP - Scrolls to top on every route change
+// =============================================================================
+
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+};
+
+// =============================================================================
+// LANGUAGE SWITCHER COMPONENT - NOW WITH PAGE RELOAD
 // =============================================================================
 
 const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 'dark' }) => {
   const { i18n } = useTranslation();
   
-  const currentLang = i18n.language === 'he' ? 'he' : 'en';
+  const currentLang = i18n.language?.startsWith('he') ? 'he' : 'en';
   
   const toggleLanguage = () => {
     const newLang = currentLang === 'en' ? 'he' : 'en';
-    i18n.changeLanguage(newLang);
+    localStorage.setItem('i18nextLng', newLang);
+    i18n.changeLanguage(newLang).then(() => {
+      window.location.reload(); // RELOAD PAGE to apply changes
+    });
   };
   
-  const baseClasses = "flex items-center gap-1 border rounded-full px-3 py-1 transition-all font-bold text-[11px]";
+  const baseClasses = "flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-bold text-[11px]";
   const variantClasses = variant === 'light' 
     ? "border-white/50 text-white hover:bg-white/20" 
     : "border-gray-400 text-gray-800 hover:bg-white hover:border-transparent";
@@ -37,7 +58,7 @@ const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 
       className={`${baseClasses} ${variantClasses}`}
       aria-label="Switch language"
     >
-      <Globe className="w-3 h-3" />
+      <Globe className="w-3.5 h-3.5" />
       <span>{currentLang === 'en' ? 'עברית' : 'English'}</span>
     </button>
   );
@@ -86,21 +107,21 @@ const Header: React.FC = () => {
       </div>
 
       {/* Main Navbar */}
-      <nav className="w-full h-20 px-8 md:px-12 flex items-center justify-between">
-        {/* Logo */}
+      <nav className="w-full h-16 md:h-20 px-4 md:px-12 flex items-center justify-between">
+        {/* Logo - FIXED SIZING */}
         <div 
-          className="flex items-center gap-3 cursor-pointer" 
+          className="flex items-center gap-3 cursor-pointer flex-shrink-0" 
           onClick={() => navigate('/')}
         >
-          {/* Logo Image */}
           <img 
             src="/logo.png" 
             alt="HWOOD Logo" 
-            className="h-12 w-auto"
+            className="h-10 md:h-12 w-auto object-contain"
+            style={{ maxWidth: '160px', minWidth: '100px' }}
           />
         </div>
 
-        {/* Center Links */}
+        {/* Center Links - Desktop */}
         <div className="hidden lg:flex items-center gap-2">
           {navData.services.map((service) => (
             <div 
@@ -114,11 +135,13 @@ const Header: React.FC = () => {
                 className="flex items-center gap-1 px-4 py-2 text-base font-semibold text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50"
               >
                 {service.title}
-                <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
+                {service.subservices && service.subservices.length > 0 && (
+                  <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
+                )}
               </button>
               
               {/* Dropdown */}
-              {activeDropdown === service.id && service.subservices.length > 0 && (
+              {activeDropdown === service.id && service.subservices && service.subservices.length > 0 && (
                 <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[280px] z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
@@ -132,7 +155,9 @@ const Header: React.FC = () => {
                       className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
                     >
                       <span className="font-medium text-gray-900">{sub.title}</span>
-                      <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{sub.description}</p>
+                      {sub.description && (
+                        <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{sub.description}</p>
+                      )}
                     </button>
                   ))}
                   <div className="px-4 py-2 border-t border-gray-100 mt-1">
@@ -150,23 +175,74 @@ const Header: React.FC = () => {
         </div>
 
         {/* Right Icons */}
-        <div className="flex items-center gap-4">
-          <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
-            <MapPin className="w-5 h-5" />
-          </Link>
-          <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
-            <Search className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
-            <User className="w-5 h-5" />
-          </button>
-          
-          {/* Mobile Language Switcher */}
-          <div className="lg:hidden">
-            <LanguageSwitcher variant="dark" />
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Desktop Icons */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+              <MapPin className="w-5 h-5" />
+            </Link>
+            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+              <Search className="w-5 h-5" />
+            </button>
+            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+              <User className="w-5 h-5" />
+            </button>
           </div>
+          
+          {/* Language Switcher - Always visible */}
+          <LanguageSwitcher variant="dark" />
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu - NEW */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg absolute top-full left-0 right-0 z-50">
+          <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
+            {navData.services.map((service) => (
+              <div key={service.id}>
+                <button
+                  onClick={() => handleServiceClick(service.slug)}
+                  className="w-full text-left px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50 rounded-lg"
+                >
+                  {service.title}
+                </button>
+                {service.subservices && service.subservices.length > 0 && (
+                  <div className="pl-4">
+                    {service.subservices.map((sub) => (
+                      <button
+                        key={sub.id}
+                        onClick={() => handleSubserviceClick(sub.slug)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg"
+                      >
+                        {sub.title}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
+              <Link to="/about" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                About
+              </Link>
+              <Link to="/portfolio" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                News
+              </Link>
+              <Link to="/contact" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
@@ -187,7 +263,8 @@ const Footer: React.FC = () => {
           <img 
             src="/logo.png" 
             alt="HWOOD Logo" 
-            className="h-10 w-auto brightness-0 invert"
+            className="h-10 w-auto brightness-0 invert object-contain"
+            style={{ maxWidth: '140px' }}
           />
         </div>
 
@@ -243,23 +320,6 @@ const Footer: React.FC = () => {
 };
 
 // =============================================================================
-// SIDE MENU COMPONENT
-// =============================================================================
-
-const SideMenu: React.FC = () => {
-  return (
-    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3 pr-4 rtl:right-auto rtl:left-0 rtl:pr-0 rtl:pl-4">
-      <button 
-        className="w-14 h-14 bg-[#005f5f] rounded-l-2xl rtl:rounded-l-none rtl:rounded-r-2xl flex items-center justify-center shadow-lg hover:bg-[#004d4d] transition-colors"
-        aria-label="Chat support"
-      >
-        <MessageCircle className="w-6 h-6 text-white" />
-      </button>
-    </div>
-  );
-};
-
-// =============================================================================
 // FOOTER WRAPPER WITH TEXTURED BACKGROUND
 // =============================================================================
 
@@ -284,6 +344,7 @@ const FooterWrapper: React.FC = () => {
   );
 };
 
+// CHAT WIDGET REMOVED - SideMenu component deleted
 
 // =============================================================================
 // MAIN LAYOUT EXPORT
@@ -292,6 +353,9 @@ const FooterWrapper: React.FC = () => {
 export const MainLayout: React.FC = () => {
   return (
     <div className="w-full min-h-screen font-sans flex flex-col">
+      {/* NEW: Scroll to top on route change */}
+      <ScrollToTop />
+      
       <Header />
       
       {/* Main Content Area - Pages render here via Outlet */}
@@ -302,8 +366,7 @@ export const MainLayout: React.FC = () => {
       {/* Footer with textured background */}
       <FooterWrapper />
       
-      {/* Side Menu (Fixed Right) */}
-      <SideMenu />
+      {/* REMOVED: SideMenu chat widget */}
     </div>
   );
 };
