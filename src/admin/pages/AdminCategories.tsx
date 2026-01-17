@@ -34,14 +34,22 @@ export const AdminCategories: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [filterSubservice, setFilterSubservice] = useState<string>('all');
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    subservice_id: string;
+    slug: string;
+    title_en: string;
+    title_he: string;
+    description_en: string;
+    description_he: string;
+    visibility_status: VisibilityStatus;
+  }>({
     subservice_id: '',
     slug: '',
     title_en: '',
     title_he: '',
     description_en: '',
     description_he: '',
-    visibility_status: 'visible' as const,
+    visibility_status: 'visible',
   });
 
   const loadData = async () => {
