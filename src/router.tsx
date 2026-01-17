@@ -2,6 +2,9 @@
  * ROUTER CONFIGURATION - HWOOD
  * ============================
  * Includes both public site and admin panel routes
+ * 
+ * UPDATES:
+ * ✅ Added Partners admin route
  */
 
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
@@ -32,6 +35,7 @@ import { AdminStories } from './admin/pages/AdminStories';
 import { AdminMainPage } from './admin/pages/AdminMainPage';
 import { AdminCompanyInfo } from './admin/pages/AdminCompanyInfo';
 import { AdminSubmissions } from './admin/pages/AdminSubmissions';
+import { AdminPartners } from './admin/pages/AdminPartners';
 
 // Error boundary
 const ErrorPage = () => (
@@ -84,6 +88,7 @@ const routes: RouteObject[] = [
       { path: 'products', element: <AdminProducts /> },
       { path: 'stories', element: <AdminStories /> },
       { path: 'main-page', element: <AdminMainPage /> },
+      { path: 'partners', element: <AdminPartners /> },
       { path: 'company-info', element: <AdminCompanyInfo /> },
       { path: 'submissions', element: <AdminSubmissions /> },
     ],
@@ -113,6 +118,7 @@ export const ROUTES = {
   ADMIN_PRODUCTS: '/admin/products',
   ADMIN_STORIES: '/admin/stories',
   ADMIN_MAIN_PAGE: '/admin/main-page',
+  ADMIN_PARTNERS: '/admin/partners',
   ADMIN_COMPANY_INFO: '/admin/company-info',
   ADMIN_SUBMISSIONS: '/admin/submissions',
 } as const;
