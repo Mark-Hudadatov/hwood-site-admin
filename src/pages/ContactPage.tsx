@@ -4,12 +4,13 @@
  * Contact information and form
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import { getCompanyInfo } from '../services/data/dataService';
+import { CompanyInfo } from '../domain/types';
 
 export const ContactPage: React.FC = () => {
-  const companyInfo = getCompanyInfo();
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,9 +20,16 @@ export const ContactPage: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    const loadData = async () => {
+      const info = await getCompanyInfo();
+      setCompanyInfo(info);
+    };
+    loadData();
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Integrate with backend
     console.log('Form submitted:', formData);
     setSubmitted(true);
   };
@@ -34,9 +42,9 @@ export const ContactPage: React.FC = () => {
   };
 
   const contactInfo = [
-    { icon: MapPin, label: 'Address', value: companyInfo.address },
-    { icon: Phone, label: 'Phone', value: companyInfo.phone },
-    { icon: Mail, label: 'Email', value: companyInfo.email },
+    { icon: MapPin, label: 'Address', value: companyInfo?.address || '' },
+    { icon: Phone, label: 'Phone', value: companyInfo?.phone || '' },
+    { icon: Mail, label: 'Email', value: companyInfo?.email || '' },
     { icon: Clock, label: 'Hours', value: 'Sun-Thu: 8:00 - 17:00' },
   ];
 
