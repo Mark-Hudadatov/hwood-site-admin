@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
 import {
   AdminService,
+  VisibilityStatus,
   getAdminServices,
   createService,
   updateService,
