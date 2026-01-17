@@ -30,7 +30,17 @@ export const AdminServices: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState<{
+    slug: string;
+    title_en: string;
+    title_he: string;
+    description_en: string;
+    description_he: string;
+    image_url: string;
+    hero_image_url: string;
+    accent_color: string;
+    visibility_status: VisibilityStatus;
+  }>({
     slug: '',
     title_en: '',
     title_he: '',
@@ -39,7 +49,7 @@ export const AdminServices: React.FC = () => {
     image_url: '',
     hero_image_url: '',
     accent_color: '#005f5f',
-    visibility_status: 'visible' as const,
+    visibility_status: 'visible',
   });
 
   const loadServices = async () => {
