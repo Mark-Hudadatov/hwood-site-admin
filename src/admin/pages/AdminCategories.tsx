@@ -9,6 +9,7 @@ import {
   AdminCategory,
   AdminSubservice,
   AdminService,
+  VisibilityStatus,
   getAdminCategories,
   getAdminSubservices,
   getAdminServices,
