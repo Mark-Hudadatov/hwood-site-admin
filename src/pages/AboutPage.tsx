@@ -4,13 +4,22 @@
  * Company information and story
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Factory, Users, Award, Truck } from 'lucide-react';
 import { getCompanyInfo } from '../services/data/dataService';
+import { CompanyInfo } from '../domain/types';
 
 export const AboutPage: React.FC = () => {
-  const companyInfo = getCompanyInfo();
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const info = await getCompanyInfo();
+      setCompanyInfo(info);
+    };
+    loadData();
+  }, []);
 
   const stats = [
     { icon: Factory, value: '2000+', label: 'sqm Production Area' },
@@ -26,10 +35,10 @@ export const AboutPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              About {companyInfo.name}
+              About {companyInfo?.name || 'HWOOD'}
             </h1>
             <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
-              {companyInfo.description}
+              {companyInfo?.description || 'Loading...'}
             </p>
           </div>
         </div>
