@@ -124,6 +124,7 @@ export const AdminProducts: React.FC = () => {
       specifications: [],
       has_3d_view: false,
       visibility_status: 'visible',
+      is_featured: false,
     });
     setIsModalOpen(true);
   };
@@ -147,6 +148,7 @@ export const AdminProducts: React.FC = () => {
       specifications: item.specifications || [],
       has_3d_view: item.has_3d_view || false,
       visibility_status: item.visibility_status,
+      is_featured: item.is_featured || false,
     });
     setIsModalOpen(true);
   };
