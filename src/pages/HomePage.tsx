@@ -439,7 +439,7 @@ export const HomePage: React.FC = () => {
       {/* 2. Services Section */}
       <section 
         className="w-full bg-[#EAEAEA]"
-        style={{ paddingTop: `${settings.services_section.padding_y}px`, paddingBottom: `${settings.services_section.padding_y}px` }}
+        style={{ paddingTop: `${Number(settings.services_section.padding_y) * 4}px`, paddingBottom: `${Number(settings.services_section.padding_y) * 4}px` }}
       >
         <div className="w-full px-8 md:px-12 lg:px-16 flex flex-col">
           <h2 
@@ -451,7 +451,7 @@ export const HomePage: React.FC = () => {
 
           <div 
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-            style={{ gap: `${settings.services_section.card_gap * 4}px` }}
+            style={{ gap: `${Number(settings.services_section.card_gap) * 4}px` }}
           >
             {services.map((service) => (
               <ServiceCard 
@@ -481,7 +481,7 @@ export const HomePage: React.FC = () => {
         {/* Stories Section */}
         <section 
           className="relative z-10 w-full text-white"
-          style={{ paddingTop: `${settings.stories_section.padding_y * 4}px`, paddingBottom: `${settings.stories_section.padding_y * 4}px` }}
+          style={{ paddingTop: `${Number(settings.stories_section.padding_y) * 4}px`, paddingBottom: `${Number(settings.stories_section.padding_y) * 4}px` }}
         >
           <div className="w-full px-8 md:px-12 lg:px-16 flex flex-col">
             {/* Header */}
@@ -512,7 +512,7 @@ export const HomePage: React.FC = () => {
               <div 
                 ref={scrollContainerRef}
                 className="flex overflow-x-auto no-scrollbar pb-10 px-4 -mx-4 scroll-smooth"
-                style={{ gap: `${settings.stories_section.card_gap * 4}px` }}
+                style={{ gap: `${Number(settings.stories_section.card_gap) * 4}px` }}
               >
                 {stories.map((story) => (
                   <StoryCard key={story.id} story={story} />
