@@ -2,7 +2,6 @@
  * DATA SERVICE - HWOOD
  * =====================
  * Reads data from Supabase with fallback to mock data
- * All components should use this service, not direct Supabase calls
  */
 
 import { supabase } from '../supabase';
@@ -27,8 +26,9 @@ import {
   COMPANY_INFO as MOCK_COMPANY_INFO,
 } from './mockData';
 
-// Get current language from i18n or default to 'en'
+// Get current language from localStorage
 const getCurrentLang = (): 'en' | 'he' => {
+  if (typeof window === 'undefined') return 'en';
   const lang = localStorage.getItem('i18nextLng') || 'en';
   return lang.startsWith('he') ? 'he' : 'en';
 };
@@ -51,7 +51,7 @@ export async function getServices(): Promise<Service[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((s) => ({
+    return data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
@@ -111,7 +111,7 @@ export async function getSubservices(): Promise<Subservice[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((s) => ({
+    return data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       serviceId: s.service_id,
@@ -139,7 +139,7 @@ export async function getSubservicesByService(serviceId: string): Promise<Subser
     }
 
     const lang = getCurrentLang();
-    return data.map((s) => ({
+    return data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       serviceId: s.service_id,
@@ -197,7 +197,7 @@ export async function getProductCategories(): Promise<ProductCategory[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((c) => ({
+    return data.map((c: any) => ({
       id: c.id,
       slug: c.slug,
       subserviceId: c.subservice_id,
@@ -224,7 +224,7 @@ export async function getCategoriesBySubservice(subserviceId: string): Promise<P
     }
 
     const lang = getCurrentLang();
-    return data.map((c) => ({
+    return data.map((c: any) => ({
       id: c.id,
       slug: c.slug,
       subserviceId: c.subservice_id,
@@ -254,7 +254,7 @@ export async function getProducts(): Promise<Product[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((p) => mapProduct(p, lang));
+    return data.map((p: any) => mapProduct(p, lang));
   } catch (e) {
     return MOCK_PRODUCTS;
   }
@@ -274,7 +274,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
     }
 
     const lang = getCurrentLang();
-    return data.map((p) => mapProduct(p, lang));
+    return data.map((p: any) => mapProduct(p, lang));
   } catch (e) {
     return MOCK_PRODUCTS.filter((p) => p.categoryId === categoryId);
   }
@@ -334,7 +334,7 @@ export async function getStories(): Promise<Story[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((s) => ({
+    return data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
@@ -358,7 +358,7 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
       .single();
 
     if (error || !data) {
-      return null;
+      return MOCK_STORIES.find((s) => s.slug === slug) || null;
     }
 
     const lang = getCurrentLang();
@@ -378,6 +378,7 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
 }
 
 function formatDate(dateStr: string): string {
+  if (!dateStr) return '';
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { 
     month: '2-digit', 
@@ -404,7 +405,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     }
 
     const lang = getCurrentLang();
-    return data.map((s) => ({
+    return data.map((s: any) => ({
       id: s.id,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
       subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
@@ -436,7 +437,7 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
 
     const lang = getCurrentLang();
     return {
-      name: lang === 'he' && data.name_he ? data.name_he : data.name_en,
+      name: lang === 'he' && data.name_he ? data.name_he : data.name_en || 'HWOOD',
       tagline: lang === 'he' && data.tagline_he ? data.tagline_he : data.tagline_en || '',
       description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
       phone: data.phone || '',
@@ -465,8 +466,8 @@ export async function getSocialLinks(): Promise<{ platform: string; url: string 
     }
 
     return data
-      .filter((s) => s.url)
-      .map((s) => ({
+      .filter((s: any) => s.url)
+      .map((s: any) => ({
         platform: s.platform,
         url: s.url,
       }));
@@ -476,10 +477,10 @@ export async function getSocialLinks(): Promise<{ platform: string; url: string 
 }
 
 // ============================================================================
-// FORM SUBMISSIONS (Contact & Quote)
+// FORM SUBMISSIONS
 // ============================================================================
 
-export async function submitContactForm(data: {
+export async function submitContactForm(formData: {
   name: string;
   email: string;
   phone?: string;
@@ -489,7 +490,7 @@ export async function submitContactForm(data: {
   try {
     const { error } = await supabase
       .from('contact_submissions')
-      .insert([data]);
+      .insert([formData]);
 
     return !error;
   } catch (e) {
@@ -498,7 +499,7 @@ export async function submitContactForm(data: {
   }
 }
 
-export async function submitQuoteRequest(data: {
+export async function submitQuoteRequest(formData: {
   name: string;
   email: string;
   phone?: string;
@@ -512,7 +513,7 @@ export async function submitQuoteRequest(data: {
   try {
     const { error } = await supabase
       .from('quote_submissions')
-      .insert([data]);
+      .insert([formData]);
 
     return !error;
   } catch (e) {
@@ -529,25 +530,17 @@ export async function getProductBreadcrumb(productSlug: string) {
   const product = await getProductBySlug(productSlug);
   if (!product) return null;
 
-  // Get category
   const categories = await getProductCategories();
   const category = categories.find((c) => c.id === product.categoryId);
   if (!category) return null;
 
-  // Get subservice
   const subservices = await getSubservices();
   const subservice = subservices.find((s) => s.id === category.subserviceId);
   if (!subservice) return null;
 
-  // Get service
   const services = await getServices();
   const service = services.find((s) => s.id === subservice.serviceId);
   if (!service) return null;
 
-  return {
-    service,
-    subservice,
-    category,
-    product,
-  };
+  return { service, subservice, category, product };
 }
