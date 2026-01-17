@@ -12,31 +12,29 @@ import { Product, Service } from '../domain/types';
 
 export const QuotePage: React.FC = () => {
   const { productSlug } = useParams();
-  const companyInfo = getCompanyInfo();
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [submitted, setSubmitted] = useState(false);
   
   const [formData, setFormData] = useState({
-    // Contact Info
     companyName: '',
     contactName: '',
     email: '',
     phone: '',
-    // Project Details
     serviceType: '',
     projectDescription: '',
     quantity: '',
     deadline: '',
-    // Additional
     hasDrawings: false,
     message: '',
   });
 
   useEffect(() => {
     const loadData = async () => {
-      const [allServices] = await Promise.all([getServices()]);
+      const [allServices, info] = await Promise.all([getServices(), getCompanyInfo()]);
       setServices(allServices);
+      setCompanyInfo(info);
       
       if (productSlug) {
         const prod = await getProductBySlug(productSlug);
