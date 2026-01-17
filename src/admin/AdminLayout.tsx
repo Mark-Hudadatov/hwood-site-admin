@@ -2,6 +2,9 @@
  * ADMIN LAYOUT
  * =============
  * WordPress-like admin interface with sidebar navigation
+ * 
+ * UPDATES:
+ * ✅ Added Partners navigation item
  */
 
 import React, { useEffect, useState } from 'react';
@@ -20,6 +23,7 @@ import {
   Menu,
   X,
   Monitor,
+  Users,
 } from 'lucide-react';
 import { isAdminLoggedIn, adminLogout, getAdminSession } from './adminStore';
 
@@ -63,15 +67,16 @@ const DesktopOnlyGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return <>{children}</>;
 };
 
-// Navigation items
+// Navigation items - UPDATED with Partners
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { path: '/admin/main-page', icon: Image, label: 'Main Page' },
+  { path: '/admin/partners', icon: Users, label: 'Partners' },
   { path: '/admin/services', icon: Layers, label: 'Services' },
   { path: '/admin/subservices', icon: FolderTree, label: 'Subservices' },
   { path: '/admin/categories', icon: Grid3X3, label: 'Categories' },
   { path: '/admin/products', icon: Package, label: 'Products' },
   { path: '/admin/stories', icon: FileText, label: 'Stories' },
-  { path: '/admin/main-page', icon: Image, label: 'Main Page' },
   { path: '/admin/company-info', icon: Building2, label: 'Company Info' },
   { path: '/admin/submissions', icon: Mail, label: 'Submissions' },
 ];
