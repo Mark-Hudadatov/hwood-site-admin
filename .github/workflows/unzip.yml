@@ -1,0 +1,30 @@
+name: Unzip CMS archive
+
+on:
+  workflow_dispatch:   # manual run
+  push:
+    paths:
+      - hwood-complete-cms.zip
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Unzip archive
+        run: |
+          unzip hwood-complete-cms.zip
+          
+      - name: Remove zip
+        run: rm hwood-complete-cms.zip
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Extract CMS archive"
+          git push
