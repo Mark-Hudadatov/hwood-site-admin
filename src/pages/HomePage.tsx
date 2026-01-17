@@ -222,6 +222,7 @@ export const HomePage: React.FC = () => {
     setTimeout(() => {
       const newStory: Story = {
         id: Date.now().toString(),
+        slug: 'hwood-conference-stand-' + Date.now(),
         title: 'HWOOD Conference Stand',
         date: new Date().toLocaleDateString(),
         type: 'EVENTS',
