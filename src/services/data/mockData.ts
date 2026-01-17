@@ -457,6 +457,7 @@ export const PRODUCTS: Product[] = [
 export const STORIES: Story[] = [
   {
     id: 'story-1',
+    slug: 'new-cnc-center-installation-complete',
     title: 'New CNC Center Installation Complete',
     date: '01/15/2025',
     type: 'EVENTS',
@@ -464,6 +465,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'story-2',
+    slug: 'luxury-kitchen-project-tel-aviv-penthouse',
     title: 'Luxury Kitchen Project: Tel Aviv Penthouse',
     date: '01/08/2025',
     type: 'CUSTOMER STORY',
@@ -471,6 +473,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'story-3',
+    slug: 'hwood-expands-production-capacity',
     title: 'HWOOD Expands Production Capacity',
     date: '12/20/2024',
     type: 'EVENTS',
@@ -478,6 +481,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'story-4',
+    slug: 'boutique-hotel-wardrobe-systems-delivered',
     title: 'Boutique Hotel Wardrobe Systems Delivered',
     date: '12/10/2024',
     type: 'CUSTOMER STORY',
@@ -485,6 +489,7 @@ export const STORIES: Story[] = [
   },
   {
     id: 'story-5',
+    slug: 'quality-control-our-process-explained',
     title: 'Quality Control: Our Process Explained',
     date: '11/28/2024',
     type: 'EVENTS',
