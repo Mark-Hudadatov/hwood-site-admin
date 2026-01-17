@@ -26,12 +26,20 @@ import {
   COMPANY_INFO as MOCK_COMPANY_INFO,
 } from './mockData';
 
+// Current language state
+let currentLang: 'en' | 'he' = 'en';
+
 // Get current language from localStorage
 const getCurrentLang = (): 'en' | 'he' => {
-  if (typeof window === 'undefined') return 'en';
+  if (typeof window === 'undefined') return currentLang;
   const lang = localStorage.getItem('i18nextLng') || 'en';
   return lang.startsWith('he') ? 'he' : 'en';
 };
+
+// Set language (called from i18n)
+export function setLanguage(lang: 'en' | 'he'): void {
+  currentLang = lang;
+}
 
 // ============================================================================
 // SERVICES
