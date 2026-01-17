@@ -73,6 +73,7 @@ export interface Product {
   features?: string[];             // Key features list
   specifications?: ProductSpecification[];
   has3DView?: boolean;             // Whether 360° view is available
+  visibilityStatus?: string;
 }
 
 /**
@@ -95,11 +96,14 @@ export type StoryType = 'EVENTS' | 'CUSTOMER STORY';
 
 export interface Story {
   id: string;
+  slug: string;
   title: string;
   date: string;
   type: StoryType;
   imageUrl: string;
-  isGenerated?: boolean;           // AI-generated content flag
+  excerpt?: string;
+  content?: string;
+  isGenerated?: boolean;
 }
 
 /**
@@ -120,6 +124,30 @@ export interface QuoteRequest {
   message?: string;
   // Metadata
   submittedAt?: string;
+}
+/**
+ * Company Info - Basic company details
+ */
+export interface CompanyInfo {
+  name: string;
+  tagline?: string;
+  description: string;
+  phone: string;
+  email: string;
+  address: string;
+}
+
+/**
+ * Hero Slide - Homepage hero carousel items
+ */
+export interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle?: string;
+  imageUrl: string;
+  videoUrl?: string;
+  ctaText?: string;
+  ctaLink?: string;
 }
 
 // =============================================================================
