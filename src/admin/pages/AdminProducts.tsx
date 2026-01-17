@@ -43,7 +43,25 @@ export const AdminProducts: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    category_id: string;
+    slug: string;
+    title_en: string;
+    title_he: string;
+    subtitle_en: string;
+    subtitle_he: string;
+    description_en: string;
+    description_he: string;
+    image_url: string;
+    gallery_images: string[];
+    video_url: string;
+    features_en: string[];
+    features_he: string[];
+    specifications: { label: string; value: string; unit?: string }[];
+    has_3d_view: boolean;
+    visibility_status: VisibilityStatus;
+    is_featured: boolean;
+  }>({
     category_id: '',
     slug: '',
     title_en: '',
@@ -53,13 +71,14 @@ export const AdminProducts: React.FC = () => {
     description_en: '',
     description_he: '',
     image_url: '',
-    gallery_images: [] as string[],
+    gallery_images: [],
     video_url: '',
-    features_en: [] as string[],
-    features_he: [] as string[],
-    specifications: [] as { label: string; value: string; unit?: string }[],
+    features_en: [],
+    features_he: [],
+    specifications: [],
     has_3d_view: false,
-    visibility_status: 'visible' as const,
+    visibility_status: 'visible',
+    is_featured: false,
   });
 
   const loadData = async () => {
