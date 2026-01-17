@@ -11,6 +11,7 @@ import {
   AdminCategory,
   AdminSubservice,
   AdminService,
+  VisibilityStatus,
   getAdminProducts,
   getAdminCategories,
   getAdminSubservices,
