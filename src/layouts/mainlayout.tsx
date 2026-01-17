@@ -53,7 +53,6 @@ const Header: React.FC = () => {
   const [navData, setNavData] = useState<{ services: (Service & { subservices: Subservice[] })[] }>({ services: [] });
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const companyInfo = getCompanyInfo();
 
   useEffect(() => {
     const loadNav = async () => {
