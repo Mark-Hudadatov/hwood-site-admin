@@ -1,36 +1,60 @@
-name: Unzip and flatten
+name: Unzip and flatten CMS archive
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - hwood-complete-cms.zip
+
+permissions:
+  contents: write
 
 jobs:
   unzip:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Unzip
-        run: unzip -q hwood-complete-cms.zip -d __unzipped
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed so pull/rebase works
+
+      - name: Unzip archive
+        run: |
+          unzip -q hwood-complete-cms.zip -d __unzipped
 
       - name: Flatten into repo root
         run: |
           set -e
-          # Find the single top-level folder inside __unzipped
+          # find the first top-level directory inside the unzip folder
           TOP_DIR="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | head -n 1)"
           echo "Top folder: $TOP_DIR"
 
-          # Move its contents to repo root
+          # move contents (including dotfiles) into repo root
           shopt -s dotglob
           mv "$TOP_DIR"/* .
           
-          # Cleanup
+          # cleanup
           rm -rf __unzipped
           rm -f hwood-complete-cms.zip
 
-      - name: Commit changes
+      - name: Protect secrets (optional but recommended)
+        run: |
+          # If env file exists, stop tracking it and ignore it
+          if [ -f ".env.local" ]; then
+            echo ".env.local" >> .gitignore
+            git rm -f --cached .env.local || true
+          fi
+
+      - name: Commit and push (rebase)
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           git add .
           git commit -m "Extract and flatten CMS archive" || echo "Nothing to commit"
-          git push
+
+          # sync with latest main to avoid non-fast-forward errors
+          git pull --rebase origin main
+          git push origin HEAD:main
+
