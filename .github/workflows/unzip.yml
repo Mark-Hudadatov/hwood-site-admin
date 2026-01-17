@@ -9,15 +9,24 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: unzip-main
+  cancel-in-progress: true
+
 jobs:
   unzip:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (full history)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # needed so pull/rebase works
+          fetch-depth: 0
+
+      - name: Sync with latest main (before changes)
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
 
       - name: Unzip archive
         run: |
@@ -26,27 +35,27 @@ jobs:
       - name: Flatten into repo root
         run: |
           set -e
-          # find the first top-level directory inside the unzip folder
+          # detect top-level directory inside __unzipped
           TOP_DIR="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | head -n 1)"
           echo "Top folder: $TOP_DIR"
 
-          # move contents (including dotfiles) into repo root
+          # move everything (including dotfiles) to repo root
           shopt -s dotglob
           mv "$TOP_DIR"/* .
-          
+
           # cleanup
           rm -rf __unzipped
           rm -f hwood-complete-cms.zip
 
-      - name: Protect secrets (optional but recommended)
+      - name: Prevent committing secrets (.env.local)
         run: |
-          # If env file exists, stop tracking it and ignore it
+          # ignore and untrack .env.local if present
           if [ -f ".env.local" ]; then
             echo ".env.local" >> .gitignore
             git rm -f --cached .env.local || true
           fi
 
-      - name: Commit and push (rebase)
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -54,7 +63,4 @@ jobs:
           git add .
           git commit -m "Extract and flatten CMS archive" || echo "Nothing to commit"
 
-          # sync with latest main to avoid non-fast-forward errors
-          git pull --rebase origin main
-          git push origin HEAD:main
-
+          git push origin main
