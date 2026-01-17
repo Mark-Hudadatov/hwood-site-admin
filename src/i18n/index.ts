@@ -133,3 +133,4 @@ document.documentElement.dir = initialLang === 'he' ? 'rtl' : 'ltr';
 document.documentElement.lang = initialLang;
 
 export default i18n;
+
