@@ -1,30 +1,36 @@
-name: Unzip CMS archive
+name: Unzip and flatten
 
 on:
-  workflow_dispatch:   # manual run
-  push:
-    paths:
-      - hwood-complete-cms.zip
+  workflow_dispatch:
 
 jobs:
   unzip:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Unzip archive
+      - name: Unzip
+        run: unzip -q hwood-complete-cms.zip -d __unzipped
+
+      - name: Flatten into repo root
         run: |
-          unzip hwood-complete-cms.zip
-          
-      - name: Remove zip
-        run: rm hwood-complete-cms.zip
+          set -e
+          # Find the single top-level folder inside __unzipped
+          TOP_DIR="$(find __unzipped -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+          echo "Top folder: $TOP_DIR"
 
-      - name: Commit extracted files
+          # Move its contents to repo root
+          shopt -s dotglob
+          mv "$TOP_DIR"/* .
+          
+          # Cleanup
+          rm -rf __unzipped
+          rm -f hwood-complete-cms.zip
+
+      - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Extract CMS archive"
+          git commit -m "Extract and flatten CMS archive" || echo "Nothing to commit"
           git push
