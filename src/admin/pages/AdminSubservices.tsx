@@ -32,7 +32,17 @@ export const AdminSubservices: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [filterService, setFilterService] = useState<string>('all');
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    service_id: string;
+    slug: string;
+    title_en: string;
+    title_he: string;
+    description_en: string;
+    description_he: string;
+    image_url: string;
+    hero_image_url: string;
+    visibility_status: VisibilityStatus;
+  }>({
     service_id: '',
     slug: '',
     title_en: '',
@@ -41,7 +51,7 @@ export const AdminSubservices: React.FC = () => {
     description_he: '',
     image_url: '',
     hero_image_url: '',
-    visibility_status: 'visible' as const,
+    visibility_status: 'visible',
   });
 
   const loadData = async () => {
