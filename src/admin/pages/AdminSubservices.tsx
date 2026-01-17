@@ -8,6 +8,7 @@ import { Plus, Edit, Trash2, Save, GripVertical } from 'lucide-react';
 import {
   AdminSubservice,
   AdminService,
+  VisibilityStatus,
   getAdminSubservices,
   getAdminServices,
   createSubservice,
