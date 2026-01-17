@@ -71,7 +71,7 @@ const navItems = [
   { path: '/admin/categories', icon: Grid3X3, label: 'Categories' },
   { path: '/admin/products', icon: Package, label: 'Products' },
   { path: '/admin/stories', icon: FileText, label: 'Stories' },
-  { path: '/admin/hero-slides', icon: Image, label: 'Hero Slides' },
+  { path: '/admin/main-page', icon: Image, label: 'Main Page' },
   { path: '/admin/company-info', icon: Building2, label: 'Company Info' },
   { path: '/admin/submissions', icon: Mail, label: 'Submissions' },
 ];
