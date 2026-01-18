@@ -1,7 +1,7 @@
 /**
- * DATA SERVICE - HWOOD
- * =====================
- * Reads data from Supabase with fallback to mock data
+ * DATA SERVICE - FIXED WITH DEBUGGING
+ * ====================================
+ * Added console.log to see what's happening
  */
 
 import { supabase } from '../supabase';
@@ -15,28 +15,18 @@ import {
   CompanyInfo,
 } from '../../domain/types';
 
-// Import mock data for fallback
-import {
-  SERVICES as MOCK_SERVICES,
-  SUBSERVICES as MOCK_SUBSERVICES,
-  PRODUCT_CATEGORIES as MOCK_CATEGORIES,
-  PRODUCTS as MOCK_PRODUCTS,
-  STORIES as MOCK_STORIES,
-  HERO_SLIDES as MOCK_HERO_SLIDES,
-  COMPANY_INFO as MOCK_COMPANY_INFO,
-} from './mockData';
+// ============================================================================
+// NO MORE MOCK DATA FALLBACK - Show real errors instead
+// ============================================================================
 
-// Current language state
 let currentLang: 'en' | 'he' = 'en';
 
-// Get current language from localStorage
 const getCurrentLang = (): 'en' | 'he' => {
   if (typeof window === 'undefined') return currentLang;
   const lang = localStorage.getItem('i18nextLng') || 'en';
   return lang.startsWith('he') ? 'he' : 'en';
 };
 
-// Set language (called from i18n)
 export function setLanguage(lang: 'en' | 'he'): void {
   currentLang = lang;
 }
@@ -46,6 +36,8 @@ export function setLanguage(lang: 'en' | 'he'): void {
 // ============================================================================
 
 export async function getServices(): Promise<Service[]> {
+  console.log('[DataService] Fetching services...');
+  
   try {
     const { data, error } = await supabase
       .from('services')
@@ -53,25 +45,36 @@ export async function getServices(): Promise<Service[]> {
       .in('visibility_status', ['visible', 'coming_soon'])
       .order('sort_order', { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      console.warn('Using mock services');
-      return MOCK_SERVICES;
+    console.log('[DataService] Services response:', { data, error });
+
+    if (error) {
+      console.error('[DataService] Services ERROR:', error);
+      // Return empty array instead of mock data to see real issue
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      console.warn('[DataService] No services found in database');
+      return [];
     }
 
     const lang = getCurrentLang();
-    return data.map((s: any) => ({
+    const services = data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
       description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
       imageUrl: s.image_url || '',
-      heroImageUrl: s.hero_image_url,
-      accentColor: s.accent_color,
+      heroImageUrl: s.hero_image_url || '',
+      accentColor: s.accent_color || '#005f5f',
       visibilityStatus: s.visibility_status,
     }));
+
+    console.log('[DataService] Mapped services:', services);
+    return services;
   } catch (e) {
-    console.error('Error fetching services:', e);
-    return MOCK_SERVICES;
+    console.error('[DataService] Services EXCEPTION:', e);
+    return [];
   }
 }
 
@@ -84,7 +87,8 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
       .single();
 
     if (error || !data) {
-      return MOCK_SERVICES.find((s) => s.slug === slug) || null;
+      console.error('[DataService] getServiceBySlug error:', error);
+      return null;
     }
 
     const lang = getCurrentLang();
@@ -94,11 +98,12 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
       title: lang === 'he' && data.title_he ? data.title_he : data.title_en,
       description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
       imageUrl: data.image_url || '',
-      heroImageUrl: data.hero_image_url,
-      accentColor: data.accent_color,
+      heroImageUrl: data.hero_image_url || '',
+      accentColor: data.accent_color || '#005f5f',
     };
   } catch (e) {
-    return MOCK_SERVICES.find((s) => s.slug === slug) || null;
+    console.error('[DataService] getServiceBySlug exception:', e);
+    return null;
   }
 }
 
@@ -115,7 +120,8 @@ export async function getSubservices(): Promise<Subservice[]> {
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_SUBSERVICES;
+      console.warn('[DataService] No subservices found');
+      return [];
     }
 
     const lang = getCurrentLang();
@@ -126,10 +132,11 @@ export async function getSubservices(): Promise<Subservice[]> {
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
       description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
       imageUrl: s.image_url || '',
-      heroImageUrl: s.hero_image_url,
+      heroImageUrl: s.hero_image_url || '',
     }));
   } catch (e) {
-    return MOCK_SUBSERVICES;
+    console.error('[DataService] getSubservices exception:', e);
+    return [];
   }
 }
 
@@ -143,7 +150,7 @@ export async function getSubservicesByService(serviceId: string): Promise<Subser
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_SUBSERVICES.filter((s) => s.serviceId === serviceId);
+      return [];
     }
 
     const lang = getCurrentLang();
@@ -154,10 +161,10 @@ export async function getSubservicesByService(serviceId: string): Promise<Subser
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
       description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
       imageUrl: s.image_url || '',
-      heroImageUrl: s.hero_image_url,
+      heroImageUrl: s.hero_image_url || '',
     }));
   } catch (e) {
-    return MOCK_SUBSERVICES.filter((s) => s.serviceId === serviceId);
+    return [];
   }
 }
 
@@ -170,7 +177,7 @@ export async function getSubserviceBySlug(slug: string): Promise<Subservice | nu
       .single();
 
     if (error || !data) {
-      return MOCK_SUBSERVICES.find((s) => s.slug === slug) || null;
+      return null;
     }
 
     const lang = getCurrentLang();
@@ -181,10 +188,10 @@ export async function getSubserviceBySlug(slug: string): Promise<Subservice | nu
       title: lang === 'he' && data.title_he ? data.title_he : data.title_en,
       description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
       imageUrl: data.image_url || '',
-      heroImageUrl: data.hero_image_url,
+      heroImageUrl: data.hero_image_url || '',
     };
   } catch (e) {
-    return MOCK_SUBSERVICES.find((s) => s.slug === slug) || null;
+    return null;
   }
 }
 
@@ -201,7 +208,7 @@ export async function getProductCategories(): Promise<ProductCategory[]> {
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_CATEGORIES;
+      return [];
     }
 
     const lang = getCurrentLang();
@@ -214,7 +221,7 @@ export async function getProductCategories(): Promise<ProductCategory[]> {
       sortOrder: c.sort_order,
     }));
   } catch (e) {
-    return MOCK_CATEGORIES;
+    return [];
   }
 }
 
@@ -228,7 +235,7 @@ export async function getCategoriesBySubservice(subserviceId: string): Promise<P
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_CATEGORIES.filter((c) => c.subserviceId === subserviceId);
+      return [];
     }
 
     const lang = getCurrentLang();
@@ -241,7 +248,7 @@ export async function getCategoriesBySubservice(subserviceId: string): Promise<P
       sortOrder: c.sort_order,
     }));
   } catch (e) {
-    return MOCK_CATEGORIES.filter((c) => c.subserviceId === subserviceId);
+    return [];
   }
 }
 
@@ -258,13 +265,27 @@ export async function getProducts(): Promise<Product[]> {
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_PRODUCTS;
+      return [];
     }
 
     const lang = getCurrentLang();
-    return data.map((p: any) => mapProduct(p, lang));
+    return data.map((p: any) => ({
+      id: p.id,
+      slug: p.slug,
+      categoryId: p.category_id,
+      title: lang === 'he' && p.title_he ? p.title_he : p.title_en,
+      subtitle: lang === 'he' && p.subtitle_he ? p.subtitle_he : p.subtitle_en || '',
+      description: lang === 'he' && p.description_he ? p.description_he : p.description_en || '',
+      imageUrl: p.image_url || '',
+      galleryImages: p.gallery_images || [],
+      videoUrl: p.video_url,
+      features: lang === 'he' && p.features_he ? p.features_he : p.features_en || [],
+      specifications: p.specifications || [],
+      has3DView: p.has_3d_view,
+      visibilityStatus: p.visibility_status,
+    }));
   } catch (e) {
-    return MOCK_PRODUCTS;
+    return [];
   }
 }
 
@@ -278,13 +299,27 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
       .order('sort_order', { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return MOCK_PRODUCTS.filter((p) => p.categoryId === categoryId);
+      return [];
     }
 
     const lang = getCurrentLang();
-    return data.map((p: any) => mapProduct(p, lang));
+    return data.map((p: any) => ({
+      id: p.id,
+      slug: p.slug,
+      categoryId: p.category_id,
+      title: lang === 'he' && p.title_he ? p.title_he : p.title_en,
+      subtitle: lang === 'he' && p.subtitle_he ? p.subtitle_he : p.subtitle_en || '',
+      description: lang === 'he' && p.description_he ? p.description_he : p.description_en || '',
+      imageUrl: p.image_url || '',
+      galleryImages: p.gallery_images || [],
+      videoUrl: p.video_url,
+      features: lang === 'he' && p.features_he ? p.features_he : p.features_en || [],
+      specifications: p.specifications || [],
+      has3DView: p.has_3d_view,
+      visibilityStatus: p.visibility_status,
+    }));
   } catch (e) {
-    return MOCK_PRODUCTS.filter((p) => p.categoryId === categoryId);
+    return [];
   }
 }
 
@@ -297,32 +332,28 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       .single();
 
     if (error || !data) {
-      return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+      return null;
     }
 
     const lang = getCurrentLang();
-    return mapProduct(data, lang);
+    return {
+      id: data.id,
+      slug: data.slug,
+      categoryId: data.category_id,
+      title: lang === 'he' && data.title_he ? data.title_he : data.title_en,
+      subtitle: lang === 'he' && data.subtitle_he ? data.subtitle_he : data.subtitle_en || '',
+      description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
+      imageUrl: data.image_url || '',
+      galleryImages: data.gallery_images || [],
+      videoUrl: data.video_url,
+      features: lang === 'he' && data.features_he ? data.features_he : data.features_en || [],
+      specifications: data.specifications || [],
+      has3DView: data.has_3d_view,
+      visibilityStatus: data.visibility_status,
+    };
   } catch (e) {
-    return MOCK_PRODUCTS.find((p) => p.slug === slug) || null;
+    return null;
   }
-}
-
-function mapProduct(p: any, lang: 'en' | 'he'): Product {
-  return {
-    id: p.id,
-    slug: p.slug,
-    categoryId: p.category_id,
-    title: lang === 'he' && p.title_he ? p.title_he : p.title_en,
-    subtitle: lang === 'he' && p.subtitle_he ? p.subtitle_he : p.subtitle_en,
-    description: lang === 'he' && p.description_he ? p.description_he : p.description_en || '',
-    imageUrl: p.image_url || '',
-    galleryImages: p.gallery_images || [],
-    videoUrl: p.video_url,
-    features: lang === 'he' && p.features_he ? p.features_he : p.features_en || [],
-    specifications: p.specifications || [],
-    has3DView: p.has_3d_view,
-    visibilityStatus: p.visibility_status,
-  };
 }
 
 // ============================================================================
@@ -330,6 +361,8 @@ function mapProduct(p: any, lang: 'en' | 'he'): Product {
 // ============================================================================
 
 export async function getStories(): Promise<Story[]> {
+  console.log('[DataService] Fetching stories...');
+  
   try {
     const { data, error } = await supabase
       .from('stories')
@@ -337,12 +370,20 @@ export async function getStories(): Promise<Story[]> {
       .eq('is_visible', true)
       .order('date', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      return MOCK_STORIES;
+    console.log('[DataService] Stories response:', { data, error });
+
+    if (error) {
+      console.error('[DataService] Stories ERROR:', error);
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      console.warn('[DataService] No stories found');
+      return [];
     }
 
     const lang = getCurrentLang();
-    return data.map((s: any) => ({
+    const stories = data.map((s: any) => ({
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
@@ -352,8 +393,12 @@ export async function getStories(): Promise<Story[]> {
       excerpt: lang === 'he' && s.excerpt_he ? s.excerpt_he : s.excerpt_en,
       content: lang === 'he' && s.content_he ? s.content_he : s.content_en,
     }));
+
+    console.log('[DataService] Mapped stories:', stories);
+    return stories;
   } catch (e) {
-    return MOCK_STORIES;
+    console.error('[DataService] Stories EXCEPTION:', e);
+    return [];
   }
 }
 
@@ -366,7 +411,7 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
       .single();
 
     if (error || !data) {
-      return MOCK_STORIES.find((s) => s.slug === slug) || null;
+      return null;
     }
 
     const lang = getCurrentLang();
@@ -409,7 +454,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
       .limit(3);
 
     if (error || !data || data.length === 0) {
-      return MOCK_HERO_SLIDES;
+      return [];
     }
 
     const lang = getCurrentLang();
@@ -423,7 +468,7 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
       ctaLink: s.cta_link,
     }));
   } catch (e) {
-    return MOCK_HERO_SLIDES;
+    return [];
   }
 }
 
@@ -431,16 +476,17 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
 // COMPANY INFO
 // ============================================================================
 
-export async function getCompanyInfo(): Promise<CompanyInfo> {
+export async function getCompanyInfo(): Promise<CompanyInfo | null> {
   try {
     const { data, error } = await supabase
       .from('company_info')
       .select('*')
-      .eq('id', 1)
+      .limit(1)
       .single();
 
     if (error || !data) {
-      return MOCK_COMPANY_INFO;
+      console.error('[DataService] getCompanyInfo error:', error);
+      return null;
     }
 
     const lang = getCurrentLang();
@@ -451,9 +497,10 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
       phone: data.phone || '',
       email: data.email || '',
       address: lang === 'he' && data.address_he ? data.address_he : data.address_en || '',
+      whatsapp_number: data.whatsapp_number || '',
     };
   } catch (e) {
-    return MOCK_COMPANY_INFO;
+    return null;
   }
 }
 
@@ -553,7 +600,6 @@ export async function getProductBreadcrumb(productSlug: string) {
   return { service, subservice, category, product };
 }
 
-// Alias for backward compatibility
 export const getProductWithBreadcrumb = getProductBreadcrumb;
 
 // ============================================================================
@@ -605,7 +651,6 @@ export async function getSubservicePageData(subserviceSlug: string): Promise<{
 
   const categories = await getCategoriesBySubservice(subservice.id);
   
-  // Get all products for all categories in this subservice
   const categoryIds = categories.map((c) => c.id);
   const allProducts = await getProducts();
   const products = allProducts.filter((p) => categoryIds.includes(p.categoryId));
