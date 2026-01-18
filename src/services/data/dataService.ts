@@ -497,7 +497,6 @@ export async function getCompanyInfo(): Promise<CompanyInfo | null> {
       phone: data.phone || '',
       email: data.email || '',
       address: lang === 'he' && data.address_he ? data.address_he : data.address_en || '',
-      whatsapp_number: data.whatsapp_number || '',
     };
   } catch (e) {
     return null;
