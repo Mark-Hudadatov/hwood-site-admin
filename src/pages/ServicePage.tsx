@@ -10,8 +10,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
-import { getServiceBySlug, getSubservicesByServiceSlug } from '../services/data/dataService';
+import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
+
+const getCurrentLang = (): 'en' | 'he' => {
+  if (typeof window === 'undefined') return 'en';
+  const lang = localStorage.getItem('i18nextLng') || 'en';
+  return lang.startsWith('he') ? 'he' : 'en';
+};
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop';
 
@@ -226,6 +232,7 @@ const NotFound: React.FC = () => (
 export const ServicePage: React.FC = () => {
   const { serviceSlug } = useParams<{ serviceSlug: string }>();
   const navigate = useNavigate();
+  const lang = getCurrentLang();
   
   const [service, setService] = useState<Service | null>(null);
   const [subservices, setSubservices] = useState<(Subservice & { visibilityStatus?: string })[]>([]);
@@ -236,19 +243,54 @@ export const ServicePage: React.FC = () => {
       if (!serviceSlug) return;
       
       setIsLoading(true);
-      const [serviceData, subservicesData] = await Promise.all([
-        getServiceBySlug(serviceSlug),
-        getSubservicesByServiceSlug(serviceSlug),
-      ]);
       
-      setService(serviceData || null);
-      setSubservices(subservicesData);
+      // Fetch service
+      const { data: serviceData } = await supabase
+        .from('services')
+        .select('*')
+        .eq('slug', serviceSlug)
+        .single();
+      
+      if (serviceData) {
+        setService({
+          id: serviceData.id,
+          slug: serviceData.slug,
+          title: lang === 'he' && serviceData.title_he ? serviceData.title_he : serviceData.title_en,
+          description: lang === 'he' && serviceData.description_he ? serviceData.description_he : serviceData.description_en || '',
+          imageUrl: serviceData.image_url || '',
+          heroImageUrl: serviceData.hero_image_url,
+          accentColor: serviceData.accent_color,
+        });
+        
+        // Fetch subservices with visibilityStatus
+        const { data: subsData } = await supabase
+          .from('subservices')
+          .select('*')
+          .eq('service_id', serviceData.id)
+          .in('visibility_status', ['visible', 'coming_soon'])
+          .order('sort_order', { ascending: true });
+        
+        if (subsData) {
+          const mapped = subsData.map((s: any) => ({
+            id: s.id,
+            slug: s.slug,
+            serviceId: s.service_id,
+            title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+            description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
+            imageUrl: s.image_url || '',
+            heroImageUrl: s.hero_image_url,
+            visibilityStatus: s.visibility_status,
+          }));
+          setSubservices(mapped);
+        }
+      }
+      
       setIsLoading(false);
     };
     
     loadData();
     window.scrollTo(0, 0);
-  }, [serviceSlug]);
+  }, [serviceSlug, lang]);
 
   const handleSubserviceClick = (subservice: Subservice) => {
     navigate(ROUTES.SUBSERVICE(subservice.slug));
