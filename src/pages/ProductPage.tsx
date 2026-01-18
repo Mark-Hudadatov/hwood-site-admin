@@ -269,7 +269,7 @@ export const ProductPage: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
           
           {/* Left: Gallery */}
-          <div className="w-full lg:w-3/5">
+          <div className="w-full lg:w-3/5 lg:sticky lg:top-8 lg:self-start">
             <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">{product.title}</h1>
             {product.subtitle && (
               <p className="text-lg text-gray-500 mb-8">{product.subtitle}</p>
