@@ -112,7 +112,7 @@ const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({
           {option.name}
         </span>
         {option.description && (
-          <Info className="w-4 h-4 text-gray-300 cursor-pointer hover:text-[#005f5f]" title={option.description} />
+          <Info className="w-4 h-4 text-gray-300 cursor-pointer hover:text-[#005f5f]" />
         )}
       </div>
       <div className="flex flex-wrap gap-3">
@@ -245,7 +245,7 @@ export const ProductPage: React.FC = () => {
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
           <Link to={ROUTES.HOME} className="hover:text-[#005f5f]">Home</Link>
           <span>/</span>
-          <Link to={`${ROUTES.SERVICES}/${service.slug}`} className="hover:text-[#005f5f]">
+          <Link to={ROUTES.SERVICE(service.slug)} className="hover:text-[#005f5f]">
             {service.title}
           </Link>
           <span>/</span>
