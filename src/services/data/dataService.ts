@@ -656,3 +656,572 @@ export async function getSubservicePageData(subserviceSlug: string): Promise<{
 
   return { service, subservice, categories, products };
 }
+
+// ============================================================================
+// PRODUCT CONFIGURATION
+// ============================================================================
+
+import {
+  ConfigOptionType,
+  ConfigOptionValue,
+  ProductConfiguration,
+  SavedConfiguration,
+  ConfigurationSelection,
+} from '../../domain/types';
+
+export async function getProductConfiguration(productId: string): Promise<ProductConfiguration | null> {
+  try {
+    // First, get the product to find its category
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('id, category_id')
+      .eq('id', productId)
+      .single();
+    
+    if (productError || !product) return null;
+    
+    // Get the category to find the subservice
+    const { data: category, error: catError } = await supabase
+      .from('product_categories')
+      .select('id, subservice_id')
+      .eq('id', product.category_id)
+      .single();
+    
+    if (catError || !category) return null;
+    
+    const subserviceId = category.subservice_id;
+    
+    // Get all config option types
+    const { data: optionTypes, error: typesError } = await supabase
+      .from('config_option_types')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    
+    if (typesError || !optionTypes) return null;
+    
+    // Get all config option values
+    const { data: optionValues, error: valuesError } = await supabase
+      .from('config_option_values')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    
+    if (valuesError) return null;
+    
+    // Get subservice templates (which options are enabled)
+    const { data: templates, error: templatesError } = await supabase
+      .from('subservice_config_templates')
+      .select('*')
+      .eq('subservice_id', subserviceId)
+      .eq('is_enabled', true)
+      .order('sort_order', { ascending: true });
+    
+    if (templatesError) return null;
+    
+    // Get product overrides
+    const { data: overrides, error: overridesError } = await supabase
+      .from('product_config_overrides')
+      .select('*')
+      .eq('product_id', productId);
+    
+    if (overridesError) return null;
+    
+    const lang = getCurrentLang();
+    
+    // Build the configuration
+    const options: ConfigOptionType[] = (templates || [])
+      .map(template => {
+        const optionType = optionTypes.find(t => t.id === template.option_type_id);
+        if (!optionType) return null;
+        
+        const override = (overrides || []).find(o => o.option_type_id === template.option_type_id);
+        
+        // Skip if product has disabled this option
+        if (override && !override.is_enabled) return null;
+        
+        // Get values for this option type
+        const disabledValueIds = override?.disabled_value_ids || [];
+        const typeValues = (optionValues || [])
+          .filter(v => v.option_type_id === optionType.id && !disabledValueIds.includes(v.id))
+          .map(v => ({
+            id: v.id,
+            slug: v.slug,
+            label: lang === 'he' && v.label_he ? v.label_he : v.label_en,
+            value: v.value,
+            colorHex: v.color_hex || undefined,
+            imageUrl: v.image_url || undefined,
+            icon: v.icon || undefined,
+            priceModifier: v.price_modifier || 0,
+            sortOrder: v.sort_order,
+            isDisabled: false
+          }));
+        
+        if (typeValues.length === 0) return null;
+        
+        return {
+          id: optionType.id,
+          slug: optionType.slug,
+          name: lang === 'he' && optionType.name_he ? optionType.name_he : optionType.name_en,
+          description: lang === 'he' && optionType.description_he ? optionType.description_he : optionType.description_en || undefined,
+          inputType: optionType.input_type as ConfigOptionType['inputType'],
+          unit: optionType.unit || undefined,
+          sortOrder: template.sort_order,
+          values: typeValues,
+          isRequired: template.is_required,
+          defaultValueId: override?.default_value_id || template.default_value_id
+        };
+      })
+      .filter(Boolean) as ConfigOptionType[];
+    
+    return {
+      productId,
+      subserviceId,
+      options
+    };
+  } catch (e) {
+    console.error('[DataService] getProductConfiguration error:', e);
+    return null;
+  }
+}
+
+export async function saveProductConfiguration(
+  productId: string,
+  configData: ConfigurationSelection
+): Promise<string | null> {
+  try {
+    const { data, error } = await supabase
+      .from('saved_configurations')
+      .insert([{
+        product_id: productId,
+        config_data: configData
+      }])
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('[DataService] saveProductConfiguration error:', error);
+      return null;
+    }
+    
+    return data.id;
+  } catch (e) {
+    console.error('[DataService] saveProductConfiguration exception:', e);
+    return null;
+  }
+}
+
+export async function getSavedConfiguration(configId: string): Promise<SavedConfiguration | null> {
+  try {
+    const { data, error } = await supabase
+      .from('saved_configurations')
+      .select('*')
+      .eq('id', configId)
+      .single();
+    
+    if (error || !data) return null;
+    
+    return {
+      id: data.id,
+      productId: data.product_id,
+      configData: data.config_data,
+      createdAt: data.created_at
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Helper to get subservice ID from product ID
+export async function getSubserviceIdForProduct(productId: string): Promise<string | null> {
+  try {
+    const { data: product } = await supabase
+      .from('products')
+      .select('category_id')
+      .eq('id', productId)
+      .single();
+    
+    if (!product) return null;
+    
+    const { data: category } = await supabase
+      .from('product_categories')
+      .select('subservice_id')
+      .eq('id', product.category_id)
+      .single();
+    
+    return category?.subservice_id || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ============================================================================
+// PRODUCT CONFIGURATION
+// ============================================================================
+
+import {
+  ConfigOptionType,
+  ConfigOptionValue,
+  ProductConfiguration,
+  Feature,
+} from '../../domain/types';
+
+/**
+ * Get all global configuration option types with their values
+ */
+export async function getConfigOptionTypes(): Promise<ConfigOptionType[]> {
+  try {
+    const lang = getCurrentLang();
+    
+    // Get option types
+    const { data: types, error: typesError } = await supabase
+      .from('config_option_types')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (typesError || !types) {
+      console.error('[DataService] getConfigOptionTypes error:', typesError);
+      return [];
+    }
+
+    // Get all values
+    const { data: values, error: valuesError } = await supabase
+      .from('config_option_values')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (valuesError || !values) {
+      console.error('[DataService] getConfigOptionValues error:', valuesError);
+      return [];
+    }
+
+    // Map and combine
+    return types.map((type: any) => ({
+      id: type.id,
+      slug: type.slug,
+      name: lang === 'he' && type.name_he ? type.name_he : type.name_en,
+      description: lang === 'he' && type.description_he ? type.description_he : type.description_en,
+      inputType: type.input_type,
+      unit: type.unit,
+      sortOrder: type.sort_order,
+      values: values
+        .filter((v: any) => v.option_type_id === type.id)
+        .map((v: any) => ({
+          id: v.id,
+          slug: v.slug,
+          label: lang === 'he' && v.label_he ? v.label_he : v.label_en,
+          value: v.value,
+          colorHex: v.color_hex,
+          imageUrl: v.image_url,
+          sortOrder: v.sort_order,
+        })),
+    }));
+  } catch (e) {
+    console.error('[DataService] getConfigOptionTypes exception:', e);
+    return [];
+  }
+}
+
+/**
+ * Get configuration template for a subservice
+ */
+export async function getSubserviceConfigTemplate(subserviceId: string): Promise<{
+  optionTypeIds: string[];
+  defaults: Record<string, string>;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('subservice_config_templates')
+      .select(`
+        option_type_id,
+        is_enabled,
+        is_required,
+        sort_order,
+        default_value_id,
+        config_option_values!default_value_id (slug)
+      `)
+      .eq('subservice_id', subserviceId)
+      .eq('is_enabled', true)
+      .order('sort_order', { ascending: true });
+
+    if (error || !data) {
+      console.log('[DataService] No config template for subservice:', subserviceId);
+      return { optionTypeIds: [], defaults: {} };
+    }
+
+    const optionTypeIds = data.map((t: any) => t.option_type_id);
+    const defaults: Record<string, string> = {};
+    
+    // Build defaults from template
+    data.forEach((t: any) => {
+      if (t.config_option_values?.slug) {
+        // We need to get the option type slug - this will be done when building full config
+      }
+    });
+
+    return { optionTypeIds, defaults };
+  } catch (e) {
+    console.error('[DataService] getSubserviceConfigTemplate exception:', e);
+    return { optionTypeIds: [], defaults: {} };
+  }
+}
+
+/**
+ * Get product configuration overrides
+ */
+export async function getProductConfigOverrides(productId: string): Promise<{
+  disabledOptions: string[];
+  disabledValues: Record<string, string[]>;
+  defaults: Record<string, string>;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('product_config_overrides')
+      .select(`
+        option_type_id,
+        is_enabled,
+        disabled_value_ids,
+        default_value_id,
+        config_option_types!option_type_id (slug),
+        config_option_values!default_value_id (slug)
+      `)
+      .eq('product_id', productId);
+
+    if (error || !data) {
+      return { disabledOptions: [], disabledValues: {}, defaults: {} };
+    }
+
+    const disabledOptions: string[] = [];
+    const disabledValues: Record<string, string[]> = {};
+    const defaults: Record<string, string> = {};
+
+    data.forEach((override: any) => {
+      const optionSlug = override.config_option_types?.slug;
+      if (!optionSlug) return;
+
+      if (!override.is_enabled) {
+        disabledOptions.push(optionSlug);
+      }
+
+      if (override.disabled_value_ids?.length) {
+        disabledValues[optionSlug] = override.disabled_value_ids;
+      }
+
+      if (override.config_option_values?.slug) {
+        defaults[optionSlug] = override.config_option_values.slug;
+      }
+    });
+
+    return { disabledOptions, disabledValues, defaults };
+  } catch (e) {
+    console.error('[DataService] getProductConfigOverrides exception:', e);
+    return { disabledOptions: [], disabledValues: {}, defaults: {} };
+  }
+}
+
+/**
+ * Get full product configuration (template + overrides combined)
+ */
+export async function getProductConfiguration(productId: string, subserviceId: string): Promise<ProductConfiguration | null> {
+  try {
+    // Get all option types
+    const allOptions = await getConfigOptionTypes();
+    if (!allOptions.length) {
+      console.log('[DataService] No config options found');
+      return null;
+    }
+
+    // Get subservice template
+    const { data: templateData } = await supabase
+      .from('subservice_config_templates')
+      .select(`
+        option_type_id,
+        is_enabled,
+        sort_order,
+        default_value_id,
+        config_option_types!option_type_id (slug),
+        config_option_values!default_value_id (slug)
+      `)
+      .eq('subservice_id', subserviceId)
+      .eq('is_enabled', true)
+      .order('sort_order', { ascending: true });
+
+    // Get product overrides
+    const { data: overrideData } = await supabase
+      .from('product_config_overrides')
+      .select(`
+        option_type_id,
+        is_enabled,
+        disabled_value_ids,
+        default_value_id,
+        config_option_types!option_type_id (slug),
+        config_option_values!default_value_id (slug)
+      `)
+      .eq('product_id', productId);
+
+    // Build enabled option type IDs from template
+    const enabledTypeIds = templateData?.map((t: any) => t.option_type_id) || [];
+    
+    // Build overrides map
+    const overridesMap: Record<string, any> = {};
+    overrideData?.forEach((o: any) => {
+      if (o.config_option_types?.slug) {
+        overridesMap[o.config_option_types.slug] = o;
+      }
+    });
+
+    // Build defaults from template
+    const defaults: Record<string, string> = {};
+    templateData?.forEach((t: any) => {
+      if (t.config_option_types?.slug && t.config_option_values?.slug) {
+        defaults[t.config_option_types.slug] = t.config_option_values.slug;
+      }
+    });
+
+    // Override defaults with product-specific ones
+    overrideData?.forEach((o: any) => {
+      if (o.config_option_types?.slug && o.config_option_values?.slug) {
+        defaults[o.config_option_types.slug] = o.config_option_values.slug;
+      }
+    });
+
+    // Filter and process options
+    const options: ConfigOptionType[] = allOptions
+      .filter(opt => {
+        // Must be in template
+        if (!enabledTypeIds.includes(opt.id)) return false;
+        
+        // Check if disabled by product override
+        const override = overridesMap[opt.slug];
+        if (override && !override.is_enabled) return false;
+        
+        return true;
+      })
+      .map(opt => {
+        const override = overridesMap[opt.slug];
+        const disabledValueIds: string[] = override?.disabled_value_ids || [];
+        
+        return {
+          ...opt,
+          values: opt.values
+            .filter(v => !disabledValueIds.includes(v.id))
+            .map(v => ({
+              ...v,
+              isDefault: defaults[opt.slug] === v.slug,
+            })),
+        };
+      });
+
+    // If no template exists, return all options (fallback for products without template)
+    if (!templateData?.length && allOptions.length) {
+      return {
+        productId,
+        subserviceId,
+        options: allOptions,
+        defaults: {},
+      };
+    }
+
+    return {
+      productId,
+      subserviceId,
+      options,
+      defaults,
+    };
+  } catch (e) {
+    console.error('[DataService] getProductConfiguration exception:', e);
+    return null;
+  }
+}
+
+/**
+ * Get features for a product
+ */
+export async function getProductFeatures(productId: string): Promise<Feature[]> {
+  try {
+    const lang = getCurrentLang();
+    
+    const { data, error } = await supabase
+      .from('product_features')
+      .select(`
+        id,
+        sort_order,
+        custom_title_en,
+        custom_title_he,
+        feature_library (
+          id,
+          slug,
+          title_en,
+          title_he,
+          description_en,
+          description_he,
+          icon
+        )
+      `)
+      .eq('product_id', productId)
+      .order('sort_order', { ascending: true });
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map((f: any) => {
+      if (f.feature_library) {
+        // From library
+        return {
+          id: f.feature_library.id,
+          title: lang === 'he' && f.feature_library.title_he 
+            ? f.feature_library.title_he 
+            : f.feature_library.title_en,
+          description: lang === 'he' && f.feature_library.description_he 
+            ? f.feature_library.description_he 
+            : f.feature_library.description_en,
+          icon: f.feature_library.icon,
+        };
+      } else {
+        // Custom feature
+        return {
+          id: f.id,
+          title: lang === 'he' && f.custom_title_he 
+            ? f.custom_title_he 
+            : f.custom_title_en,
+          icon: 'check',
+        };
+      }
+    });
+  } catch (e) {
+    console.error('[DataService] getProductFeatures exception:', e);
+    return [];
+  }
+}
+
+/**
+ * Get feature library (all available features)
+ */
+export async function getFeatureLibrary(): Promise<Feature[]> {
+  try {
+    const lang = getCurrentLang();
+    
+    const { data, error } = await supabase
+      .from('feature_library')
+      .select('*')
+      .eq('is_active', true)
+      .order('title_en', { ascending: true });
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map((f: any) => ({
+      id: f.id,
+      title: lang === 'he' && f.title_he ? f.title_he : f.title_en,
+      description: lang === 'he' && f.description_he ? f.description_he : f.description_en,
+      icon: f.icon,
+    }));
+  } catch (e) {
+    console.error('[DataService] getFeatureLibrary exception:', e);
+    return [];
+  }
+}
