@@ -1,20 +1,31 @@
 /**
- * PRODUCT PAGE
- * ============
+ * PRODUCT PAGE - DYNAMIC CONFIGURATOR
+ * ====================================
  * Displays a single product with:
  * - 3D visualization / gallery
  * - Description & specifications
- * - Configurator options
+ * - Dynamic configurator (loaded from database)
  * - Quote request CTA
  * 
  * Route: /products/:productSlug
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Check, Rotate3d, Info, ChevronLeft } from 'lucide-react';
-import { Product, ProductCategory, Subservice, Service } from '../domain/types';
-import { getProductWithBreadcrumb } from '../services/data/dataService';
+import { Check, Rotate3d, ChevronLeft, Download } from 'lucide-react';
+import { 
+  Product, 
+  ProductCategory, 
+  Subservice, 
+  Service,
+  ConfigOptionType,
+  ProductConfiguration,
+  SelectedConfiguration,
+} from '../domain/types';
+import { 
+  getProductWithBreadcrumb,
+  getProductConfiguration,
+} from '../services/data/dataService';
 import { ROUTES } from '../router';
 
 // =============================================================================
@@ -70,6 +81,120 @@ const NotFound: React.FC = () => (
 );
 
 // =============================================================================
+// CONFIGURATOR COMPONENTS
+// =============================================================================
+
+interface ConfiguratorOptionProps {
+  option: ConfigOptionType;
+  selectedValue: string;
+  onSelect: (optionSlug: string, valueSlug: string) => void;
+}
+
+const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({ 
+  option, 
+  selectedValue, 
+  onSelect 
+}) => {
+  const getSelectedLabel = () => {
+    const selected = option.values.find(v => v.slug === selectedValue);
+    return selected?.label || '';
+  };
+
+  // Render based on input type
+  if (option.inputType === 'color_picker') {
+    return (
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wide">
+            {option.name}
+          </span>
+          <span className="text-xs text-gray-400 capitalize">{getSelectedLabel()}</span>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {option.values.map((value) => (
+            <button
+              key={value.id}
+              onClick={() => onSelect(option.slug, value.slug)}
+              title={value.label}
+              className={`
+                w-10 h-10 rounded-full ring-2 ring-offset-2 transition-all
+                ${selectedValue === value.slug 
+                  ? 'ring-[#005f5f]' 
+                  : 'ring-transparent hover:ring-gray-200'
+                }
+                ${value.colorHex === '#FFFFFF' ? 'border border-gray-200' : ''}
+              `}
+              style={{ backgroundColor: value.colorHex || '#ccc' }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Button group (default)
+  return (
+    <div className="mb-8">
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wide">
+          {option.name}
+          {option.unit && <span className="text-gray-400 ml-1">({option.unit})</span>}
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {option.values.map((value) => (
+          <button
+            key={value.id}
+            onClick={() => onSelect(option.slug, value.slug)}
+            className={`
+              px-4 py-2.5 rounded-lg border text-sm font-medium transition-all
+              ${selectedValue === value.slug 
+                ? 'border-[#005f5f] bg-[#005f5f]/5 text-[#005f5f]' 
+                : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+              }
+            `}
+          >
+            {value.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// SPECIFICATIONS TABLE
+// =============================================================================
+
+interface SpecificationsTableProps {
+  specifications: { label: string; value: string; unit?: string }[];
+}
+
+const SpecificationsTable: React.FC<SpecificationsTableProps> = ({ specifications }) => {
+  if (!specifications || specifications.length === 0) return null;
+
+  return (
+    <div className="mb-10">
+      <h3 className="text-lg font-bold text-[#1A1A1A] mb-4">Specifications</h3>
+      <div className="bg-gray-50 rounded-xl overflow-hidden">
+        <table className="w-full">
+          <tbody>
+            {specifications.map((spec, i) => (
+              <tr key={i} className={i !== specifications.length - 1 ? 'border-b border-gray-200' : ''}>
+                <td className="px-4 py-3 text-gray-500 text-sm">{spec.label}</td>
+                <td className="px-4 py-3 text-right font-medium text-gray-900">
+                  {spec.value}{spec.unit ? ` ${spec.unit}` : ''}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
 // MAIN PRODUCT PAGE COMPONENT
 // =============================================================================
 
@@ -77,31 +202,54 @@ export const ProductPage: React.FC = () => {
   const { productSlug } = useParams<{ productSlug: string }>();
   const navigate = useNavigate();
   
+  // Product data state
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<ProductCategory | null>(null);
   const [subservice, setSubservice] = useState<Subservice | null>(null);
   const [service, setService] = useState<Service | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Configurator state (mock)
-  const [selectedColor, setSelectedColor] = useState<'teal' | 'grey' | 'white'>('teal');
-  const [selectedMaterial, setSelectedMaterial] = useState('Standard');
-  const [selectedSize, setSelectedSize] = useState('Standard (3000mm)');
+  // Configuration state
+  const [configuration, setConfiguration] = useState<ProductConfiguration | null>(null);
+  const [selectedConfig, setSelectedConfig] = useState<SelectedConfiguration>({});
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Load data
+  // Load product data
   useEffect(() => {
     const loadData = async () => {
       if (!productSlug) return;
       
       setIsLoading(true);
-      const data = await getProductWithBreadcrumb(productSlug);
       
-      if (data) {
-        setProduct(data.product);
-        setCategory(data.category);
-        setSubservice(data.subservice);
-        setService(data.service);
+      try {
+        // Load product and breadcrumb
+        const data = await getProductWithBreadcrumb(productSlug);
+        
+        if (data) {
+          setProduct(data.product);
+          setCategory(data.category);
+          setSubservice(data.subservice);
+          setService(data.service);
+          
+          // Load configuration for this product
+          if (data.subservice?.id && data.product?.id) {
+            const config = await getProductConfiguration(data.product.id, data.subservice.id);
+            setConfiguration(config);
+            
+            // Set default selections
+            if (config) {
+              const defaults: SelectedConfiguration = {};
+              config.options.forEach(opt => {
+                // Use default from config or first value
+                const defaultValue = opt.values.find(v => v.isDefault);
+                defaults[opt.slug] = defaultValue?.slug || opt.values[0]?.slug || '';
+              });
+              setSelectedConfig(defaults);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load product:', error);
       }
       
       setIsLoading(false);
@@ -110,6 +258,32 @@ export const ProductPage: React.FC = () => {
     loadData();
     window.scrollTo(0, 0);
   }, [productSlug]);
+
+  // Handle configuration selection
+  const handleConfigSelect = (optionSlug: string, valueSlug: string) => {
+    setSelectedConfig(prev => ({
+      ...prev,
+      [optionSlug]: valueSlug,
+    }));
+  };
+
+  // Build quote URL with configuration
+  const quoteUrl = useMemo(() => {
+    if (!product) return ROUTES.QUOTE;
+    
+    const params = new URLSearchParams();
+    params.set('product', product.slug);
+    params.set('productTitle', product.title);
+    
+    // Add configuration selections
+    Object.entries(selectedConfig).forEach(([key, value]) => {
+      if (value) {
+        params.set(`config_${key}`, value);
+      }
+    });
+    
+    return `${ROUTES.QUOTE}?${params.toString()}`;
+  }, [product, selectedConfig]);
 
   // Loading state
   if (isLoading) {
@@ -125,13 +299,15 @@ export const ProductPage: React.FC = () => {
     ? product.galleryImages 
     : [product.imageUrl];
 
+  const hasConfigurator = configuration && configuration.options.length > 0;
+
   return (
     <div className="w-full flex flex-col bg-white">
       {/* Main Content */}
       <div className="flex-1 w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-8">
         
         {/* Breadcrumbs */}
-        <div className="text-gray-500 text-[10px] md:text-xs font-bold tracking-wide uppercase mb-8 flex items-center gap-2">
+        <div className="text-gray-500 text-[10px] md:text-xs font-bold tracking-wide uppercase mb-8 flex items-center gap-2 flex-wrap">
           <Link to="/" className="cursor-pointer hover:text-teal-700 transition-colors">
             Home
           </Link>
@@ -164,20 +340,22 @@ export const ProductPage: React.FC = () => {
           <span className="text-sm font-medium">Back to {subservice.title}</span>
         </button>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           
           {/* LEFT COLUMN: Title & Visuals */}
           <div className="w-full lg:w-3/5 flex flex-col">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#1A1A1A] mb-2 tracking-tight">
-              {product.title}
-            </h1>
-            {product.subtitle && (
-              <p className="text-xl text-gray-500 mb-8">{product.subtitle}</p>
-            )}
+            {/* Product Header */}
+            <div className="mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-[#1A1A1A] mb-2 tracking-tight">
+                {product.title}
+              </h1>
+              {product.subtitle && (
+                <p className="text-xl text-gray-500">{product.subtitle}</p>
+              )}
+            </div>
 
             {/* Product Visual - Video or Image */}
             {product.videoUrl ? (
-              /* Video Only (autoplay, no image) */
               <div className="w-full aspect-[4/3] bg-gray-50 rounded-3xl overflow-hidden relative">
                 <video 
                   src={product.videoUrl}
@@ -190,7 +368,6 @@ export const ProductPage: React.FC = () => {
                   Your browser does not support video playback.
                 </video>
                 
-                {/* 3D/Spin Indicator */}
                 {product.has3DView && (
                   <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm text-sm font-medium text-gray-700">
                     <Rotate3d className="w-4 h-4 text-[#005f5f]" />
@@ -199,7 +376,6 @@ export const ProductPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              /* Image Only (when no video) */
               <>
                 <div className="w-full aspect-[4/3] bg-gray-50 rounded-3xl overflow-hidden relative group">
                   <img 
@@ -208,7 +384,6 @@ export const ProductPage: React.FC = () => {
                     className="w-full h-full object-cover mix-blend-multiply p-8 transition-transform duration-700 group-hover:scale-105"
                   />
                   
-                  {/* 3D/Spin Indicator */}
                   {product.has3DView && (
                     <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm text-sm font-medium text-gray-700">
                       <Rotate3d className="w-4 h-4 text-[#005f5f]" />
@@ -217,7 +392,7 @@ export const ProductPage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Thumbnails (only for image products) */}
+                {/* Thumbnails */}
                 {galleryImages.length > 1 && (
                   <div className="flex gap-4 mt-6 overflow-x-auto no-scrollbar py-2">
                     {galleryImages.map((img, i) => (
@@ -246,7 +421,7 @@ export const ProductPage: React.FC = () => {
             {product.features && product.features.length > 0 && (
               <div className="mt-10">
                 <h3 className="text-lg font-bold text-[#1A1A1A] mb-4">Key Features</h3>
-                <ul className="space-y-3">
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {product.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-gray-600">
                       <Check className="w-5 h-5 text-[#005f5f] flex-shrink-0 mt-0.5" />
@@ -258,7 +433,7 @@ export const ProductPage: React.FC = () => {
             )}
           </div>
 
-          {/* RIGHT COLUMN: Description & Configurator */}
+          {/* RIGHT COLUMN: Description, Specs & Configurator */}
           <div className="w-full lg:w-2/5 flex flex-col pt-4">
             
             {/* Description */}
@@ -269,119 +444,38 @@ export const ProductPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Specifications */}
-            {product.specifications && product.specifications.length > 0 && (
-              <div className="mb-10">
-                <h3 className="text-lg font-bold text-[#1A1A1A] mb-4">Specifications</h3>
-                <div className="space-y-3">
-                  {product.specifications.map((spec, i) => (
-                    <div key={i} className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-500">{spec.label}</span>
-                      <span className="font-medium text-gray-900">
-                        {spec.value}{spec.unit ? ` ${spec.unit}` : ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+            {/* Specifications Table */}
+            <SpecificationsTable specifications={product.specifications || []} />
+
+            {/* Divider */}
+            {hasConfigurator && <div className="w-full h-px bg-gray-200 mb-8" />}
+
+            {/* Dynamic Configurator */}
+            {hasConfigurator && (
+              <div className="mb-8">
+                <h3 className="text-lg font-bold text-[#1A1A1A] mb-6">Configuration</h3>
+                {configuration.options.map((option) => (
+                  <ConfiguratorOption
+                    key={option.id}
+                    option={option}
+                    selectedValue={selectedConfig[option.slug] || ''}
+                    onSelect={handleConfigSelect}
+                  />
+                ))}
               </div>
             )}
 
-            <div className="w-full h-px bg-gray-200 mb-10" />
-
-            {/* Configurator */}
-            <div className="flex flex-col gap-8">
-              
-              {/* Color */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wide">Machine Color</span>
-                  <span className="text-xs text-gray-400 capitalize">{selectedColor}</span>
-                </div>
-                <div className="flex gap-4">
-                  <button 
-                    onClick={() => setSelectedColor('teal')}
-                    className={`w-10 h-10 rounded-full bg-[#005f5f] ring-2 ring-offset-2 transition-all ${
-                      selectedColor === 'teal' ? 'ring-[#005f5f]' : 'ring-transparent hover:ring-gray-200'
-                    }`} 
-                  />
-                  <button 
-                    onClick={() => setSelectedColor('grey')}
-                    className={`w-10 h-10 rounded-full bg-gray-500 ring-2 ring-offset-2 transition-all ${
-                      selectedColor === 'grey' ? 'ring-gray-500' : 'ring-transparent hover:ring-gray-200'
-                    }`} 
-                  />
-                  <button 
-                    onClick={() => setSelectedColor('white')}
-                    className={`w-10 h-10 rounded-full bg-white border border-gray-200 ring-2 ring-offset-2 transition-all ${
-                      selectedColor === 'white' ? 'ring-gray-300' : 'ring-transparent hover:ring-gray-200'
-                    }`} 
-                  />
-                </div>
-              </div>
-
-              {/* Material */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wide">Worktable Material</span>
-                  <Info className="w-4 h-4 text-gray-300 cursor-pointer hover:text-[#005f5f]" />
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {['Standard', 'Phenolic', 'Aluminum'].map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setSelectedMaterial(m)}
-                      className={`
-                        px-6 py-3 rounded-lg border text-sm font-medium transition-all
-                        ${selectedMaterial === m 
-                          ? 'border-[#005f5f] bg-[#005f5f]/5 text-[#005f5f]' 
-                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                        }
-                      `}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Size */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wide">Working Field Size</span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  {['Standard (3000mm)', 'Extended (4500mm)', 'Max (6000mm)'].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedSize(s)}
-                      className={`
-                        w-full flex justify-between items-center px-5 py-4 rounded-xl border text-left transition-all
-                        ${selectedSize === s 
-                          ? 'border-[#005f5f] bg-white ring-1 ring-[#005f5f]' 
-                          : 'border-gray-200 bg-gray-50/50 hover:bg-white hover:border-gray-300'
-                        }
-                      `}
-                    >
-                      <span className={`font-medium ${selectedSize === s ? 'text-[#005f5f]' : 'text-gray-700'}`}>
-                        {s}
-                      </span>
-                      {selectedSize === s && <Check className="w-5 h-5 text-[#005f5f]" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* Action Buttons */}
-            <div className="mt-12 flex flex-col gap-4">
+            <div className="mt-auto pt-8 flex flex-col gap-4">
               <button 
-                onClick={() => navigate(ROUTES.QUOTE)}
+                onClick={() => navigate(quoteUrl)}
                 className="w-full bg-[#005f5f] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#004d4d] transition-colors shadow-lg shadow-teal-900/10"
               >
                 Request Quote
               </button>
-              <button className="w-full bg-transparent border border-[#005f5f] text-[#005f5f] py-4 rounded-xl font-bold text-lg hover:bg-[#005f5f]/5 transition-colors">
-                Download Brochure
+              <button className="w-full flex items-center justify-center gap-2 bg-transparent border border-[#005f5f] text-[#005f5f] py-4 rounded-xl font-bold text-lg hover:bg-[#005f5f]/5 transition-colors">
+                <Download className="w-5 h-5" />
+                Download Technical Sheet
               </button>
             </div>
           </div>
