@@ -349,7 +349,7 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
       <div className="relative z-10 flex-1 rounded-tl-[80px] md:rounded-tl-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
         <h2 className="text-3xl md:text-4xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
         <p className="text-gray-900 text-xl md:text-2xl font-light leading-relaxed mb-12 max-w-2xl">{description}</p>
-        <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden w-fit" style={{ backgroundColor: settings.text_color }}>
+        <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
           <span className="relative z-10">{buttonText}</span>
           <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
         </button>
