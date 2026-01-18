@@ -343,13 +343,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings, lang }) => {
         {/* LEFT PANEL */}
         <div className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
           {settings.left_video_url ? (
-            <>
-              <video ref={videoRef} autoPlay loop muted playsInline onLoadedData={() => setVideoLoaded(true)} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}>
-                <source src={settings.left_video_url} type="video/mp4" />
-              </video>
-              {!videoLoaded && <SafeImage src={settings.left_image_url} fallback={FALLBACK_IMAGES.hero_left} alt="" className="absolute inset-0 w-full h-full object-cover" />}
-            </>
-          ) : (
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              poster=""
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={settings.left_video_url} type="video/mp4" />
+            </video>
+) : (
             <SafeImage src={settings.left_image_url} fallback={FALLBACK_IMAGES.hero_left} alt="" className="absolute inset-0 w-full h-full object-cover" />
           )}
 
