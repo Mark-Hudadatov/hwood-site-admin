@@ -1,58 +1,181 @@
 /**
- * SERVICE PAGE
- * ============
- * Displays a single service with its subservices carousel.
- * Route: /services/:serviceSlug
- * 
- * Example: /services/modular-bodies-and-cabinets
- * Shows: Kitchen modules, Bathrooms, Wardrobes, Drawers...
+ * SERVICE PAGE - FIXED
+ * ====================
+ * ✅ Horizontal scroll navigation with left/right arrows
+ * ✅ Subservices in a scrollable horizontal row
+ * ✅ Coming soon overlay support
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
 import { getServiceBySlug, getSubservicesByServiceSlug } from '../services/data/dataService';
 import { ROUTES } from '../router';
 
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop';
+
 // =============================================================================
-// SUBSERVICE CARD COMPONENT
+// SUBSERVICE CARD
 // =============================================================================
 
 interface SubserviceCardProps {
-  subservice: Subservice;
+  subservice: Subservice & { visibilityStatus?: string };
   onClick: () => void;
 }
 
 const SubserviceCard: React.FC<SubserviceCardProps> = ({ subservice, onClick }) => {
+  const isComingSoon = subservice.visibilityStatus === 'coming_soon';
+  const [imgSrc, setImgSrc] = useState(subservice.imageUrl || FALLBACK_IMAGE);
+
   return (
     <div 
-      className="relative w-full aspect-[3/5] md:aspect-[3/4] rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
-      onClick={onClick}
+      className={`relative w-[280px] md:w-[320px] flex-shrink-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg ${
+        isComingSoon ? '' : 'group cursor-pointer'
+      }`}
+      onClick={isComingSoon ? undefined : onClick}
     >
       {/* Background Image */}
       <img
-        src={subservice.imageUrl}
+        src={imgSrc}
         alt={subservice.title}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+          isComingSoon ? 'grayscale brightness-50' : 'group-hover:scale-110'
+        }`}
+        onError={() => setImgSrc(FALLBACK_IMAGE)}
       />
       
-      {/* Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+      {/* Coming Soon Overlay */}
+      {isComingSoon && (
+        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10">
+          <Clock className="w-12 h-12 text-white mb-3" />
+          <span className="text-white text-xl font-bold uppercase tracking-wider">
+            Coming Soon
+          </span>
+        </div>
+      )}
+      
+      {/* Gradient Overlay */}
+      <div className={`absolute inset-0 transition-all duration-500 ${
+        isComingSoon 
+          ? 'bg-black/20' 
+          : 'bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-[#005f5f]/90 group-hover:via-[#005f5f]/50'
+      }`} />
 
-      {/* Content Container */}
+      {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className="text-white text-2xl md:text-3xl font-bold mb-3 tracking-wide">
+        <h3 className={`text-white text-xl md:text-2xl font-bold mb-2 tracking-wide transition-transform duration-500 ${
+          isComingSoon ? '' : 'group-hover:-translate-y-1'
+        }`}>
           {subservice.title}
         </h3>
-        <p className="text-white/90 text-sm md:text-base leading-relaxed font-light line-clamp-3">
+        <p className="text-white/90 text-sm leading-relaxed font-light line-clamp-2">
           {subservice.description}
         </p>
+        
+        {!isComingSoon && (
+          <div className="flex items-center gap-2 mt-3 text-white/80 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <span>View Products</span>
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        )}
       </div>
 
-      {/* Accent Bottom Strip */}
+      {/* Bottom accent line on hover */}
+      {!isComingSoon && (
+        <div className="absolute bottom-0 left-0 h-1 bg-white/80 transition-all duration-500 w-0 group-hover:w-full" />
+      )}
+    </div>
+  );
+};
+
+// =============================================================================
+// HORIZONTAL SCROLL WITH ARROWS
+// =============================================================================
+
+interface HorizontalScrollProps {
+  children: React.ReactNode;
+  title: string;
+}
+
+const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, title }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftArrow(scrollLeft > 20);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+    }
+    return () => {
+      if (el) el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [children]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const amount = direction === 'right' ? 340 : -340;
+      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="relative">
+      {/* Header with Navigation Arrows */}
+      <div className="flex justify-between items-center mb-8 px-2">
+        <h2 className="text-[#1A1A1A] text-3xl md:text-4xl font-bold tracking-tight">
+          {title}
+        </h2>
+        
+        {/* Navigation Arrows */}
+        <div className="flex gap-3">
+          <button 
+            onClick={() => scroll('left')}
+            disabled={!showLeftArrow}
+            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+              showLeftArrow 
+                ? 'border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white cursor-pointer' 
+                : 'border-gray-300 text-gray-300 cursor-not-allowed'
+            }`}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={() => scroll('right')}
+            disabled={!showRightArrow}
+            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+              showRightArrow 
+                ? 'border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white cursor-pointer' 
+                : 'border-gray-300 text-gray-300 cursor-not-allowed'
+            }`}
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+
+      {/* Horizontal Scroll Container */}
       <div 
-        className="absolute bottom-0 left-0 w-full h-3 bg-[#005f5f]"
-      />
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth pb-4"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {children}
+        {/* End spacer */}
+        <div className="w-4 flex-shrink-0" />
+      </div>
     </div>
   );
 };
@@ -66,12 +189,10 @@ const LoadingSkeleton: React.FC = () => (
     <div className="w-full bg-gray-200 h-[300px]" />
     <div className="px-16 py-12">
       <div className="h-10 w-64 bg-gray-200 rounded mb-8" />
-      <div className="flex gap-8">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="w-[360px] flex-shrink-0">
-            <div className="aspect-[4/3] bg-gray-200 rounded-3xl mb-4" />
-            <div className="h-6 w-3/4 bg-gray-200 rounded mb-2" />
-            <div className="h-4 w-full bg-gray-200 rounded" />
+      <div className="flex gap-6">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="w-[320px] flex-shrink-0">
+            <div className="aspect-[3/4] bg-gray-200 rounded-2xl" />
           </div>
         ))}
       </div>
@@ -99,7 +220,7 @@ const NotFound: React.FC = () => (
 );
 
 // =============================================================================
-// MAIN SERVICE PAGE COMPONENT
+// MAIN SERVICE PAGE
 // =============================================================================
 
 export const ServicePage: React.FC = () => {
@@ -107,10 +228,9 @@ export const ServicePage: React.FC = () => {
   const navigate = useNavigate();
   
   const [service, setService] = useState<Service | null>(null);
-  const [subservices, setSubservices] = useState<Subservice[]>([]);
+  const [subservices, setSubservices] = useState<(Subservice & { visibilityStatus?: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data
   useEffect(() => {
     const loadData = async () => {
       if (!serviceSlug) return;
@@ -134,42 +254,34 @@ export const ServicePage: React.FC = () => {
     navigate(ROUTES.SUBSERVICE(subservice.slug));
   };
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
-  // Not found state
-  if (!service) {
-    return <NotFound />;
-  }
+  if (isLoading) return <LoadingSkeleton />;
+  if (!service) return <NotFound />;
 
   const accentColor = service.accentColor || '#D48F28';
 
   return (
     <div className="w-full flex flex-col bg-white">
-      {/* Hero Section with Accent Background */}
+      {/* Hero Section */}
       <div 
         className="w-full px-4 md:px-12 lg:px-16 pt-6 pb-8"
         style={{ backgroundColor: accentColor }}
       >
         {/* Breadcrumb */}
         <div className="text-white/90 text-[10px] md:text-xs font-bold tracking-wide uppercase mb-4 pl-2 flex items-center gap-2">
-          <Link to="/" className="cursor-pointer hover:text-white transition-colors">
-            Home
-          </Link>
+          <Link to="/" className="cursor-pointer hover:text-white transition-colors">Home</Link>
           <span>/</span>
           <span>Services</span>
           <span>/</span>
           <span className="text-white">{service.title}</span>
         </div>
 
-        {/* Hero Image Container */}
+        {/* Hero Image */}
         <div className="w-full h-[180px] md:h-[240px] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-xl mb-4 md:mb-8">
           <img 
-            src={service.heroImageUrl || service.imageUrl} 
+            src={service.heroImageUrl || service.imageUrl || FALLBACK_IMAGE} 
             alt={service.title}
             className="w-full h-full object-cover object-center"
+            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
           />
         </div>
 
@@ -184,30 +296,22 @@ export const ServicePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Subservices Section (Continues Accent Background) */}
+      {/* Subservices Section - HORIZONTAL SCROLL */}
       <div 
         className="w-full px-4 md:px-12 lg:px-16 pb-20"
         style={{ backgroundColor: accentColor }}
       >
-        <div className="flex justify-between items-end mb-8 pl-2">
-          <h2 className="text-[#1A1A1A] text-3xl md:text-4xl font-bold tracking-tight">
-            Solutions
-          </h2>
-        </div>
-
-        {/* Grid Layout (same as HomePage Our Services) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-          {subservices.map((sub) => (
-            <SubserviceCard 
-              key={sub.id} 
-              subservice={sub} 
-              onClick={() => handleSubserviceClick(sub)}
-            />
-          ))}
-        </div>
-
-        {/* Empty state */}
-        {subservices.length === 0 && (
+        {subservices.length > 0 ? (
+          <HorizontalScroll title="Solutions">
+            {subservices.map((sub) => (
+              <SubserviceCard 
+                key={sub.id} 
+                subservice={sub} 
+                onClick={() => handleSubserviceClick(sub)}
+              />
+            ))}
+          </HorizontalScroll>
+        ) : (
           <div className="text-center py-12 text-[#1A1A1A]/60">
             No solutions available for this service yet.
           </div>
