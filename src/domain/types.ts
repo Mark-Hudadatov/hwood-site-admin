@@ -86,6 +86,117 @@ export interface ProductSpecification {
 }
 
 // =============================================================================
+// PRODUCT CONFIGURATION SYSTEM
+// =============================================================================
+
+/**
+ * Configuration Option Type - Categories of configurable options
+ * Examples: "Width", "Carcass Color", "Drawer System"
+ */
+export interface ConfigOptionType {
+  id: string;
+  slug: string;                    // 'width', 'carcass_color'
+  name: string;                    // Display name (localized)
+  description?: string;            // Help text (localized)
+  inputType: 'button_group' | 'color_picker' | 'dropdown' | 'checkbox_group';
+  unit?: string;                   // 'cm', 'mm', etc.
+  sortOrder: number;
+  values: ConfigOptionValue[];     // Available values for this option type
+  isRequired?: boolean;            // Whether selection is required
+  defaultValueId?: string;         // Default value ID
+}
+
+/**
+ * Configuration Option Value - Individual selectable values
+ * Examples: "30cm", "White", "Soft Close"
+ */
+export interface ConfigOptionValue {
+  id: string;
+  slug: string;                    // 'white', '30cm'
+  label: string;                   // Display label (localized)
+  value: string;                   // Actual value
+  colorHex?: string;               // For color pickers
+  imageUrl?: string;               // For texture previews
+  icon?: string;                   // Icon name
+  priceModifier?: number;          // Price adjustment
+  sortOrder: number;               // Display order
+  isDefault?: boolean;             // Default selection
+  isDisabled?: boolean;            // Disabled for this product
+}
+
+/**
+ * Subservice Config Template - Links config options to a subservice
+ */
+export interface SubserviceConfigTemplate {
+  subserviceId: string;
+  optionTypeId: string;
+  isEnabled: boolean;
+  isRequired: boolean;
+  sortOrder: number;
+  defaultValueId?: string;
+}
+
+/**
+ * Product Config Override - Product-level customization
+ */
+export interface ProductConfigOverride {
+  productId: string;
+  optionTypeId: string;
+  isEnabled: boolean;
+  defaultValueId?: string;
+  disabledValueIds?: string[];
+}
+
+/**
+ * Product Configuration - Full configuration for a product
+ * Combines subservice template + product overrides
+ */
+export interface ProductConfiguration {
+  productId: string;
+  subserviceId: string;
+  options: ConfigOptionType[];     // Available options with their values
+  defaults: Record<string, string>;// Default selections { optionSlug: valueSlug }
+}
+
+/**
+ * Configuration Selection - User's selected configuration values
+ */
+export interface ConfigurationSelection {
+  [optionTypeSlug: string]: string;  // { 'width': '60cm', 'carcass_color': 'white' }
+}
+
+/**
+ * Saved Configuration - Persisted configuration for quote requests
+ */
+export interface SavedConfiguration {
+  id: string;
+  productId: string;
+  configData: ConfigurationSelection;
+  createdAt: string;
+}
+
+/**
+ * Feature - Product feature item
+ */
+export interface Feature {
+  id: string;
+  title: string;                   // Localized title
+  description?: string;            // Localized description
+  icon?: string;                   // Icon name
+}
+
+/**
+ * Product Document - Downloadable files
+ */
+export interface ProductDocument {
+  id: string;
+  type: 'datasheet' | 'assembly' | 'cad' | '3d_model' | 'certificate';
+  title: string;                   // Display title (localized)
+  fileUrl: string;
+  fileSize?: string;               // '2.4 MB'
+}
+
+// =============================================================================
 // SUPPORTING ENTITIES (for other sections of the site)
 // =============================================================================
 
@@ -125,6 +236,7 @@ export interface QuoteRequest {
   // Metadata
   submittedAt?: string;
 }
+
 /**
  * Company Info - Basic company details
  */
