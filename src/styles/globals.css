@@ -23,6 +23,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* FIX: Removed background-color: #000 that was causing dark background issues */
 }
 
 /* =============================================================================
@@ -402,6 +403,14 @@ img:not([loading="lazy"]) {
 .link-underline:hover::after {
   width: 100%;
 }
-    font-size: 18px;
+
+/* =============================================================================
+   RESPONSIVE TYPOGRAPHY SCALE
+   FIX: Adjusted to maintain consistent 16px base, only slight reduction on mobile
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
   }
 }
