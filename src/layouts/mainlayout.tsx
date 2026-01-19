@@ -16,6 +16,9 @@ import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin
 import { Service, Subservice } from '../domain/types';
 import { getNavigationData } from '../services/data/dataService';
 
+// Premium Components
+import { LoadingScreen, PageTransition } from '../components/premium';
+
 // WhatsApp Icon
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -268,14 +271,21 @@ const WhatsAppButton: React.FC = () => {
 // Main Layout Export
 export const MainLayout: React.FC = () => {
   return (
-    <div className="w-full min-h-screen font-sans flex flex-col">
-      <ScrollToTop />
-      <Header />
-      <main className="flex-1 flex flex-col">
-        <Outlet />
-      </main>
-      <FooterWrapper />
-      <WhatsAppButton />
-    </div>
+    <>
+      {/* Loading Screen - shows on first visit only */}
+      <LoadingScreen minDuration={1200} />
+      
+      <div className="w-full min-h-screen font-sans flex flex-col">
+        <ScrollToTop />
+        <Header />
+        <main className="flex-1 flex flex-col">
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
+        </main>
+        <FooterWrapper />
+        <WhatsAppButton />
+      </div>
+    </>
   );
 };
