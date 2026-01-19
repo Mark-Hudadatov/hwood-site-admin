@@ -13,6 +13,7 @@ import { Service, Story } from '../domain/types';
 import { getServices, getStories } from '../services/data/dataService';
 import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
+import { ScrollReveal, StaggerReveal } from '../components/premium';
 
 // =============================================================================
 // CONSTANTS
@@ -464,8 +465,14 @@ export const HomePage: React.FC = () => {
       {/* Services Section */}
       <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
         <div className="w-full px-8 md:px-12 lg:px-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <ScrollReveal animation="fade-up">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
+          </ScrollReveal>
+          <StaggerReveal 
+            animation="fade-up" 
+            staggerDelay={100}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          >
             {services.map((service) => (
               <ServiceCard 
                 key={service.id} 
@@ -474,7 +481,7 @@ export const HomePage: React.FC = () => {
                 showDescription={settings.services_section.show_descriptions} 
               />
             ))}
-          </div>
+          </StaggerReveal>
           {services.length === 0 && <p className="text-center py-12 text-gray-500">No services found</p>}
         </div>
       </section>
@@ -488,19 +495,21 @@ export const HomePage: React.FC = () => {
 
         <section className="relative z-10 w-full text-white py-16 md:py-24">
           <div className="w-full px-8 md:px-12 lg:px-16">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
-              <div className="flex items-center gap-4">
-                <div className="hidden md:flex gap-2">
-                  <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
-                  <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
+            <ScrollReveal animation="fade-up">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
+                <div className="flex items-center gap-4">
+                  <div className="hidden md:flex gap-2">
+                    <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
+                    <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
+                  </div>
+                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
+                    <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
+                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  </button>
                 </div>
-                <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
-                  <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
-                  <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </button>
               </div>
-            </div>
+            </ScrollReveal>
 
             <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12">
               {stories.map((story) => (
