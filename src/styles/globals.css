@@ -23,7 +23,6 @@ body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000;
 }
 
 /* =============================================================================
@@ -403,19 +402,6 @@ img:not([loading="lazy"]) {
 .link-underline:hover::after {
   width: 100%;
 }
-
-/* =============================================================================
-   RESPONSIVE TYPOGRAPHY SCALE
-   ============================================================================= */
-
-@media (max-width: 640px) {
-  html {
-    font-size: 14px;
-  }
-}
-
-@media (min-width: 1536px) {
-  html {
     font-size: 18px;
   }
 }
