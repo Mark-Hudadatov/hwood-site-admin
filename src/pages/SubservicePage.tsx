@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, Subservice, ProductCategory, Product } from '../domain/types';
 import { getSubservicePageData } from '../services/data/dataService';
 import { ROUTES } from '../router';
+import { ScrollReveal, StaggerReveal } from '../components/premium';
 
 // Fallback image for products
 const PRODUCT_FALLBACK = 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=600&fit=crop';
@@ -275,22 +276,24 @@ export const SubservicePage: React.FC = () => {
           </div>
 
           {/* Dark Hero Card */}
-          <div className="w-full relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
-            <div className="absolute inset-0">
-              <img 
-                src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
-                alt={subservice.title}
-                className="w-full h-full object-cover object-center opacity-50"
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'; }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
-            </div>
+          <ScrollReveal animation="fade-up" duration={800}>
+            <div className="w-full relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
+              <div className="absolute inset-0">
+                <img 
+                  src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
+                  alt={subservice.title}
+                  className="w-full h-full object-cover object-center opacity-50"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+              </div>
 
-            <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-4xl">
-              <h1 className="text-2xl md:text-5xl font-normal tracking-tight mb-2">{subservice.title}</h1>
-              <p className="text-gray-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
+              <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-4xl">
+                <h1 className="text-2xl md:text-5xl font-normal tracking-tight mb-2">{subservice.title}</h1>
+                <p className="text-gray-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Category Tabs with Navigation Arrows */}
           <CategoryTabs 
@@ -306,11 +309,15 @@ export const SubservicePage: React.FC = () => {
         <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-8 md:py-12">
           
           {/* Products Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <StaggerReveal 
+            animation="fade-up" 
+            staggerDelay={80}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+          >
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onClick={() => handleProductClick(product)} />
             ))}
-          </div>
+          </StaggerReveal>
 
           {/* Empty state */}
           {filteredProducts.length === 0 && categories.length > 0 && (
