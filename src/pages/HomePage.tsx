@@ -89,7 +89,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     left_video_url: '',
     left_title_en: 'Precision Crafted',
     left_title_he: 'מיוצר בדיוק',
-    left_subtitle_en: 'Industrial carpentry solutions engineered for excellence',
+    left_subtitle_en: 'Modular systems and CNC processing for kitchen and interior production.',
     left_subtitle_he: '',
     right_image_url: FALLBACK.hero,
     right_title_en: 'Modular Cabinet Systems',
