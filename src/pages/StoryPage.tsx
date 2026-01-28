@@ -17,9 +17,9 @@ const renderMarkdown = (content: string): string => {
   
   return content
     // Headers
-    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mt-8 mb-4">$1</h1>')
+    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-medium mt-6 mb-3">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-medium mt-8 mb-4">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-medium mt-8 mb-4">$1</h1>')
     // Bold and Italic
     .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -29,7 +29,7 @@ const renderMarkdown = (content: string): string => {
     .replace(/(<li.*<\/li>)\n(<li)/g, '$1$2')
     .replace(/(<li.*<\/li>)/g, '<ul class="list-disc list-inside my-4">$1</ul>')
     // Links
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-[#005f5f] hover:underline">$1</a>')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-brand hover:underline">$1</a>')
     // Paragraphs
     .replace(/\n\n/g, '</p><p class="mb-4">')
     .replace(/\n/g, '<br>')
@@ -81,7 +81,7 @@ export const StoryPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand" />
       </div>
     );
   }
@@ -90,11 +90,11 @@ export const StoryPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Story Not Found</h1>
-          <p className="text-gray-600 mb-8">The story you're looking for doesn't exist.</p>
+          <h1 className="text-4xl font-medium text-neutral-900 mb-4">Story Not Found</h1>
+          <p className="text-neutral-600 mb-8">The story you're looking for doesn't exist.</p>
           <Link
             to={ROUTES.PORTFOLIO}
-            className="px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+            className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand/90 transition-colors"
           >
             View All Stories
           </Link>
@@ -127,7 +127,7 @@ export const StoryPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-4">
-              <span className="px-3 py-1 bg-[#005f5f] text-white text-xs font-semibold rounded-full uppercase tracking-wider">
+              <span className="px-3 py-1 bg-brand text-white text-xs font-semibold rounded-full uppercase tracking-wider">
                 {story.type}
               </span>
               <span className="flex items-center gap-2 text-white/80 text-sm">
@@ -135,7 +135,7 @@ export const StoryPage: React.FC = () => {
                 {story.date}
               </span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+            <h1 className="text-3xl md:text-5xl font-medium text-white leading-tight">
               {story.title}
             </h1>
           </div>
@@ -145,7 +145,7 @@ export const StoryPage: React.FC = () => {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
         {story.excerpt && (
-          <p className="text-xl text-gray-600 leading-relaxed mb-8 pb-8 border-b border-gray-200">
+          <p className="text-xl text-neutral-600 leading-relaxed mb-8 pb-8 border-b border-neutral-200">
             {story.excerpt}
           </p>
         )}
@@ -156,7 +156,7 @@ export const StoryPage: React.FC = () => {
             dangerouslySetInnerHTML={{ __html: renderMarkdown(story.content) }}
           />
         ) : (
-          <p className="text-gray-600">
+          <p className="text-neutral-600">
             Full article content coming soon.
           </p>
         )}
@@ -164,9 +164,9 @@ export const StoryPage: React.FC = () => {
 
       {/* Related Stories */}
       {relatedStories.length > 0 && (
-        <div className="bg-gray-50 py-16">
+        <div className="bg-neutral-50 py-16">
           <div className="max-w-6xl mx-auto px-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Stories</h2>
+            <h2 className="text-2xl font-medium text-neutral-900 mb-8">Related Stories</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedStories.map((relatedStory) => (
                 <Link
@@ -181,13 +181,13 @@ export const StoryPage: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <span className="text-xs text-[#005f5f] font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-brand font-semibold uppercase tracking-wider">
                     {relatedStory.type}
                   </span>
-                  <h3 className="text-lg font-bold text-gray-900 mt-2 group-hover:text-[#005f5f] transition-colors">
+                  <h3 className="text-lg font-medium text-neutral-900 mt-2 group-hover:text-brand transition-colors">
                     {relatedStory.title}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">{relatedStory.date}</p>
+                  <p className="text-sm text-neutral-500 mt-1">{relatedStory.date}</p>
                 </Link>
               ))}
             </div>
@@ -196,9 +196,9 @@ export const StoryPage: React.FC = () => {
       )}
 
       {/* CTA */}
-      <div className="bg-[#005f5f] py-16">
+      <div className="bg-brand py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl font-medium text-white mb-4">
             Ready to Start Your Project?
           </h2>
           <p className="text-white/80 mb-8">
@@ -206,7 +206,7 @@ export const StoryPage: React.FC = () => {
           </p>
           <Link
             to={ROUTES.CONTACT}
-            className="inline-block px-8 py-3 bg-white text-[#005f5f] font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+            className="inline-block px-8 py-3 bg-white text-brand font-semibold rounded-lg hover:bg-neutral-100 transition-colors"
           >
             Get in Touch
           </Link>
