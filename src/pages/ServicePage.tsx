@@ -328,23 +328,35 @@ export const ServicePage: React.FC = () => {
         </div>
 
         {/* Hero Content */}
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-12">
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-8">
           <h1 className="text-display-sm md:text-display text-neutral-900 mb-6">
             {service.title}
           </h1>
-          <p className="text-neutral-800 text-body-lg leading-relaxed max-w-3xl">
+          <p className="text-neutral-800 text-body-lg leading-relaxed max-w-3xl mb-8">
             {service.description}
           </p>
+        </div>
+
+        {/* Typical Selection Scenario */}
+        <div className="max-w-[1280px] mx-auto mb-12">
+          <div className="bg-white/10 rounded-xl p-6 md:p-8">
+            <h3 className="text-h2 text-neutral-900 mb-4">Typical Selection Scenario</h3>
+            <p className="text-body text-neutral-800 max-w-3xl">
+              This system is typically selected when production requirements include configurable modules, 
+              consistent output specifications, and integration with existing workshop workflows. 
+              Review the product lines below to identify configurations matching your operational context.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Subservices Section - HORIZONTAL SCROLL */}
       <div 
-        className="w-full px-4 md:px-12 lg:px-16 pb-20"
+        className="w-full px-4 md:px-12 lg:px-16 pb-12"
         style={{ backgroundColor: accentColor }}
       >
         {subservices.length > 0 ? (
-          <HorizontalScroll title="Solutions">
+          <HorizontalScroll title="Product Lines">
             {subservices.map((sub) => (
               <SubserviceCard 
                 key={sub.id} 
@@ -354,10 +366,33 @@ export const ServicePage: React.FC = () => {
             ))}
           </HorizontalScroll>
         ) : (
-          <div className="text-center py-12 text-[#1A1A1A]/60">
-            No solutions available for this service yet.
+          <div className="text-center py-12 text-neutral-900/60">
+            Product lines for this system are currently being configured.
           </div>
         )}
+      </div>
+
+      {/* What Happens After Review */}
+      <div className="w-full bg-white py-12 md:py-16">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-12 lg:px-16">
+          <div className="max-w-3xl">
+            <h3 className="text-h2 text-neutral-900 mb-4">What Happens After Review</h3>
+            <p className="text-body text-neutral-600 mb-6">
+              After reviewing product configurations, submit an inquiry with your production context 
+              and volume requirements. Our team will assess compatibility with current capacity and 
+              provide implementation parameters within 1-2 business days.
+            </p>
+            <div className="flex flex-col items-start gap-3">
+              <Link 
+                to="/contact"
+                className="px-8 py-3 bg-brand text-white font-medium rounded hover:bg-brand/90 transition-colors"
+              >
+                Submit Production Inquiry
+              </Link>
+              <span className="text-meta text-neutral-500">Describe your requirements to receive a processing assessment</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
