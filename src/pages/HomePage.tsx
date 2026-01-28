@@ -87,19 +87,19 @@ const DEFAULT_SETTINGS: HomepageSettings = {
   hero: {
     left_image_url: FALLBACK.hero,
     left_video_url: '',
-    left_title_en: 'CNC Production Systems for Workshops and Manufacturers',
-    left_title_he: 'מערכות ייצור CNC לסדנאות ויצרנים',
-    left_subtitle_en: 'Modular kitchen systems, CNC processing services, and facade component production. For workshops scaling production or manufacturers requiring precision processing capacity.',
+    left_title_en: 'Industrial Carpentry Systems',
+    left_title_he: 'מערכות נגרות תעשייתיות',
+    left_subtitle_en: 'CNC production systems for construction, architecture, and manufacturing',
     left_subtitle_he: '',
     right_image_url: FALLBACK.hero,
-    right_title_en: 'Review System Categories',
+    right_title_en: 'Modular Cabinet Systems',
     right_title_he: '',
     right_link: '/services/modular-cabinet-systems',
     hero_height: '100vh',
   },
   services_section: { title_en: 'Production Systems', title_he: 'מערכות ייצור', show_descriptions: true },
   stories_section: { title_en: 'Projects', title_he: 'פרויקטים', button_text_en: 'View all projects', button_text_he: '', button_link: '/portfolio' },
-  about_section: { title_en: 'HWOOD', title_he: '', description_en: 'Industrial CNC carpentry facility operating since 2015. 2,000+ sqm production floor with multi-axis machining centers. Serving construction, architecture, and manufacturing sectors across Israel.', description_he: '', button_text_en: 'Facility Overview', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
+  about_section: { title_en: 'HWOOD', title_he: '', description_en: 'Industrial-grade carpentry and CNC production facility serving construction, architecture, and manufacturing sectors in Israel.', description_he: '', button_text_en: 'About Facility', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
 };
 
@@ -158,24 +158,9 @@ const ServiceCard: React.FC<{
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
 
-  // Generate "Used when..." text based on service
-  const getUsedWhenText = (title: string) => {
-    const lower = title.toLowerCase();
-    if (lower.includes('kitchen') || lower.includes('cabinet') || lower.includes('modular')) {
-      return 'Used when scaling kitchen production with configurable CNC modules';
-    }
-    if (lower.includes('processing') || lower.includes('cnc')) {
-      return 'Used when requiring external CNC cutting, drilling, or milling capacity';
-    }
-    if (lower.includes('facade') || lower.includes('component')) {
-      return 'Used when producing repeatable architectural or furniture components';
-    }
-    return 'Used when requiring precision CNC processing for production workflows';
-  };
-
   return (
     <div 
-      className={`relative w-full max-w-[400px] min-h-[280px] aspect-[3/4] rounded-xl overflow-hidden ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
       onClick={isComingSoon ? undefined : onClick}
       onMouseEnter={() => !isComingSoon && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -197,7 +182,7 @@ const ServiceCard: React.FC<{
                   : 'bg-gradient-to-t from-black/80 via-black/30 to-transparent'
       }`} />
 
-      <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
         <h3 className={`text-white text-h2 mb-3 transition-transform duration-300 ${
           isComingSoon ? 'opacity-70' : isHovered ? '-translate-y-1' : ''
         }`}>
@@ -205,12 +190,12 @@ const ServiceCard: React.FC<{
         </h3>
         {showDescription && !isComingSoon && (
           <p className="text-white/80 text-body leading-relaxed line-clamp-3">
-            {getUsedWhenText(service.title)}
+            {service.description}
           </p>
         )}
         {!isComingSoon && (
           <div className={`flex items-center gap-2 mt-4 text-white/80 text-meta transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span>Review System</span>
+            <span>View System</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         )}
@@ -278,7 +263,6 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
 // =============================================================================
 
 const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | 'he' }> = ({ settings, lang }) => {
-  const navigate = useNavigate();
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
@@ -286,7 +270,9 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
 
   const leftTitle = lang === 'he' && settings.left_title_he ? settings.left_title_he : settings.left_title_en;
   const leftSubtitle = lang === 'he' && settings.left_subtitle_he ? settings.left_subtitle_he : settings.left_subtitle_en || '';
+  const rightTitle = lang === 'he' && settings.right_title_he ? settings.right_title_he : settings.right_title_en;
   const leftImg = settings.left_image_url || FALLBACK.hero;
+  const rightImg = settings.right_image_url || FALLBACK.hero;
 
   useEffect(() => { setTimeout(() => setIsVisible(true), 100); }, []);
 
@@ -299,46 +285,43 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-black" style={{ height: settings.hero_height, minHeight: '600px', maxHeight: '900px' }}>
-      <div className="absolute inset-0">
-        {/* Background */}
-        {settings.left_video_url ? (
-          <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
-            <source src={settings.left_video_url} type="video/mp4" />
-          </video>
-        ) : (
-          <img src={leftImg} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
-        
-        {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-end">
-          <div className="max-w-[1440px] mx-auto w-full px-8 md:px-16 pb-16 md:pb-24">
-            <h1 className={`text-white text-display-sm md:text-display mb-6 max-w-4xl transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-              {leftTitle}
-            </h1>
-            {leftSubtitle && (
-              <p className={`text-white/70 text-body-lg max-w-2xl mb-8 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
-                {leftSubtitle}
-              </p>
-            )}
-            <div className={`flex flex-col items-start gap-3 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '400ms' }}>
-              <button 
-                onClick={() => navigate('/services/modular-cabinet-systems')}
-                className="px-8 py-3 bg-white text-neutral-900 font-medium rounded hover:bg-neutral-100 transition-colors"
-              >
-                Review Production Systems
-              </button>
-              <span className="text-white/50 text-meta">Begin by selecting a system category to review scope and configuration options</span>
-            </div>
+    <section className="relative w-full overflow-hidden bg-black" style={{ height: settings.hero_height, minHeight: '600px' }}>
+      <div className="absolute inset-0 flex flex-col md:flex-row">
+        {/* Left Panel */}
+        <div className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
+          {settings.left_video_url ? (
+            <video ref={videoRef} autoPlay loop muted playsInline preload="auto" poster="" className="absolute inset-0 w-full h-full object-cover">
+              <source src={settings.left_video_url} type="video/mp4" />
+            </video>
+          ) : (
+            <img src={leftImg} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
+          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 pb-24 md:pb-32">
+            <h1 className={`text-white text-display-sm md:text-display mb-4 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>{leftTitle}</h1>
+            {leftSubtitle && <p className={`text-white/70 text-body-lg max-w-lg transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>{leftSubtitle}</p>}
           </div>
+          {settings.left_video_url && (
+            <button onClick={toggleVideo} className="absolute bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all">
+              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+            </button>
+          )}
         </div>
 
-        {settings.left_video_url && (
-          <button onClick={toggleVideo} className="absolute bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all">
-            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-          </button>
-        )}
+        {/* Right Panel */}
+        <Link to={settings.right_link || '/'} className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden group">
+          <img src={rightImg} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
+          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 pb-24 md:pb-32">
+            <div className="flex items-end gap-4">
+              <h2 className={`text-white text-h1 md:text-display-sm transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>{rightTitle}</h2>
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-white group-hover:text-brand transition-colors" />
+              </div>
+            </div>
+            <span className="text-white/50 text-meta mt-4 tracking-wide uppercase group-hover:text-white/70 transition-colors">View Systems →</span>
+          </div>
+        </Link>
       </div>
     </section>
   );
@@ -366,73 +349,6 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
     </section>
   );
 };
-
-// =============================================================================
-// PRODUCTION CONTEXTS SECTION
-// =============================================================================
-
-const ProductionContextsSection: React.FC = () => (
-  <section className="w-full bg-white py-16 md:py-20">
-    <div className="max-w-[1280px] mx-auto px-8 md:px-12 lg:px-16">
-      <h2 className="text-h1 text-neutral-900 mb-8">Production Contexts</h2>
-      <div className="space-y-4 text-body text-neutral-700 max-w-3xl">
-        <p>• Workshop expanding into kitchen manufacturing and requiring ready-to-configure CNC module systems</p>
-        <p>• Production facility requiring external CNC processing capacity for cutting, drilling, or milling operations</p>
-        <p>• Manufacturer needing precision processing of repeatable facade or furniture components</p>
-      </div>
-    </div>
-  </section>
-);
-
-// =============================================================================
-// HOW ENGAGEMENT WORKS SECTION
-// =============================================================================
-
-const HowEngagementWorksSection: React.FC = () => (
-  <section className="w-full bg-white py-16 md:py-20 border-t border-neutral-100">
-    <div className="max-w-[1280px] mx-auto px-8 md:px-12 lg:px-16">
-      <h2 className="text-h1 text-neutral-900 mb-10">How Engagement Works</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="space-y-3">
-          <div className="text-meta text-neutral-400 uppercase tracking-wide">Step 1</div>
-          <h3 className="text-h2 text-neutral-900">Define Context</h3>
-          <p className="text-body text-neutral-600">Describe production requirements, volume expectations, and operational constraints.</p>
-        </div>
-        <div className="space-y-3">
-          <div className="text-meta text-neutral-400 uppercase tracking-wide">Step 2</div>
-          <h3 className="text-h2 text-neutral-900">Review Scope</h3>
-          <p className="text-body text-neutral-600">Examine system architecture or processing parameters relevant to your context.</p>
-        </div>
-        <div className="space-y-3">
-          <div className="text-meta text-neutral-400 uppercase tracking-wide">Step 3</div>
-          <h3 className="text-h2 text-neutral-900">Configure Parameters</h3>
-          <p className="text-body text-neutral-600">Adjust specifications, materials, and processing requirements to match constraints.</p>
-        </div>
-        <div className="space-y-3">
-          <div className="text-meta text-neutral-400 uppercase tracking-wide">Step 4</div>
-          <h3 className="text-h2 text-neutral-900">Prepare Direction</h3>
-          <p className="text-body text-neutral-600">Receive assessment and implementation timeline for production planning.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-);
-
-// =============================================================================
-// ENGINEERING APPROACH SECTION
-// =============================================================================
-
-const EngineeringApproachSection: React.FC = () => (
-  <section className="w-full bg-neutral-50 py-16 md:py-20">
-    <div className="max-w-[1280px] mx-auto px-8 md:px-12 lg:px-16">
-      <h2 className="text-h1 text-neutral-900 mb-6">Engineering Approach</h2>
-      <div className="max-w-3xl space-y-4 text-body text-neutral-700">
-        <p>Production decisions are based on material constraints, tolerance requirements, and volume parameters. Each system configuration accounts for machining limitations, assembly sequences, and logistics considerations.</p>
-        <p>Processing services follow standardized workflows with documented quality checkpoints. Implementation timelines are determined by current capacity allocation and material availability.</p>
-      </div>
-    </div>
-  </section>
-);
 
 // =============================================================================
 // MAIN HOME PAGE
@@ -536,18 +452,17 @@ export const HomePage: React.FC = () => {
     <>
       <HeroSection settings={settings.hero} lang={lang} />
       <PartnersSection />
-      <ProductionContextsSection />
 
       {/* Services Section */}
       <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="max-w-[1280px] mx-auto px-8 md:px-12 lg:px-16">
+        <div className="w-full px-8 md:px-12 lg:px-16">
           <ScrollReveal animation="fade-up">
             <h2 className="text-display-sm md:text-display tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
           </ScrollReveal>
           <StaggerReveal 
             animation="fade-up" 
             staggerDelay={100}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {services.map((service) => (
               <ServiceCard 
@@ -561,9 +476,6 @@ export const HomePage: React.FC = () => {
           {services.length === 0 && <p className="text-center py-12 text-neutral-500">No production systems available</p>}
         </div>
       </section>
-
-      <HowEngagementWorksSection />
-      <EngineeringApproachSection />
 
       {/* Stories & About */}
       <div className="relative w-full overflow-hidden" style={{ backgroundColor: settings.layout.background_dark }}>
