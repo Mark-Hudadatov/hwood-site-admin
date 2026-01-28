@@ -46,10 +46,10 @@ const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 
     i18n.changeLanguage(newLang).then(() => window.location.reload());
   };
   
-  const baseClasses = "flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-bold text-[11px]";
+  const baseClasses = "flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-medium text-[11px]";
   const variantClasses = variant === 'light' 
     ? "border-white/50 text-white hover:bg-white/20" 
-    : "border-gray-400 text-gray-800 hover:bg-white hover:border-transparent";
+    : "border-neutral-400 text-neutral-800 hover:bg-white hover:border-transparent";
   
   return (
     <button onClick={toggleLanguage} className={`${baseClasses} ${variantClasses}`} aria-label="Switch language">
@@ -86,10 +86,10 @@ const Header: React.FC = () => {
   return (
     <header className="flex flex-col w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
       {/* Top Utility Bar - Desktop only */}
-      <div className="hidden md:flex justify-end items-center px-8 md:px-12 py-2 gap-6 text-[11px] font-bold text-gray-800 tracking-wide">
-        <Link to="/about" className="hover:text-teal-700 transition-colors">{t('nav.company')}</Link>
-        <Link to="/portfolio" className="hover:text-teal-700 transition-colors">News</Link>
-        <Link to="/contact" className="hover:text-teal-700 transition-colors">{t('contact')}</Link>
+      <div className="hidden md:flex justify-end items-center px-8 md:px-12 py-2 gap-6 text-meta-sm text-neutral-700 tracking-wide uppercase">
+        <Link to="/about" className="hover:text-brand transition-colors">Company</Link>
+        <Link to="/portfolio" className="hover:text-brand transition-colors">Projects</Link>
+        <Link to="/contact" className="hover:text-brand transition-colors">Contact</Link>
       </div>
 
       {/* Main Navbar */}
@@ -112,18 +112,18 @@ const Header: React.FC = () => {
               
               {/* Dropdown */}
               {activeDropdown === service.id && service.subservices && service.subservices.length > 0 && (
-                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[280px] z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">{service.title}</span>
+                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-neutral-100 py-2 min-w-[280px] z-50">
+                  <div className="px-4 py-2 border-b border-neutral-100">
+                    <span className="text-xs font-medium text-neutral-400 uppercase tracking-wide">{service.title}</span>
                   </div>
                   {service.subservices.map((sub) => (
-                    <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors">
-                      <span className="font-medium text-gray-900">{sub.title}</span>
-                      {sub.description && <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{sub.description}</p>}
+                    <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-3 hover:bg-neutral-50 transition-colors">
+                      <span className="font-medium text-neutral-900">{sub.title}</span>
+                      {sub.description && <p className="text-sm text-neutral-500 mt-0.5 line-clamp-1">{sub.description}</p>}
                     </button>
                   ))}
-                  <div className="px-4 py-2 border-t border-gray-100 mt-1">
-                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-semibold text-[#005f5f] hover:underline">
+                  <div className="px-4 py-2 border-t border-neutral-100 mt-1">
+                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-semibold text-brand hover:underline">
                       {t('viewAll')} {service.title} →
                     </button>
                   </div>
@@ -136,13 +136,13 @@ const Header: React.FC = () => {
         {/* Right Icons */}
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+            <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
               <MapPin className="w-5 h-5" />
             </Link>
-            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
               <Search className="w-5 h-5" />
             </button>
-            <Link to="/login" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-gray-100 transition-colors shadow-sm">
+            <Link to="/login" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
               <User className="w-5 h-5" />
             </Link>
           </div>
@@ -157,17 +157,17 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg absolute top-full left-0 right-0 z-50">
+        <div className="lg:hidden bg-white border-t border-neutral-200 shadow-lg absolute top-full left-0 right-0 z-50">
           <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
             {navData.services.map((service) => (
               <div key={service.id}>
-                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50 rounded-lg">
+                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-semibold text-neutral-900 hover:bg-neutral-50 rounded-lg">
                   {service.title}
                 </button>
                 {service.subservices && service.subservices.length > 0 && (
                   <div className="pl-4">
                     {service.subservices.map((sub) => (
-                      <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg">
+                      <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 rounded-lg">
                         {sub.title}
                       </button>
                     ))}
@@ -175,11 +175,11 @@ const Header: React.FC = () => {
                 )}
               </div>
             ))}
-            <div className="border-t border-gray-100 pt-4 mt-4 space-y-2">
-              <Link to="/about" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
-              <Link to="/portfolio" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>News</Link>
-              <Link to="/contact" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-              <Link to="/login" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+            <div className="border-t border-neutral-100 pt-4 mt-4 space-y-2">
+              <Link to="/about" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
+              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>News</Link>
+              <Link to="/contact" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+              <Link to="/login" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Login</Link>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ const Footer: React.FC = () => {
 
         <div className="flex gap-4">
           {[Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white hover:text-black transition-colors">
+            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
               <Icon className="w-5 h-5" />
             </a>
           ))}
@@ -210,26 +210,25 @@ const Footer: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-24">
         <div>
-          <h3 className="text-lg font-bold mb-4">Stay up to date</h3>
-          <div className="w-full h-px bg-gray-600 mb-6" />
-          <p className="mb-8 text-sm text-gray-300 leading-relaxed max-w-md">Subscribe to our newsletter and stay up to date with news from the world of HWOOD.</p>
-          <button className="bg-white text-[#002828] px-8 py-3 rounded font-bold hover:bg-gray-200 transition-colors">Subscribe</button>
+          <h3 className="text-body-lg font-medium mb-4">Updates</h3>
+          <div className="w-full h-px bg-neutral-600 mb-6" />
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Subscribe to receive technical updates and production news.</p>
+          <button className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
         </div>
 
         <div>
-          <h3 className="text-lg font-bold mb-4">Need help?</h3>
-          <div className="w-full h-px bg-[#005f5f] mb-6" />
-          <p className="mb-8 text-sm text-gray-300 leading-relaxed max-w-md">We provide after-sales service supporting the reliability and quality of our services.</p>
-          <button className="bg-[#005f5f] text-white px-8 py-3 rounded font-bold hover:bg-[#004d4d] transition-colors">Request support</button>
+          <h3 className="text-body-lg font-medium mb-4">Technical Support</h3>
+          <div className="w-full h-px bg-brand mb-6" />
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">After-sales service supporting the reliability and quality of production systems.</p>
+          <button className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
         </div>
       </div>
 
-      <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between gap-4 text-[11px] text-gray-400 tracking-wide">
-        <p>Copyright HWOOD | Israel, Netanya | {t('footer.rights')}</p>
+      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between gap-4 text-meta-sm text-neutral-500">
+        <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
         <div className="flex flex-wrap gap-6">
           <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy and cookie policy</a>
-          <a href="#" className="hover:text-white transition-colors">List of cookies</a>
+          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
         </div>
       </div>
     </footer>
@@ -242,7 +241,7 @@ const FooterWrapper: React.FC = () => (
     <div className="absolute inset-0 w-[140%] -left-[10%] h-full z-0 pointer-events-none">
       <div className="absolute inset-0 bg-[#001f1f]" />
       <div className="absolute -left-40 -top-40 h-[200%] w-80 bg-[#004D4D] -skew-x-[20deg]" />
-      <div className="absolute left-0 -top-40 h-[200%] w-64 bg-[#005f5f] -skew-x-[20deg] opacity-70" />
+      <div className="absolute left-0 -top-40 h-[200%] w-64 bg-brand -skew-x-[20deg] opacity-70" />
       <div className="absolute left-56 -top-40 h-[200%] w-40 bg-[#003f3f] -skew-x-[20deg] opacity-50" />
       <div className="absolute left-96 -top-40 h-[200%] w-32 bg-[#004D4D] -skew-x-[20deg] opacity-30" />
     </div>
