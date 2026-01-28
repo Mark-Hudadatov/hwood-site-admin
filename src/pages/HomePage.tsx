@@ -95,7 +95,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     right_title_en: 'Modular Cabinet Systems',
     right_title_he: '',
     right_link: '/services/modular-cabinet-systems',
-    hero_height: '100vh',
+    hero_height: '80vh',
   },
   services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
