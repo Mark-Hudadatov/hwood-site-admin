@@ -40,10 +40,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       onClick={onClick}
     >
       {/* Image */}
-      <div className="w-full aspect-square bg-gray-100 overflow-hidden relative">
+      <div className="w-full aspect-square bg-neutral-100 overflow-hidden relative">
         {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-            <div className="w-8 h-8 border-2 border-gray-300 border-t-[#005f5f] rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
+            <div className="w-8 h-8 border-2 border-neutral-300 border-t-brand rounded-full animate-spin" />
           </div>
         )}
         <img
@@ -60,11 +60,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-lg font-bold text-[#1A1A1A] mb-1 group-hover:text-[#005f5f] transition-colors">
+        <h3 className="text-lg font-medium text-[#1A1A1A] mb-1 group-hover:text-brand transition-colors">
           {product.title}
         </h3>
         {product.subtitle && (
-          <p className="text-sm text-gray-500">{product.subtitle}</p>
+          <p className="text-sm text-neutral-500">{product.subtitle}</p>
         )}
       </div>
     </div>
@@ -124,7 +124,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
           onClick={() => scroll('left')}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
         >
-          <ChevronLeft className="w-6 h-6 text-gray-700" />
+          <ChevronLeft className="w-6 h-6 text-neutral-700" />
         </button>
       )}
 
@@ -134,7 +134,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
           onClick={() => scroll('right')}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
         >
-          <ChevronRight className="w-6 h-6 text-gray-700" />
+          <ChevronRight className="w-6 h-6 text-neutral-700" />
         </button>
       )}
 
@@ -155,10 +155,10 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
               }
             `}
           >
-            <h3 className={`text-base md:text-xl font-bold mb-1 ${activeTab === category.id ? 'text-black' : 'text-white'}`}>
+            <h3 className={`text-base md:text-xl font-medium mb-1 ${activeTab === category.id ? 'text-black' : 'text-white'}`}>
               {category.title}
             </h3>
-            <p className={`text-xs md:text-sm leading-snug line-clamp-2 ${activeTab === category.id ? 'text-gray-600' : 'text-white/70'}`}>
+            <p className={`text-xs md:text-sm leading-snug line-clamp-2 ${activeTab === category.id ? 'text-neutral-600' : 'text-white/70'}`}>
               {category.description}
             </p>
           </button>
@@ -175,14 +175,14 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
 const LoadingSkeleton: React.FC = () => (
   <div className="min-h-screen w-full bg-white">
     <div className="w-full bg-amber-500 h-[350px] animate-pulse" />
-    <div className="px-4 md:px-16 py-12 bg-gray-50">
+    <div className="px-4 md:px-16 py-12 bg-neutral-50">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
           <div key={i} className="bg-white rounded-2xl overflow-hidden animate-pulse">
-            <div className="aspect-square bg-gray-200" />
+            <div className="aspect-square bg-neutral-200" />
             <div className="p-5">
-              <div className="h-5 w-3/4 bg-gray-200 rounded mb-2" />
-              <div className="h-4 w-1/2 bg-gray-200 rounded" />
+              <div className="h-5 w-3/4 bg-neutral-200 rounded mb-2" />
+              <div className="h-4 w-1/2 bg-neutral-200 rounded" />
             </div>
           </div>
         ))}
@@ -198,9 +198,9 @@ const LoadingSkeleton: React.FC = () => (
 const NotFound: React.FC = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
     <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">Subservice Not Found</h1>
-      <p className="text-gray-600 mb-8">The subservice you're looking for doesn't exist.</p>
-      <Link to="/" className="px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors">
+      <h1 className="text-4xl font-medium text-neutral-900 mb-4">Subservice Not Found</h1>
+      <p className="text-neutral-600 mb-8">The subservice you're looking for doesn't exist.</p>
+      <Link to="/" className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand/90 transition-colors">
         Back to Home
       </Link>
     </div>
@@ -265,7 +265,7 @@ export const SubservicePage: React.FC = () => {
         <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16">
           
           {/* Breadcrumbs */}
-          <div className="text-white text-[10px] md:text-xs font-bold tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
+          <div className="text-white text-[10px] md:text-xs font-medium tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
             <Link to="/" className="cursor-pointer hover:opacity-80">Home</Link>
             <span>/</span>
             <span>Services</span>
@@ -290,7 +290,7 @@ export const SubservicePage: React.FC = () => {
 
               <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-4xl">
                 <h1 className="text-2xl md:text-5xl font-normal tracking-tight mb-2">{subservice.title}</h1>
-                <p className="text-gray-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
+                <p className="text-neutral-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
               </div>
             </div>
           </ScrollReveal>
@@ -321,7 +321,7 @@ export const SubservicePage: React.FC = () => {
 
           {/* Empty state */}
           {filteredProducts.length === 0 && categories.length > 0 && (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20 text-neutral-500">
               <p className="text-lg mb-2">No products found in this category.</p>
               <p className="text-sm">Products will appear here once added via Admin Panel.</p>
             </div>
@@ -329,7 +329,7 @@ export const SubservicePage: React.FC = () => {
 
           {/* No categories state */}
           {categories.length === 0 && (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20 text-neutral-500">
               <p className="text-lg">No product categories available yet.</p>
             </div>
           )}

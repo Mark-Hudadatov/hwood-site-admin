@@ -36,7 +36,7 @@ const SubserviceCard: React.FC<SubserviceCardProps> = ({ subservice, onClick }) 
 
   return (
     <div 
-      className={`relative w-[280px] md:w-[320px] flex-shrink-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-lg ${
+      className={`relative w-[280px] md:w-[300px] flex-shrink-0 aspect-[3/4] rounded-xl overflow-hidden shadow-lg ${
         isComingSoon ? '' : 'group cursor-pointer'
       }`}
       onClick={isComingSoon ? undefined : onClick}
@@ -45,8 +45,8 @@ const SubserviceCard: React.FC<SubserviceCardProps> = ({ subservice, onClick }) 
       <img
         src={imgSrc}
         alt={subservice.title}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-          isComingSoon ? 'grayscale brightness-50' : 'group-hover:scale-110'
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
+          isComingSoon ? 'grayscale brightness-50' : 'group-hover:scale-105'
         }`}
         onError={() => setImgSrc(FALLBACK_IMAGE)}
       />
@@ -54,33 +54,33 @@ const SubserviceCard: React.FC<SubserviceCardProps> = ({ subservice, onClick }) 
       {/* Coming Soon Overlay */}
       {isComingSoon && (
         <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-10">
-          <Clock className="w-12 h-12 text-white mb-3" />
-          <span className="text-white text-xl font-bold uppercase tracking-wider">
+          <Clock className="w-10 h-10 text-white mb-3" />
+          <span className="text-white text-body-lg font-medium uppercase tracking-wider">
             Coming Soon
           </span>
         </div>
       )}
       
       {/* Gradient Overlay */}
-      <div className={`absolute inset-0 transition-all duration-500 ${
+      <div className={`absolute inset-0 transition-all duration-300 ${
         isComingSoon 
           ? 'bg-black/20' 
-          : 'bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-[#005f5f]/90 group-hover:via-[#005f5f]/50'
+          : 'bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-brand/80 group-hover:via-brand/40'
       }`} />
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className={`text-white text-xl md:text-2xl font-bold mb-2 tracking-wide transition-transform duration-500 ${
+        <h3 className={`text-white text-h2 mb-2 transition-transform duration-300 ${
           isComingSoon ? '' : 'group-hover:-translate-y-1'
         }`}>
           {subservice.title}
         </h3>
-        <p className="text-white/90 text-sm leading-relaxed font-light line-clamp-2">
+        <p className="text-white/80 text-meta leading-relaxed line-clamp-2">
           {subservice.description}
         </p>
         
         {!isComingSoon && (
-          <div className="flex items-center gap-2 mt-3 text-white/80 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <div className="flex items-center gap-2 mt-3 text-white/70 text-meta opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span>View Products</span>
             <ChevronRight className="w-4 h-4" />
           </div>
@@ -89,7 +89,7 @@ const SubserviceCard: React.FC<SubserviceCardProps> = ({ subservice, onClick }) 
 
       {/* Bottom accent line on hover */}
       {!isComingSoon && (
-        <div className="absolute bottom-0 left-0 h-1 bg-white/80 transition-all duration-500 w-0 group-hover:w-full" />
+        <div className="absolute bottom-0 left-0 h-0.5 bg-white/80 transition-all duration-300 w-0 group-hover:w-full" />
       )}
     </div>
   );
@@ -141,7 +141,7 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, title }) 
     <div className="relative">
       {/* Header with Navigation Arrows */}
       <div className="flex justify-between items-center mb-8 px-2">
-        <h2 className="text-[#1A1A1A] text-3xl md:text-4xl font-bold tracking-tight">
+        <h2 className="text-neutral-900 text-h1 font-medium tracking-tight">
           {title}
         </h2>
         
@@ -150,24 +150,24 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, title }) 
           <button 
             onClick={() => scroll('left')}
             disabled={!showLeftArrow}
-            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+            className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
               showLeftArrow 
-                ? 'border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white cursor-pointer' 
-                : 'border-gray-300 text-gray-300 cursor-not-allowed'
+                ? 'border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white cursor-pointer' 
+                : 'border-neutral-300 text-neutral-300 cursor-not-allowed'
             }`}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button 
             onClick={() => scroll('right')}
             disabled={!showRightArrow}
-            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+            className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
               showRightArrow 
-                ? 'border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white cursor-pointer' 
-                : 'border-gray-300 text-gray-300 cursor-not-allowed'
+                ? 'border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white cursor-pointer' 
+                : 'border-neutral-300 text-neutral-300 cursor-not-allowed'
             }`}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -192,13 +192,13 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, title }) 
 
 const LoadingSkeleton: React.FC = () => (
   <div className="min-h-screen w-full bg-white animate-pulse">
-    <div className="w-full bg-gray-200 h-[300px]" />
+    <div className="w-full bg-neutral-200 h-[300px]" />
     <div className="px-16 py-12">
-      <div className="h-10 w-64 bg-gray-200 rounded mb-8" />
+      <div className="h-10 w-64 bg-neutral-200 rounded mb-8" />
       <div className="flex gap-6">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="w-[320px] flex-shrink-0">
-            <div className="aspect-[3/4] bg-gray-200 rounded-2xl" />
+          <div key={i} className="w-[300px] flex-shrink-0">
+            <div className="aspect-[3/4] bg-neutral-200 rounded-xl" />
           </div>
         ))}
       </div>
@@ -213,11 +213,11 @@ const LoadingSkeleton: React.FC = () => (
 const NotFound: React.FC = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
     <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">Service Not Found</h1>
-      <p className="text-gray-600 mb-8">The service you're looking for doesn't exist.</p>
+      <h1 className="text-h1 font-medium text-neutral-900 mb-4">Service Not Found</h1>
+      <p className="text-body text-neutral-600 mb-8">The service you're looking for doesn't exist.</p>
       <Link 
         to="/" 
-        className="px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+        className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand/90 transition-colors"
       >
         Back to Home
       </Link>
@@ -309,16 +309,16 @@ export const ServicePage: React.FC = () => {
         style={{ backgroundColor: accentColor }}
       >
         {/* Breadcrumb */}
-        <div className="text-white/90 text-[10px] md:text-xs font-bold tracking-wide uppercase mb-4 pl-2 flex items-center gap-2">
+        <div className="text-white/80 text-meta-sm tracking-wide uppercase mb-4 pl-2 flex items-center gap-2">
           <Link to="/" className="cursor-pointer hover:text-white transition-colors">Home</Link>
           <span>/</span>
-          <span>Services</span>
+          <span>Systems</span>
           <span>/</span>
           <span className="text-white">{service.title}</span>
         </div>
 
         {/* Hero Image */}
-        <div className="w-full h-[180px] md:h-[240px] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-xl mb-4 md:mb-8">
+        <div className="w-full h-[160px] md:h-[200px] rounded-2xl overflow-hidden shadow-lg mb-4 md:mb-8">
           <img 
             src={service.heroImageUrl || service.imageUrl || FALLBACK_IMAGE} 
             alt={service.title}
@@ -329,10 +329,10 @@ export const ServicePage: React.FC = () => {
 
         {/* Hero Content */}
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-normal text-[#1A1A1A] mb-6 tracking-tight">
+          <h1 className="text-display-sm md:text-display text-neutral-900 mb-6">
             {service.title}
           </h1>
-          <p className="text-[#1A1A1A] text-xl md:text-2xl font-light leading-relaxed max-w-3xl">
+          <p className="text-neutral-800 text-body-lg leading-relaxed max-w-3xl">
             {service.description}
           </p>
         </div>

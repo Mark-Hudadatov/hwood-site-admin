@@ -105,14 +105,14 @@ export const PortfolioPage: React.FC = () => {
     switch (type) {
       case 'EVENTS': return 'bg-blue-100 text-blue-700';
       case 'CUSTOMER STORY': return 'bg-amber-100 text-amber-700';
-      default: return 'bg-gray-100 text-gray-700';
+      default: return 'bg-neutral-100 text-neutral-700';
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-2 border-[#005f5f] border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-2 border-brand border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -120,26 +120,26 @@ export const PortfolioPage: React.FC = () => {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative bg-[#005f5f] text-white py-16 md:py-24">
+      <section className="relative bg-brand text-white py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Projects & News</h1>
+          <h1 className="text-4xl md:text-5xl font-medium mb-4">Projects & News</h1>
           <p className="text-xl text-white/90 max-w-2xl">
             Explore our latest projects, customer success stories, and company updates.
           </p>
         </div>
-        <div className="absolute right-0 top-0 w-1/4 h-full bg-[#004d4d] -skew-x-12 origin-top-right opacity-50" />
+        <div className="absolute right-0 top-0 w-1/4 h-full bg-brand/90 -skew-x-12 origin-top-right opacity-50" />
       </section>
 
       {/* Filter Bar */}
-      <section className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <section className="bg-white border-b border-neutral-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-4">
           <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
-            <Filter className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <Filter className="w-5 h-5 text-neutral-400 flex-shrink-0" />
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                  filter === 'all' ? 'bg-[#005f5f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  filter === 'all' ? 'bg-brand text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                 }`}
               >
                 All
@@ -149,7 +149,7 @@ export const PortfolioPage: React.FC = () => {
                   key={type}
                   onClick={() => setFilter(type)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                    filter === type ? 'bg-[#005f5f] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    filter === type ? 'bg-brand text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                   }`}
                 >
                   {getTypeLabel(type)}
@@ -161,7 +161,7 @@ export const PortfolioPage: React.FC = () => {
       </section>
 
       {/* Stories Grid */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-16 md:py-24 bg-neutral-50">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredStories.map((story) => {
@@ -186,7 +186,7 @@ export const PortfolioPage: React.FC = () => {
                     {isComingSoon && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center">
                         <Clock className="w-12 h-12 text-white mb-3" />
-                        <span className="text-white text-xl font-bold uppercase tracking-wider">
+                        <span className="text-white text-xl font-medium uppercase tracking-wider">
                           Coming Soon
                         </span>
                       </div>
@@ -196,27 +196,27 @@ export const PortfolioPage: React.FC = () => {
                   {/* Content */}
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getTypeBadgeStyle(story.type)}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide ${getTypeBadgeStyle(story.type)}`}>
                         {story.type === 'EVENTS' ? 'News' : story.type === 'CUSTOMER STORY' ? 'Project' : story.type}
                       </span>
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1 text-sm text-neutral-500">
                         <Calendar className="w-4 h-4" />
                         {story.date}
                       </div>
                     </div>
                     
-                    <h3 className={`text-xl font-bold mb-3 line-clamp-2 transition-colors ${
-                      isComingSoon ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#005f5f]'
+                    <h3 className={`text-xl font-medium mb-3 line-clamp-2 transition-colors ${
+                      isComingSoon ? 'text-neutral-500' : 'text-neutral-900 group-hover:text-brand'
                     }`}>
                       {story.title}
                     </h3>
                     
                     {story.excerpt && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{story.excerpt}</p>
+                      <p className="text-neutral-600 text-sm mb-4 line-clamp-2">{story.excerpt}</p>
                     )}
                     
                     {!isComingSoon && (
-                      <div className="flex items-center gap-2 text-[#005f5f] font-medium">
+                      <div className="flex items-center gap-2 text-brand font-medium">
                         <span>Read more</span>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </div>
@@ -241,22 +241,22 @@ export const PortfolioPage: React.FC = () => {
 
           {filteredStories.length === 0 && (
             <div className="text-center py-16">
-              <p className="text-gray-500 text-lg">No stories found for this filter.</p>
+              <p className="text-neutral-500 text-lg">No stories found for this filter.</p>
             </div>
           )}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-white border-t border-gray-200">
+      <section className="py-16 bg-white border-t border-neutral-200">
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Want to Be Featured?</h2>
-          <p className="text-gray-600 mb-8">
+          <h2 className="text-2xl md:text-3xl font-medium text-neutral-900 mb-4">Want to Be Featured?</h2>
+          <p className="text-neutral-600 mb-8">
             We love showcasing successful projects. If you're a satisfied customer, we'd love to hear your story.
           </p>
           <Link 
             to="/contact"
-            className="inline-flex items-center gap-2 bg-[#005f5f] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#004d4d] transition-colors"
+            className="inline-flex items-center gap-2 bg-brand text-white px-8 py-4 rounded-xl font-medium hover:bg-brand/90 transition-colors"
           >
             Get in Touch
             <ArrowRight className="w-5 h-5" />

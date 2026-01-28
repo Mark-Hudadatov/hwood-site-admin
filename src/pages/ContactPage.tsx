@@ -1,7 +1,7 @@
 /**
- * CONTACT PAGE - HWOOD
- * ====================
- * Contact information and form
+ * CONTACT PAGE - INDUSTRIAL STANDARD
+ * ===================================
+ * Production inquiries and support
  */
 
 import React, { useState, useEffect } from 'react';
@@ -42,22 +42,22 @@ export const ContactPage: React.FC = () => {
   };
 
   const contactInfo = [
-    { icon: MapPin, label: 'Address', value: companyInfo?.address || '' },
+    { icon: MapPin, label: 'Location', value: companyInfo?.address || '' },
     { icon: Phone, label: 'Phone', value: companyInfo?.phone || '' },
     { icon: Mail, label: 'Email', value: companyInfo?.email || '' },
-    { icon: Clock, label: 'Hours', value: 'Sun-Thu: 8:00 - 17:00' },
+    { icon: Clock, label: 'Hours', value: 'Sun-Thu: 08:00 – 17:00' },
   ];
 
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative bg-[#005f5f] text-white py-16 md:py-24">
+      <section className="relative bg-brand text-white py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Contact Us
+          <h1 className="text-display-sm md:text-display mb-4">
+            Contact
           </h1>
-          <p className="text-xl text-white/90 max-w-2xl">
-            Have a question or ready to start your project? We'd love to hear from you.
+          <p className="text-body-lg text-white/70 max-w-2xl">
+            Production inquiries and project consultation.
           </p>
         </div>
       </section>
@@ -69,51 +69,51 @@ export const ContactPage: React.FC = () => {
             
             {/* Contact Info */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Get in Touch</h2>
+              <h2 className="text-h2 text-neutral-900 mb-8">Location & Hours</h2>
               
               <div className="space-y-6 mb-12">
                 {contactInfo.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-[#005f5f]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <item.icon className="w-6 h-6 text-[#005f5f]" />
+                    <div className="w-12 h-12 bg-brand/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-5 h-5 text-brand" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">{item.label}</div>
-                      <div className="text-gray-900">{item.value}</div>
+                      <div className="text-meta text-neutral-500 mb-1">{item.label}</div>
+                      <div className="text-body text-neutral-900">{item.value}</div>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Map Placeholder */}
-              <div className="bg-gray-100 rounded-2xl h-64 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>Map will be displayed here</p>
+              <div className="bg-neutral-100 rounded-xl h-64 flex items-center justify-center">
+                <div className="text-center text-neutral-400">
+                  <MapPin className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                  <p className="text-meta">Map</p>
                 </div>
               </div>
             </div>
 
             {/* Contact Form */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Send us a Message</h2>
+              <h2 className="text-h2 text-neutral-900 mb-8">Send Inquiry</h2>
               
               {submitted ? (
-                <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Send className="w-8 h-8 text-green-600" />
+                <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-8 text-center">
+                  <div className="w-14 h-14 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Send className="w-6 h-6 text-brand" />
                   </div>
-                  <h3 className="text-xl font-bold text-green-900 mb-2">Message Sent!</h3>
-                  <p className="text-green-700">
-                    Thank you for contacting us. We'll get back to you soon.
+                  <h3 className="text-h2 text-neutral-900 mb-2">Inquiry Sent</h3>
+                  <p className="text-body text-neutral-600">
+                    We will respond within 1-2 business days.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Your Name *
+                      <label className="block text-meta text-neutral-700 mb-2">
+                        Name *
                       </label>
                       <input
                         type="text"
@@ -121,13 +121,12 @@ export const ContactPage: React.FC = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
-                        placeholder="John Doe"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
+                      <label className="block text-meta text-neutral-700 mb-2">
+                        Email *
                       </label>
                       <input
                         type="email"
@@ -135,44 +134,41 @@ export const ContactPage: React.FC = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
-                        placeholder="john@company.com"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number
+                      <label className="block text-meta text-neutral-700 mb-2">
+                        Phone
                       </label>
                       <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
-                        placeholder="+972-XX-XXX-XXXX"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Company Name
+                      <label className="block text-meta text-neutral-700 mb-2">
+                        Company
                       </label>
                       <input
                         type="text"
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
-                        placeholder="Your Company"
+                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Message *
+                    <label className="block text-meta text-neutral-700 mb-2">
+                      Project Details *
                     </label>
                     <textarea
                       name="message"
@@ -180,17 +176,17 @@ export const ContactPage: React.FC = () => {
                       onChange={handleChange}
                       required
                       rows={5}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all resize-none"
-                      placeholder="Tell us about your project..."
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all resize-none"
+                      placeholder="Describe your project requirements"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-[#005f5f] text-white py-4 rounded-xl font-bold hover:bg-[#004d4d] transition-colors flex items-center justify-center gap-2"
+                    className="w-full bg-brand text-white py-3 rounded-lg font-medium hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
                   >
-                    <Send className="w-5 h-5" />
-                    Send Message
+                    <Send className="w-4 h-4" />
+                    Send Inquiry
                   </button>
                 </form>
               )}
