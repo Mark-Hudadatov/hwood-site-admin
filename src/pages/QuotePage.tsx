@@ -63,28 +63,28 @@ export const QuotePage: React.FC = () => {
 
   if (submitted) {
     return (
-      <div className="w-full min-h-[80vh] flex items-center justify-center bg-gray-50">
+      <div className="w-full min-h-[80vh] flex items-center justify-center bg-neutral-50">
         <div className="max-w-lg mx-auto px-6 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl font-medium text-neutral-900 mb-4">
             Quote Request Received!
           </h1>
-          <p className="text-gray-600 mb-8">
+          <p className="text-neutral-600 mb-8">
             Thank you for your interest in {companyInfo.name}. Our team will review your 
             request and get back to you within 1-2 business days.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               to="/"
-              className="bg-[#005f5f] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#004d4d] transition-colors"
+              className="bg-brand text-white px-8 py-3 rounded-xl font-medium hover:bg-brand/90 transition-colors"
             >
               Back to Home
             </Link>
             <Link 
               to="/services/modular-cabinet-systems"
-              className="border-2 border-[#005f5f] text-[#005f5f] px-8 py-3 rounded-xl font-bold hover:bg-[#005f5f]/5 transition-colors"
+              className="border-2 border-brand text-brand px-8 py-3 rounded-xl font-medium hover:bg-brand/5 transition-colors"
             >
               Explore Services
             </Link>
@@ -95,15 +95,15 @@ export const QuotePage: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-gray-50">
+    <div className="w-full bg-neutral-50">
       {/* Header */}
-      <div className="bg-[#005f5f] text-white py-12 md:py-16">
+      <div className="bg-brand text-white py-12 md:py-16">
         <div className="max-w-4xl mx-auto px-6 md:px-12">
           <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+          <h1 className="text-3xl md:text-4xl font-medium mb-3">
             Request a Quote
           </h1>
           <p className="text-lg text-white/80">
@@ -118,7 +118,7 @@ export const QuotePage: React.FC = () => {
               />
               <div>
                 <div className="text-sm text-white/70">Requesting quote for:</div>
-                <div className="font-bold">{product.title}</div>
+                <div className="font-medium">{product.title}</div>
               </div>
             </div>
           )}
@@ -130,15 +130,15 @@ export const QuotePage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-10">
           
           {/* Contact Information */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-[#005f5f] text-white rounded-full flex items-center justify-center text-sm">1</span>
+          <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl font-medium text-neutral-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center text-sm">1</span>
               Contact Information
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Company Name *
                 </label>
                 <input
@@ -147,12 +147,12 @@ export const QuotePage: React.FC = () => {
                   value={formData.companyName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   placeholder="Your Company"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Contact Name *
                 </label>
                 <input
@@ -161,12 +161,12 @@ export const QuotePage: React.FC = () => {
                   value={formData.contactName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   placeholder="Your Name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Email Address *
                 </label>
                 <input
@@ -175,12 +175,12 @@ export const QuotePage: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   placeholder="email@company.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Phone Number *
                 </label>
                 <input
@@ -189,7 +189,7 @@ export const QuotePage: React.FC = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   placeholder="+972-XX-XXX-XXXX"
                 />
               </div>
@@ -197,15 +197,15 @@ export const QuotePage: React.FC = () => {
           </div>
 
           {/* Project Details */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-[#005f5f] text-white rounded-full flex items-center justify-center text-sm">2</span>
+          <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl font-medium text-neutral-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center text-sm">2</span>
               Project Details
             </h2>
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Service Type *
                 </label>
                 <select
@@ -213,7 +213,7 @@ export const QuotePage: React.FC = () => {
                   value={formData.serviceType}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 >
                   <option value="">Select a service...</option>
                   {services.map(service => (
@@ -225,7 +225,7 @@ export const QuotePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Project Description *
                 </label>
                 <textarea
@@ -234,14 +234,14 @@ export const QuotePage: React.FC = () => {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none resize-none"
                   placeholder="Describe your project requirements, specifications, materials needed..."
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Estimated Quantity
                   </label>
                   <input
@@ -249,12 +249,12 @@ export const QuotePage: React.FC = () => {
                     name="quantity"
                     value={formData.quantity}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                     placeholder="e.g., 50 units, 100 sqm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Target Deadline
                   </label>
                   <input
@@ -262,7 +262,7 @@ export const QuotePage: React.FC = () => {
                     name="deadline"
                     value={formData.deadline}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   />
                 </div>
               </div>
@@ -270,18 +270,18 @@ export const QuotePage: React.FC = () => {
           </div>
 
           {/* File Upload */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-[#005f5f] text-white rounded-full flex items-center justify-center text-sm">3</span>
+          <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl font-medium text-neutral-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center text-sm">3</span>
               Attachments (Optional)
             </h2>
             
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#005f5f] transition-colors cursor-pointer">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">
-                Drop your files here or <span className="text-[#005f5f] font-medium">browse</span>
+            <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center hover:border-brand transition-colors cursor-pointer">
+              <Upload className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+              <p className="text-neutral-600 mb-2">
+                Drop your files here or <span className="text-brand font-medium">browse</span>
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-neutral-400">
                 Upload drawings, specifications, or reference images (PDF, DWG, JPG, PNG)
               </p>
             </div>
@@ -293,17 +293,17 @@ export const QuotePage: React.FC = () => {
                   name="hasDrawings"
                   checked={formData.hasDrawings}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
+                  className="w-5 h-5 rounded border-neutral-300 text-brand focus:ring-brand"
                 />
-                <span className="text-gray-700">I have technical drawings ready to share</span>
+                <span className="text-neutral-700">I have technical drawings ready to share</span>
               </label>
             </div>
           </div>
 
           {/* Additional Notes */}
-          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span className="w-8 h-8 bg-[#005f5f] text-white rounded-full flex items-center justify-center text-sm">4</span>
+          <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl font-medium text-neutral-900 mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center text-sm">4</span>
               Additional Notes
             </h2>
             
@@ -312,7 +312,7 @@ export const QuotePage: React.FC = () => {
               value={formData.message}
               onChange={handleChange}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none resize-none"
+              className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none resize-none"
               placeholder="Any additional information or questions..."
             />
           </div>
@@ -321,13 +321,13 @@ export const QuotePage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-end">
             <Link
               to="/"
-              className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors text-center"
+              className="px-8 py-4 border-2 border-neutral-300 text-neutral-700 rounded-xl font-medium hover:bg-neutral-50 transition-colors text-center"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              className="px-8 py-4 bg-[#005f5f] text-white rounded-xl font-bold hover:bg-[#004d4d] transition-colors flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-brand text-white rounded-xl font-medium hover:bg-brand/90 transition-colors flex items-center justify-center gap-2"
             >
               <Send className="w-5 h-5" />
               Submit Quote Request
