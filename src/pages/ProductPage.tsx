@@ -382,26 +382,20 @@ export const ProductPage: React.FC = () => {
               </div>
             )}
 
-            <div className="w-full h-px bg-neutral-200 my-10" />
-
-            {/* What Happens After Review */}
-            <div className="mb-10">
-              <h3 className="text-h2 text-neutral-900 mb-3">What Happens After Review</h3>
-              <p className="text-body text-neutral-600">
-                Submit your configuration for assessment. Our team will verify material availability, 
-                confirm processing parameters, and provide production timeline and pricing within 1-2 business days.
-              </p>
-            </div>
-
             {/* Action Buttons */}
-            <div className="flex flex-col gap-4">
+            <div className="mt-12 flex flex-col gap-4">
               <button 
                 onClick={() => navigate(getQuoteUrl())}
-                className="w-full md:w-auto px-8 bg-brand text-white py-3 rounded-xl font-medium hover:bg-brand/90 transition-colors"
+                className="w-full bg-brand text-white py-3 rounded-xl font-medium hover:bg-brand/90 transition-colors"
               >
-                Submit for Review
+                Request Quote
               </button>
-              <span className="text-meta text-neutral-500">Include production context and volume requirements with your submission</span>
+              <button 
+                onClick={() => navigate(ROUTES.CONTACT)}
+                className="w-full border border-brand text-brand py-3 rounded-xl font-medium hover:bg-brand/5 transition-colors"
+              >
+                Contact
+              </button>
             </div>
 
           </div>
