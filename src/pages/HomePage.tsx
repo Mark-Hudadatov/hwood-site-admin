@@ -295,8 +295,8 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   return (
     <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
       <div className="absolute inset-0 flex flex-col md:flex-row">
-        {/* Left Panel - 70% with Video */}
-        <div className="relative w-full md:w-[70%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
+        {/* Left Panel - 80% with Video */}
+        <div className="relative w-full md:w-[80%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
           {settings.left_video_url ? (
             <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
               <source src={settings.left_video_url} type="video/mp4" />
