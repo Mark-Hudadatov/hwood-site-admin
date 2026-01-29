@@ -349,10 +349,10 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
               {leftTitle}
             </h1>
             {leftSubtitle && (
-              <p className={`text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+              <p className={`text-white/80 text-lg md:text-xl font-light leading-relaxed whitespace-nowrap transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                 {leftSubtitle}
               </p>
-            )}
+            )}            
           </div>
           
           {settings.left_video_url && (
