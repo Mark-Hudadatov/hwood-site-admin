@@ -25,8 +25,6 @@ const FALLBACK = {
   hero: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop',
 };
 
-const PARTNER_NAMES = ['Biesse', 'Homag', 'Blum', 'Hettich', 'Grass', 'Festool'];
-
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -90,12 +88,12 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     left_title_en: 'CNC Production Systems',
     left_title_he: 'מערכות ייצור CNC',
     left_subtitle_en: 'Modular systems and CNC processing for kitchen and interior production.',
-    left_subtitle_he: '',
-    right_image_url: FALLBACK.hero,
-    right_title_en: 'Modular Cabinet Systems',
+    left_subtitle_he: 'מערכות מודולריות ועיבוד CNC לייצור מטבחים ופנים.',
+    right_image_url: '',
+    right_title_en: '',
     right_title_he: '',
-    right_link: '/services/modular-cabinet-systems',
-    hero_height: '80vh',
+    right_link: '/services',
+    hero_height: '90vh',
   },
   services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
@@ -126,24 +124,64 @@ const ComingSoonOverlay: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md
 };
 
 // =============================================================================
-// PARTNERS SECTION
+// PARTNERS SECTION (DYNAMIC FROM SUPABASE)
 // =============================================================================
 
-const PartnersSection: React.FC = () => (
-  <section className="w-full bg-white py-6 md:py-10 overflow-hidden border-b border-gray-100">
-    <div className="relative">
-      <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10" />
-      <div className="flex animate-marquee">
-        {[...PARTNER_NAMES, ...PARTNER_NAMES, ...PARTNER_NAMES].map((name, i) => (
-          <span key={i} className="flex-shrink-0 mx-8 md:mx-16 text-2xl md:text-3xl font-bold text-gray-300 hover:text-gray-500 transition-colors tracking-wide uppercase whitespace-nowrap">
-            {name}
-          </span>
-        ))}
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string;
+  website_url?: string;
+}
+
+const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
+  // If no partners, show nothing or fallback text
+  if (partners.length === 0) {
+    return null;
+  }
+
+  // Triple the partners for seamless loop
+  const displayPartners = [...partners, ...partners, ...partners];
+
+  return (
+    <section className="w-full bg-white py-6 md:py-10 overflow-hidden border-b border-gray-100">
+      <div className="relative">
+        <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10" />
+        <div className="flex animate-marquee">
+          {displayPartners.map((partner, i) => (
+            partner.website_url ? (
+              <a
+                key={`${partner.id}-${i}`}
+                href={partner.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 mx-8 md:mx-12 flex items-center justify-center h-12 md:h-16 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={partner.logo_url}
+                  alt={partner.name}
+                  className="h-8 md:h-12 w-auto max-w-[120px] md:max-w-[160px] object-contain grayscale hover:grayscale-0 transition-all"
+                />
+              </a>
+            ) : (
+              <div
+                key={`${partner.id}-${i}`}
+                className="flex-shrink-0 mx-8 md:mx-12 flex items-center justify-center h-12 md:h-16 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={partner.logo_url}
+                  alt={partner.name}
+                  className="h-8 md:h-12 w-auto max-w-[120px] md:max-w-[160px] object-contain grayscale hover:grayscale-0 transition-all"
+                />
+              </div>
+            )
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // =============================================================================
 // SERVICE CARD WITH COMING SOON
@@ -295,8 +333,8 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   return (
     <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
       <div className="absolute inset-0 flex flex-col md:flex-row">
-        {/* Left Panel - 80% with Video */}
-        <div className="relative w-full md:w-[80%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
+        {/* Left Panel - 70% with Video */}
+        <div className="relative w-full md:w-[70%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
           {settings.left_video_url ? (
             <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
               <source src={settings.left_video_url} type="video/mp4" />
@@ -459,6 +497,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState<ServiceWithStatus[]>([]);
   const [stories, setStories] = useState<StoryWithStatus[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [settings, setSettings] = useState<HomepageSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const storiesScrollRef = useRef<HTMLDivElement>(null);
@@ -467,6 +506,17 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Fetch partners
+        const { data: partnersData } = await supabase
+          .from('partners')
+          .select('*')
+          .eq('is_visible', true)
+          .order('sort_order', { ascending: true });
+        
+        if (partnersData) {
+          setPartners(partnersData);
+        }
+
         // Fetch services with visibility_status
         const { data: servicesData } = await supabase
           .from('services')
@@ -553,7 +603,7 @@ export const HomePage: React.FC = () => {
     <>
       <HeroSection settings={settings.hero} lang={lang} />
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
-      <PartnersSection />
+      <PartnersSection partners={partners} />
 
       {/* Services Section */}
       <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
