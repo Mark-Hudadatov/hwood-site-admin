@@ -196,9 +196,9 @@ const ServiceCard: React.FC<{
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
 
-  return (
+ return (
     <div 
-      className={`relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`relative w-full aspect-[4/5] max-h-[420px] rounded-2xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
       onClick={isComingSoon ? undefined : onClick}
       onMouseEnter={() => !isComingSoon && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -607,7 +607,7 @@ export const HomePage: React.FC = () => {
 
       {/* Services Section */}
       <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="w-full px-8 md:px-12 lg:px-16">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
           <ScrollReveal animation="fade-up">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
           </ScrollReveal>
