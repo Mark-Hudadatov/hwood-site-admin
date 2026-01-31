@@ -66,9 +66,7 @@ export async function getServices(): Promise<Service[]> {
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
-      subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
       description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
-      ctaText: lang === 'he' && s.cta_text_he ? s.cta_text_he : s.cta_text_en || (lang === 'he' ? 'לפרטים נוספים' : 'Learn more'),
       imageUrl: s.image_url || '',
       heroImageUrl: s.hero_image_url || '',
       accentColor: s.accent_color || '#005f5f',
@@ -101,13 +99,10 @@ export async function getServiceBySlug(slug: string): Promise<Service | null> {
       id: data.id,
       slug: data.slug,
       title: lang === 'he' && data.title_he ? data.title_he : data.title_en,
-      subtitle: lang === 'he' && data.subtitle_he ? data.subtitle_he : data.subtitle_en || '',
       description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
-      ctaText: lang === 'he' && data.cta_text_he ? data.cta_text_he : data.cta_text_en || (lang === 'he' ? 'לפרטים נוספים' : 'Learn more'),
       imageUrl: data.image_url || '',
       heroImageUrl: data.hero_image_url || '',
       accentColor: data.accent_color || '#005f5f',
-      visibilityStatus: data.visibility_status,
     };
   } catch (e) {
     console.error('[DataService] getServiceBySlug exception:', e);
