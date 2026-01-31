@@ -1,9 +1,12 @@
 /**
- * HOME PAGE - WITH COMING SOON SUPPORT
- * =====================================
- * ✅ Services with Coming Soon overlay
+ * HOME PAGE - INDUSTRIAL MINIMAL DESIGN
+ * ======================================
+ * ✅ Services with minimal card design (white cards, faint bg images)
+ * ✅ Coming Soon badge + muted overlay
  * ✅ Stories with Coming Soon overlay
- * ✅ Direct image tags (no complex wrappers)
+ * ✅ First service marked as Primary
+ * ✅ Bilingual support (EN/HE)
+ * ✅ Grid layout on mobile, responsive cards
  */
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -31,6 +34,8 @@ const FALLBACK = {
 
 interface ServiceWithStatus extends Service {
   visibilityStatus?: string;
+  subtitle?: string;
+  ctaText?: string;
 }
 
 interface StoryWithStatus extends Story {
@@ -54,6 +59,8 @@ interface HomepageSettings {
   services_section: {
     title_en: string;
     title_he: string;
+    subtitle_en: string;
+    subtitle_he: string;
     show_descriptions: boolean;
   };
   stories_section: {
@@ -95,7 +102,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     right_link: '/services',
     hero_height: '90vh',
   },
-  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', show_descriptions: true },
+  services_section: { title_en: 'What We Do', title_he: 'מה אנחנו עושים', subtitle_en: 'CNC Manufacturing Services', subtitle_he: 'שירותי ייצור CNC', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
   about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
@@ -108,18 +115,41 @@ const getCurrentLang = (): 'en' | 'he' => {
 };
 
 // =============================================================================
-// COMING SOON OVERLAY
+// COMING SOON BADGE (Minimal Style)
 // =============================================================================
 
-const ComingSoonOverlay: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
-  const iconSize = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-14 h-14' : 'w-10 h-10';
-  const textSize = size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-2xl' : 'text-lg';
+const ComingSoonBadge: React.FC = () => (
+  <span className="text-[8px] font-bold uppercase tracking-[0.2em] border border-gray-400 px-2 py-1 text-gray-500">
+    Coming Soon
+  </span>
+);
 
+// =============================================================================
+// COMING SOON OVERLAY (For Stories - Dark Background)
+// =============================================================================
+
+const ComingSoonOverlay: React.FC = () => {
+  const lang = getCurrentLang();
   return (
     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-10">
-      <Clock className={`${iconSize} text-white mb-2`} />
-      <span className={`text-white ${textSize} font-bold uppercase tracking-wider`}>Coming Soon</span>
+      <Clock className="w-10 h-10 text-white mb-2" />
+      <span className="text-white text-lg font-bold uppercase tracking-wider">
+        {lang === 'he' ? 'בקרוב' : 'Coming Soon'}
+      </span>
     </div>
+  );
+};
+
+// =============================================================================
+// PRIMARY BADGE
+// =============================================================================
+
+const PrimaryBadge: React.FC = () => {
+  const lang = getCurrentLang();
+  return (
+    <span className="text-[8px] font-bold uppercase tracking-[0.2em] border border-[#005f5f] px-2 py-1 text-[#005f5f]">
+      {lang === 'he' ? 'מומלץ' : 'Featured'}
+    </span>
   );
 };
 
@@ -187,61 +217,107 @@ const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
 // SERVICE CARD WITH COMING SOON
 // =============================================================================
 
+// =============================================================================
+// SERVICE CARD - MINIMAL INDUSTRIAL DESIGN
+// =============================================================================
+
 const ServiceCard: React.FC<{
   service: ServiceWithStatus;
   onClick: () => void;
   showDescription: boolean;
-}> = ({ service, onClick, showDescription }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  isPrimary?: boolean;
+}> = ({ service, onClick, showDescription, isPrimary = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
+  const lang = getCurrentLang();
+  const ctaText = service.ctaText || (lang === 'he' ? 'לפרטים נוספים' : 'Learn more');
 
  return (
     <div 
-      className={`relative w-full aspect-[4/5] max-h-[420px] rounded-2xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`
+        relative flex flex-col justify-between overflow-hidden border rounded-[2rem]
+        w-full aspect-[4/5]
+        bg-white text-gray-900 transition-all duration-300
+        ${isComingSoon 
+          ? 'border-gray-200 cursor-not-allowed' 
+          : 'border-gray-200 cursor-pointer hover:border-[#005f5f] hover:ring-1 hover:ring-[#005f5f] hover:shadow-xl'
+        }
+        ${isPrimary ? 'shadow-sm' : ''}
+      `}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => !isComingSoon && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={imgSrc}
-        alt={service.title}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-          isComingSoon ? 'grayscale brightness-75' : isHovered ? 'scale-110' : 'scale-100'
-        }`}
-        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
-      />
-      
-      {isComingSoon && <ComingSoonOverlay />}
-      
-      <div className={`absolute inset-0 transition-all duration-500 ${
-        isComingSoon ? 'bg-black/20' :
-        isHovered ? 'bg-gradient-to-t from-[#005f5f] via-[#005f5f]/70 to-[#005f5f]/30' 
-                  : 'bg-gradient-to-t from-black/90 via-black/40 to-transparent'
-      }`} />
+      {/* Matte Background Visual - Very Low Contrast */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <img 
+          src={imgSrc} 
+          alt="" 
+          className={`w-full h-full object-cover transition-all duration-500 ${
+            isComingSoon 
+              ? 'grayscale opacity-[0.03]' 
+              : isPrimary 
+                ? 'grayscale opacity-[0.1]' 
+                : 'grayscale opacity-[0.06]'
+          }`}
+          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-white/40" />
+      </div>
 
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className={`text-white text-2xl md:text-3xl font-bold mb-3 tracking-wide transition-transform duration-500 ${
-          isComingSoon ? 'opacity-70' : isHovered ? '-translate-y-2' : ''
-        }`}>
-          {service.title}
-        </h3>
-        {showDescription && !isComingSoon && (
-          <p className="text-white/90 text-sm md:text-base leading-relaxed font-light line-clamp-3">
-            {service.description}
-          </p>
-        )}
+      {/* Coming Soon Full Overlay */}
+      {isComingSoon && (
+        <div className="absolute inset-0 z-20 bg-gray-100/60 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <Clock className="w-8 h-8 text-gray-400" />
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">
+              {lang === 'he' ? 'בקרוב' : 'Coming Soon'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Structured Content Container */}
+      <div className={`relative z-10 p-8 md:p-10 flex flex-col h-full justify-between ${isComingSoon ? 'opacity-50' : ''}`}>
+        <div>
+          {/* Header Row */}
+          <div className="mb-8 md:mb-10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-1.5 h-1.5 ${isPrimary ? 'bg-[#005f5f]' : 'bg-gray-300'}`} />
+              <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-gray-400">
+                {service.subtitle || (lang === 'he' ? 'שירות' : 'Service')}
+              </span>
+            </div>
+            {isPrimary && !isComingSoon && <PrimaryBadge />}
+            {isComingSoon && <ComingSoonBadge />}
+          </div>
+
+          {/* Divider */}
+          <div className={`h-[1px] w-full mb-8 md:mb-10 ${isPrimary ? 'bg-gray-900/10' : 'bg-gray-100'}`} />
+          
+          {/* Title */}
+          <h3 className="text-xl md:text-2xl font-bold mb-6 tracking-tight leading-tight text-gray-900">
+            {service.title}
+          </h3>
+          
+          {/* Description */}
+          {showDescription && (
+            <p className="text-[13px] leading-relaxed font-normal text-gray-600 line-clamp-3">
+              {service.description}
+            </p>
+          )}
+        </div>
+        
+        {/* CTA */}
         {!isComingSoon && (
-          <div className={`flex items-center gap-2 mt-4 text-white/90 text-sm font-medium transition-all duration-500 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span>Explore</span>
-            <ArrowRight className="w-4 h-4" />
+          <div className={`pt-6 border-t ${isPrimary ? 'border-gray-900/10' : 'border-gray-100'}`}>
+            <span className={`text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group
+              ${isPrimary ? 'text-gray-900' : 'text-gray-500 group-hover:text-[#005f5f]'} transition-colors`}>
+              {ctaText}
+              <ArrowRight className="w-4 h-4 opacity-50 transition-transform group-hover:translate-x-1" />
+            </span>
           </div>
         )}
       </div>
-
-      {!isComingSoon && (
-        <div className="absolute bottom-0 left-0 h-1 bg-white/80 transition-all duration-500" style={{ width: isHovered ? '100%' : '0%' }} />
-      )}
     </div>
   );
 };
@@ -529,7 +605,9 @@ export const HomePage: React.FC = () => {
             id: s.id,
             slug: s.slug,
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+            subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
             description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
+            ctaText: lang === 'he' && s.cta_text_he ? s.cta_text_he : s.cta_text_en || (lang === 'he' ? 'לפרטים נוספים' : 'Learn more'),
             imageUrl: s.image_url || '',
             heroImageUrl: s.hero_image_url,
             accentColor: s.accent_color,
@@ -588,6 +666,7 @@ export const HomePage: React.FC = () => {
   };
 
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
+  const servicesSubtitle = lang === 'he' && settings.services_section.subtitle_he ? settings.services_section.subtitle_he : settings.services_section.subtitle_en;
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
 
@@ -605,27 +684,44 @@ export const HomePage: React.FC = () => {
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
-      {/* Services Section */}
-      <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+      {/* Services Section - Industrial Minimal Design */}
+      <section className="w-full bg-[#f8f8f8] py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+          {/* Structural B2B Header */}
           <ScrollReveal animation="fade-up">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-10 md:pb-12 border-b border-gray-200 mb-12 md:mb-16">
+              <div className="flex flex-col mb-6 md:mb-0">
+                <h2 className="text-[9px] font-bold uppercase tracking-[0.5em] text-gray-400 mb-2">
+                  {servicesTitle}
+                </h2>
+                <span className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-900 leading-none">
+                  {servicesSubtitle}
+                </span>
+              </div>
+            </div>
           </ScrollReveal>
+          
+          {/* Services Grid */}
           <StaggerReveal 
             animation="fade-up" 
             staggerDelay={100}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           >
-            {services.map((service) => (
+            {services.map((service, index) => (
               <ServiceCard 
                 key={service.id} 
                 service={service} 
                 onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
-                showDescription={settings.services_section.show_descriptions} 
+                showDescription={settings.services_section.show_descriptions}
+                isPrimary={index === 0}
               />
             ))}
           </StaggerReveal>
-          {services.length === 0 && <p className="text-center py-12 text-gray-500">No services found</p>}
+          {services.length === 0 && (
+            <p className="text-center py-12 text-gray-500">
+              {lang === 'he' ? 'לא נמצאו שירותים' : 'No services found'}
+            </p>
+          )}
         </div>
       </section>
 
