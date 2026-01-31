@@ -30,6 +30,8 @@ interface HeroSettings {
 interface ServicesSectionSettings {
   title_en: string;
   title_he: string;
+  subtitle_en: string;
+  subtitle_he: string;
   padding_y: string;
   card_gap: string;
   card_aspect_ratio: string;
@@ -89,8 +91,10 @@ export const AdminMainPage: React.FC = () => {
   });
 
   const [servicesSection, setServicesSection] = useState<ServicesSectionSettings>({
-    title_en: 'Our Services',
-    title_he: 'השירותים שלנו',
+    title_en: 'What We Do',
+    title_he: 'מה אנחנו עושים',
+    subtitle_en: 'CNC Manufacturing Services',
+    subtitle_he: 'שירותי ייצור CNC',
     padding_y: '24',
     card_gap: '8',
     card_aspect_ratio: '3/4',
@@ -381,14 +385,27 @@ export const AdminMainPage: React.FC = () => {
           {activeTab === 'services' && (
             <div className="space-y-6">
               <BilingualInput
-                label="Section Title"
+                label="Section Label (Small Text)"
                 nameEn="title_en"
                 nameHe="title_he"
                 valueEn={servicesSection.title_en}
                 valueHe={servicesSection.title_he}
                 onChangeEn={(v) => setServicesSection({ ...servicesSection, title_en: v })}
                 onChangeHe={(v) => setServicesSection({ ...servicesSection, title_he: v })}
-                placeholder="Our Services"
+                placeholder="What We Do"
+                helpText="Small uppercase text above the main title"
+              />
+
+              <BilingualInput
+                label="Section Title (Main Heading)"
+                nameEn="subtitle_en"
+                nameHe="subtitle_he"
+                valueEn={servicesSection.subtitle_en}
+                valueHe={servicesSection.subtitle_he}
+                onChangeEn={(v) => setServicesSection({ ...servicesSection, subtitle_en: v })}
+                onChangeHe={(v) => setServicesSection({ ...servicesSection, subtitle_he: v })}
+                placeholder="CNC Manufacturing Services"
+                helpText="Large title text for the services section"
               />
 
               <div className="grid md:grid-cols-3 gap-6">
