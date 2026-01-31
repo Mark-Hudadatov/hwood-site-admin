@@ -23,10 +23,13 @@ export interface Service {
   id: string;
   slug: string;                    // URL-friendly: "modular-bodies-and-cabinets"
   title: string;                   // Display: "Modular bodies and cabinets"
+  subtitle?: string;               // Technical label: "Cabinet Systems"
   description: string;
+  ctaText?: string;                // Button text: "Learn more"
   imageUrl: string;
   heroImageUrl?: string;           // Optional larger hero image for service page
   accentColor?: string;            // Optional brand color (e.g., "#D48F28")
+  visibilityStatus?: string;       // visible, hidden, coming_soon
 }
 
 /**
