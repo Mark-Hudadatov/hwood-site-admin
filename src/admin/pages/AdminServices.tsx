@@ -1,215 +1,163 @@
 /**
- * ADMIN MAIN PAGE SETTINGS
- * ========================
- * Control all aspects of the homepage:
- * - Hero section (images, text, links)
- * - Services section (title, spacing)
- * - Stories section (title, buttons)
- * - About section (content, styling)
- * - Layout (colors, spacing)
+ * ADMIN SERVICES PAGE
+ * ====================
  */
 
 import React, { useEffect, useState } from 'react';
-import { Save, RefreshCw, Eye, Layout, Image, Type, Palette, Sliders } from 'lucide-react';
-import { supabase } from '../../services/supabase';
-import { BilingualInput, ImageUpload } from '../components';
+import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
+import {
+  AdminService,
+  VisibilityStatus,
+  getAdminServices,
+  createService,
+  updateService,
+  deleteService,
+  reorderServices,
+} from '../adminStore';
+import {
+  BilingualInput,
+  VisibilitySelect,
+  ImageUpload,
+  Modal,
+  ConfirmDialog,
+} from '../components';
 
-// Types for homepage settings
-interface HeroSettings {
-  left_image_url: string;
-  left_title_en: string;
-  left_title_he: string;
-  right_image_url: string;
-  right_title_en: string;
-  right_title_he: string;
-  right_link: string;
-  hero_height: string;
-  show_pagination: boolean;
-}
-
-interface ServicesSectionSettings {
-  title_en: string;
-  title_he: string;
-  subtitle_en: string;
-  subtitle_he: string;
-  padding_y: string;
-  card_gap: string;
-  card_aspect_ratio: string;
-  show_descriptions: boolean;
-}
-
-interface StoriesSectionSettings {
-  title_en: string;
-  title_he: string;
-  button_text_en: string;
-  button_text_he: string;
-  button_link: string;
-  padding_y: string;
-  card_gap: string;
-  show_generate_button: boolean;
-}
-
-interface AboutSectionSettings {
-  title_en: string;
-  title_he: string;
-  description_en: string;
-  description_he: string;
-  button_text_en: string;
-  button_text_he: string;
-  button_link: string;
-  background_color: string;
-  text_color: string;
-}
-
-interface LayoutSettings {
-  primary_color: string;
-  secondary_color: string;
-  background_dark: string;
-  section_spacing: string;
-  border_radius: string;
-}
-
-type TabType = 'hero' | 'services' | 'stories' | 'about' | 'layout';
-
-export const AdminMainPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('hero');
+export const AdminServices: React.FC = () => {
+  const [services, setServices] = useState<AdminService[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingService, setEditingService] = useState<AdminService | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Settings state
-  const [hero, setHero] = useState<HeroSettings>({
-    left_image_url: '',
-    left_title_en: '',
-    left_title_he: '',
-    right_image_url: '',
-    right_title_en: '',
-    right_title_he: '',
-    right_link: '',
-    hero_height: '80vh',
-    show_pagination: true,
-  });
-
-  const [servicesSection, setServicesSection] = useState<ServicesSectionSettings>({
-    title_en: 'What We Do',
-    title_he: 'מה אנחנו עושים',
-    subtitle_en: 'CNC Manufacturing Services',
-    subtitle_he: 'שירותי ייצור CNC',
-    padding_y: '24',
-    card_gap: '8',
-    card_aspect_ratio: '3/4',
-    show_descriptions: true,
-  });
-
-  const [storiesSection, setStoriesSection] = useState<StoriesSectionSettings>({
-    title_en: 'Recent Projects and News',
-    title_he: 'פרויקטים וחדשות אחרונים',
-    button_text_en: 'See all',
-    button_text_he: 'ראה הכל',
-    button_link: '/portfolio',
-    padding_y: '24',
-    card_gap: '12',
-    show_generate_button: true,
-  });
-
-  const [aboutSection, setAboutSection] = useState<AboutSectionSettings>({
-    title_en: 'About HWOOD',
-    title_he: 'אודות HWOOD',
+  // Form state
+const [formData, setFormData] = useState<{
+    slug: string;
+    title_en: string;
+    title_he: string;
+    subtitle_en: string;
+    subtitle_he: string;
+    description_en: string;
+    description_he: string;
+    cta_text_en: string;
+    cta_text_he: string;
+    image_url: string;
+    hero_image_url: string;
+    accent_color: string;
+    visibility_status: VisibilityStatus;
+  }>({
+    slug: '',
+    title_en: '',
+    title_he: '',
+    subtitle_en: '',
+    subtitle_he: '',
     description_en: '',
     description_he: '',
-    button_text_en: 'Discover HWOOD',
-    button_text_he: 'גלה את HWOOD',
-    button_link: '/about',
-    background_color: '#EAEAEA',
-    text_color: '#005f5f',
+    cta_text_en: 'Learn more',
+    cta_text_he: 'לפרטים נוספים',
+    image_url: '',
+    hero_image_url: '',
+    accent_color: '#005f5f',
+    visibility_status: 'visible',
   });
 
-  const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>({
-    primary_color: '#005f5f',
-    secondary_color: '#004d4d',
-    background_dark: '#002828',
-    section_spacing: '0',
-    border_radius: '2xl',
-  });
-
-  // Load all settings
-  const loadSettings = async () => {
-    setLoading(true);
+  const loadServices = async () => {
     try {
-      const { data, error } = await supabase
-        .from('homepage_settings')
-        .select('*');
-
-      if (error) throw error;
-
-      if (data) {
-        data.forEach((row: { section: string; settings: any }) => {
-          switch (row.section) {
-            case 'hero':
-              setHero({ ...hero, ...row.settings });
-              break;
-            case 'services_section':
-              setServicesSection({ ...servicesSection, ...row.settings });
-              break;
-            case 'stories_section':
-              setStoriesSection({ ...storiesSection, ...row.settings });
-              break;
-            case 'about_section':
-              setAboutSection({ ...aboutSection, ...row.settings });
-              break;
-            case 'layout':
-              setLayoutSettings({ ...layoutSettings, ...row.settings });
-              break;
-          }
-        });
-      }
+      const data = await getAdminServices();
+      setServices(data);
     } catch (error) {
-      console.error('Failed to load settings:', error);
-      setMessage({ type: 'error', text: 'Failed to load settings. Make sure to run the SQL migration.' });
+      console.error('Failed to load services:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSettings();
+    loadServices();
   }, []);
 
-  // Save settings for a specific section
-  const saveSection = async (section: string, settings: any) => {
-    setSaving(true);
-    setMessage(null);
-    
-    try {
-      const { error } = await supabase
-        .from('homepage_settings')
-        .upsert({ 
-          section, 
-          settings,
-          updated_at: new Date().toISOString()
-        }, { 
-          onConflict: 'section' 
-        });
+  const openNewModal = () => {
+    setEditingService(null);
+    setFormData({
+      slug: '',
+      title_en: '',
+      title_he: '',
+      subtitle_en: '',
+      subtitle_he: '',
+      description_en: '',
+      description_he: '',
+      cta_text_en: 'Learn more',
+      cta_text_he: 'לפרטים נוספים',
+      image_url: '',
+      hero_image_url: '',
+      accent_color: '#005f5f',
+      visibility_status: 'visible',
+    });
+    setIsModalOpen(true);
+  };
 
-      if (error) throw error;
-      
-      setMessage({ type: 'success', text: 'Settings saved successfully!' });
-      setTimeout(() => setMessage(null), 3000);
+  const openEditModal = (service: AdminService) => {
+    setEditingService(service);
+    setFormData({
+      slug: service.slug,
+      title_en: service.title_en,
+      title_he: service.title_he || '',
+      subtitle_en: service.subtitle_en || '',
+      subtitle_he: service.subtitle_he || '',
+      description_en: service.description_en || '',
+      description_he: service.description_he || '',
+      cta_text_en: service.cta_text_en || 'Learn more',
+      cta_text_he: service.cta_text_he || 'לפרטים נוספים',
+      image_url: service.image_url || '',
+      hero_image_url: service.hero_image_url || '',
+      accent_color: service.accent_color || '#005f5f',
+      visibility_status: service.visibility_status,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!formData.title_en || !formData.slug) {
+      alert('Title (EN) and Slug are required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingService) {
+        await updateService(editingService.id, formData);
+      } else {
+        await createService({
+          ...formData,
+          sort_order: services.length,
+        });
+      }
+      await loadServices();
+      setIsModalOpen(false);
     } catch (error) {
-      console.error('Failed to save:', error);
-      setMessage({ type: 'error', text: 'Failed to save settings' });
+      console.error('Failed to save service:', error);
+      alert('Failed to save service');
     } finally {
       setSaving(false);
     }
   };
 
-  const tabs = [
-    { id: 'hero' as TabType, label: 'Hero Section', icon: Image },
-    { id: 'services' as TabType, label: 'Services', icon: Layout },
-    { id: 'stories' as TabType, label: 'Stories', icon: Type },
-    { id: 'about' as TabType, label: 'About', icon: Type },
-    { id: 'layout' as TabType, label: 'Layout & Colors', icon: Palette },
-  ];
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteService(id);
+      await loadServices();
+    } catch (error) {
+      console.error('Failed to delete service:', error);
+      alert('Failed to delete service. It may have subservices.');
+    }
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
 
   if (loading) {
     return (
@@ -224,562 +172,269 @@ export const AdminMainPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Main Page Settings</h2>
-          <p className="text-gray-500">Customize every aspect of your homepage</p>
+          <h2 className="text-2xl font-bold text-gray-900">Services</h2>
+          <p className="text-gray-500">Manage your top-level service categories</p>
         </div>
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+        <button
+          onClick={openNewModal}
+          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
         >
-          <Eye className="w-4 h-4" />
-          Preview Site
-        </a>
+          <Plus className="w-5 h-5" />
+          Add Service
+        </button>
       </div>
 
-      {/* Message */}
-      {message && (
-        <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-          {message.text}
-        </div>
-      )}
-
-      {/* Tabs */}
+      {/* Services List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="border-b border-gray-200">
-          <nav className="flex overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-[#005f5f] text-[#005f5f]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+        {services.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-gray-500 mb-4">No services yet</p>
+            <button
+              onClick={openNewModal}
+              className="text-[#005f5f] hover:underline"
+            >
+              Create your first service
+            </button>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {services.map((service, index) => (
+              <div
+                key={service.id}
+                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
+                  service.visibility_status !== 'visible' ? 'opacity-60' : ''
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
+                {/* Drag Handle */}
+                <div className="cursor-grab text-gray-400">
+                  <GripVertical className="w-5 h-5" />
+                </div>
+
+                {/* Image */}
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  {service.image_url ? (
+                    <img
+                      src={service.image_url}
+                      alt={service.title_en}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      No img
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-gray-900 truncate">
+                    {service.title_en}
+                  </h3>
+                  <p className="text-sm text-gray-500 truncate">
+                    /{service.slug}
+                  </p>
+                </div>
+
+                {/* Status Badge */}
+                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  service.visibility_status === 'visible' 
+                    ? 'bg-green-100 text-green-700'
+                    : service.visibility_status === 'coming_soon'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-gray-100 text-gray-700'
+                }`}>
+                  {service.visibility_status === 'visible' ? 'Visible' :
+                   service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
+                </div>
+
+                {/* Accent Color */}
+                <div
+                  className="w-6 h-6 rounded-full border-2 border-white shadow"
+                  style={{ backgroundColor: service.accent_color || '#005f5f' }}
+                />
+
+                {/* Actions */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => openEditModal(service)}
+                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirm(service.id)}
+                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             ))}
-          </nav>
-        </div>
-
-        <div className="p-6">
-          {/* HERO TAB */}
-          {activeTab === 'hero' && (
-            <div className="space-y-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Left Side */}
-                <div className="space-y-6 p-6 bg-gray-50 rounded-xl">
-                  <h3 className="font-semibold text-lg text-gray-900">Left Side (Dark)</h3>
-                  
-                  <ImageUpload
-                    label="Background Image"
-                    value={hero.left_image_url}
-                    onChange={(url) => setHero({ ...hero, left_image_url: url })}
-                    folder="hero"
-                    helpText="Industrial/dark mood (1600×900 recommended)"
-                  />
-
-                  <BilingualInput
-                    label="Title Text"
-                    nameEn="left_title_en"
-                    nameHe="left_title_he"
-                    valueEn={hero.left_title_en}
-                    valueHe={hero.left_title_he}
-                    onChangeEn={(v) => setHero({ ...hero, left_title_en: v })}
-                    onChangeHe={(v) => setHero({ ...hero, left_title_he: v })}
-                    type="textarea"
-                    placeholder="Headline text for left side"
-                  />
-                </div>
-
-                {/* Right Side */}
-                <div className="space-y-6 p-6 bg-gray-50 rounded-xl">
-                  <h3 className="font-semibold text-lg text-gray-900">Right Side (Featured)</h3>
-                  
-                  <ImageUpload
-                    label="Background Image"
-                    value={hero.right_image_url}
-                    onChange={(url) => setHero({ ...hero, right_image_url: url })}
-                    folder="hero"
-                    helpText="Colorful/abstract (1600×900 recommended)"
-                  />
-
-                  <BilingualInput
-                    label="Title Text"
-                    nameEn="right_title_en"
-                    nameHe="right_title_he"
-                    valueEn={hero.right_title_en}
-                    valueHe={hero.right_title_he}
-                    onChangeEn={(v) => setHero({ ...hero, right_title_en: v })}
-                    onChangeHe={(v) => setHero({ ...hero, right_title_he: v })}
-                    placeholder="Main headline"
-                  />
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      CTA Link
-                    </label>
-                    <input
-                      type="text"
-                      value={hero.right_link}
-                      onChange={(e) => setHero({ ...hero, right_link: e.target.value })}
-                      placeholder="/services/modular-cabinet-systems"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Where the arrow button links to</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hero Options */}
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hero Height
-                  </label>
-                  <select
-                    value={hero.hero_height}
-                    onChange={(e) => setHero({ ...hero, hero_height: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] outline-none"
-                  >
-                    <option value="60vh">60% viewport (shorter)</option>
-                    <option value="70vh">70% viewport</option>
-                    <option value="80vh">80% viewport (default)</option>
-                    <option value="90vh">90% viewport</option>
-                    <option value="100vh">Full screen</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="show_pagination"
-                    checked={hero.show_pagination}
-                    onChange={(e) => setHero({ ...hero, show_pagination: e.target.checked })}
-                    className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
-                  />
-                  <label htmlFor="show_pagination" className="text-sm text-gray-700">
-                    Show pagination dots
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={() => saveSection('hero', hero)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Hero Settings'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* SERVICES TAB */}
-          {activeTab === 'services' && (
-            <div className="space-y-6">
-              <BilingualInput
-                label="Section Label (Small Text)"
-                nameEn="title_en"
-                nameHe="title_he"
-                valueEn={servicesSection.title_en}
-                valueHe={servicesSection.title_he}
-                onChangeEn={(v) => setServicesSection({ ...servicesSection, title_en: v })}
-                onChangeHe={(v) => setServicesSection({ ...servicesSection, title_he: v })}
-                placeholder="What We Do"
-                helpText="Small uppercase text above the main title"
-              />
-
-              <BilingualInput
-                label="Section Title (Main Heading)"
-                nameEn="subtitle_en"
-                nameHe="subtitle_he"
-                valueEn={servicesSection.subtitle_en}
-                valueHe={servicesSection.subtitle_he}
-                onChangeEn={(v) => setServicesSection({ ...servicesSection, subtitle_en: v })}
-                onChangeHe={(v) => setServicesSection({ ...servicesSection, subtitle_he: v })}
-                placeholder="CNC Manufacturing Services"
-                helpText="Large title text for the services section"
-              />
-
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vertical Padding (rem)
-                  </label>
-                  <select
-                    value={servicesSection.padding_y}
-                    onChange={(e) => setServicesSection({ ...servicesSection, padding_y: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="16">16 (compact)</option>
-                    <option value="20">20 (normal)</option>
-                    <option value="24">24 (spacious)</option>
-                    <option value="32">32 (very spacious)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Card Gap (rem)
-                  </label>
-                  <select
-                    value={servicesSection.card_gap}
-                    onChange={(e) => setServicesSection({ ...servicesSection, card_gap: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="4">4 (tight)</option>
-                    <option value="6">6 (normal)</option>
-                    <option value="8">8 (spacious)</option>
-                    <option value="12">12 (very spacious)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Card Aspect Ratio
-                  </label>
-                  <select
-                    value={servicesSection.card_aspect_ratio}
-                    onChange={(e) => setServicesSection({ ...servicesSection, card_aspect_ratio: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="3/4">3:4 (portrait)</option>
-                    <option value="3/5">3:5 (tall)</option>
-                    <option value="1/1">1:1 (square)</option>
-                    <option value="4/3">4:3 (landscape)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="show_descriptions"
-                  checked={servicesSection.show_descriptions}
-                  onChange={(e) => setServicesSection({ ...servicesSection, show_descriptions: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
-                />
-                <label htmlFor="show_descriptions" className="text-sm text-gray-700">
-                  Show descriptions on service cards
-                </label>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={() => saveSection('services_section', servicesSection)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Services Settings'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STORIES TAB */}
-          {activeTab === 'stories' && (
-            <div className="space-y-6">
-              <BilingualInput
-                label="Section Title"
-                nameEn="title_en"
-                nameHe="title_he"
-                valueEn={storiesSection.title_en}
-                valueHe={storiesSection.title_he}
-                onChangeEn={(v) => setStoriesSection({ ...storiesSection, title_en: v })}
-                onChangeHe={(v) => setStoriesSection({ ...storiesSection, title_he: v })}
-                placeholder="Recent Projects and News"
-              />
-
-              <BilingualInput
-                label="'See All' Button Text"
-                nameEn="button_text_en"
-                nameHe="button_text_he"
-                valueEn={storiesSection.button_text_en}
-                valueHe={storiesSection.button_text_he}
-                onChangeEn={(v) => setStoriesSection({ ...storiesSection, button_text_en: v })}
-                onChangeHe={(v) => setStoriesSection({ ...storiesSection, button_text_he: v })}
-                placeholder="See all"
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Button Link
-                </label>
-                <input
-                  type="text"
-                  value={storiesSection.button_link}
-                  onChange={(e) => setStoriesSection({ ...storiesSection, button_link: e.target.value })}
-                  placeholder="/portfolio"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vertical Padding
-                  </label>
-                  <select
-                    value={storiesSection.padding_y}
-                    onChange={(e) => setStoriesSection({ ...storiesSection, padding_y: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="16">16 (compact)</option>
-                    <option value="20">20 (normal)</option>
-                    <option value="24">24 (spacious)</option>
-                    <option value="32">32 (very spacious)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Card Gap
-                  </label>
-                  <select
-                    value={storiesSection.card_gap}
-                    onChange={(e) => setStoriesSection({ ...storiesSection, card_gap: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="8">8 (tight)</option>
-                    <option value="12">12 (normal)</option>
-                    <option value="16">16 (spacious)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="show_generate_button"
-                  checked={storiesSection.show_generate_button}
-                  onChange={(e) => setStoriesSection({ ...storiesSection, show_generate_button: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
-                />
-                <label htmlFor="show_generate_button" className="text-sm text-gray-700">
-                  Show "See more" button
-                </label>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={() => saveSection('stories_section', storiesSection)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Stories Settings'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ABOUT TAB */}
-          {activeTab === 'about' && (
-            <div className="space-y-6">
-              <BilingualInput
-                label="Section Title"
-                nameEn="title_en"
-                nameHe="title_he"
-                valueEn={aboutSection.title_en}
-                valueHe={aboutSection.title_he}
-                onChangeEn={(v) => setAboutSection({ ...aboutSection, title_en: v })}
-                onChangeHe={(v) => setAboutSection({ ...aboutSection, title_he: v })}
-                placeholder="About HWOOD"
-              />
-
-              <BilingualInput
-                label="Description"
-                nameEn="description_en"
-                nameHe="description_he"
-                valueEn={aboutSection.description_en}
-                valueHe={aboutSection.description_he}
-                onChangeEn={(v) => setAboutSection({ ...aboutSection, description_en: v })}
-                onChangeHe={(v) => setAboutSection({ ...aboutSection, description_he: v })}
-                type="textarea"
-                placeholder="About your company..."
-              />
-
-              <BilingualInput
-                label="Button Text"
-                nameEn="button_text_en"
-                nameHe="button_text_he"
-                valueEn={aboutSection.button_text_en}
-                valueHe={aboutSection.button_text_he}
-                onChangeEn={(v) => setAboutSection({ ...aboutSection, button_text_en: v })}
-                onChangeHe={(v) => setAboutSection({ ...aboutSection, button_text_he: v })}
-                placeholder="Discover HWOOD"
-              />
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Button Link
-                  </label>
-                  <input
-                    type="text"
-                    value={aboutSection.button_link}
-                    onChange={(e) => setAboutSection({ ...aboutSection, button_link: e.target.value })}
-                    placeholder="/about"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Background Color
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={aboutSection.background_color}
-                      onChange={(e) => setAboutSection({ ...aboutSection, background_color: e.target.value })}
-                      className="w-12 h-12 rounded cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={aboutSection.background_color}
-                      onChange={(e) => setAboutSection({ ...aboutSection, background_color: e.target.value })}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={() => saveSection('about_section', aboutSection)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save About Settings'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* LAYOUT TAB */}
-          {activeTab === 'layout' && (
-            <div className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Primary Color
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={layoutSettings.primary_color}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, primary_color: e.target.value })}
-                      className="w-12 h-12 rounded cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={layoutSettings.primary_color}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, primary_color: e.target.value })}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Secondary Color
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={layoutSettings.secondary_color}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, secondary_color: e.target.value })}
-                      className="w-12 h-12 rounded cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={layoutSettings.secondary_color}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, secondary_color: e.target.value })}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Dark Background
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={layoutSettings.background_dark}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, background_dark: e.target.value })}
-                      className="w-12 h-12 rounded cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={layoutSettings.background_dark}
-                      onChange={(e) => setLayoutSettings({ ...layoutSettings, background_dark: e.target.value })}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Section Spacing
-                  </label>
-                  <select
-                    value={layoutSettings.section_spacing}
-                    onChange={(e) => setLayoutSettings({ ...layoutSettings, section_spacing: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="0">No gap (seamless)</option>
-                    <option value="4">Small (1rem)</option>
-                    <option value="8">Medium (2rem)</option>
-                    <option value="16">Large (4rem)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Border Radius Style
-                  </label>
-                  <select
-                    value={layoutSettings.border_radius}
-                    onChange={(e) => setLayoutSettings({ ...layoutSettings, border_radius: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="none">Sharp corners</option>
-                    <option value="lg">Slightly rounded</option>
-                    <option value="xl">Rounded</option>
-                    <option value="2xl">Very rounded</option>
-                    <option value="3xl">Highly rounded</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t">
-                <button
-                  onClick={() => saveSection('layout', layoutSettings)}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Saving...' : 'Save Layout Settings'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingService ? 'Edit Service' : 'New Service'}
+        size="lg"
+      >
+        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+          {/* Slug */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Slug <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                placeholder="service-slug"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
+                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+              >
+                Generate
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">URL: /services/{formData.slug || 'slug'}</p>
+          </div>
+
+          {/* Title */}
+          <BilingualInput
+            label="Title"
+            nameEn="title_en"
+            nameHe="title_he"
+            valueEn={formData.title_en}
+            valueHe={formData.title_he}
+            onChangeEn={(v) => setFormData({ ...formData, title_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, title_he: v })}
+            required
+            placeholder="Service title"
+          />
+
+          {/* Subtitle / Technical Label */}
+          <BilingualInput
+            label="Subtitle (Technical Label)"
+            nameEn="subtitle_en"
+            nameHe="subtitle_he"
+            valueEn={formData.subtitle_en}
+            valueHe={formData.subtitle_he}
+            onChangeEn={(v) => setFormData({ ...formData, subtitle_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, subtitle_he: v })}
+            placeholder="e.g., Cabinet Systems, CNC Machining"
+            helpText="Short technical descriptor shown above the title"
+          />
+
+          {/* Description */}
+          <BilingualInput
+            label="Description"
+            nameEn="description_en"
+            nameHe="description_he"
+            valueEn={formData.description_en}
+            valueHe={formData.description_he}
+            onChangeEn={(v) => setFormData({ ...formData, description_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, description_he: v })}
+            type="textarea"
+            placeholder="Brief description of the service"
+          />
+
+          {/* CTA Text */}
+          <BilingualInput
+            label="Button Text (CTA)"
+            nameEn="cta_text_en"
+            nameHe="cta_text_he"
+            valueEn={formData.cta_text_en}
+            valueHe={formData.cta_text_he}
+            onChangeEn={(v) => setFormData({ ...formData, cta_text_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, cta_text_he: v })}
+            placeholder="e.g., Learn more, View catalog"
+            helpText="Text shown on the service card button"
+          />
+
+          {/* Images */}
+          <div className="grid grid-cols-2 gap-6">
+            <ImageUpload
+              label="Card Image"
+              value={formData.image_url}
+              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              folder="services"
+              helpText="Shown on service cards (800×600 recommended)"
+            />
+            <ImageUpload
+              label="Hero Image"
+              value={formData.hero_image_url}
+              onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
+              folder="services"
+              helpText="Full-width banner (1920×600 recommended)"
+            />
+          </div>
+
+          {/* Accent Color */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Accent Color
+            </label>
+            <div className="flex items-center gap-4">
+              <input
+                type="color"
+                value={formData.accent_color}
+                onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
+                className="w-12 h-12 rounded-lg cursor-pointer border-0"
+              />
+              <input
+                type="text"
+                value={formData.accent_color}
+                onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
+                className="w-32 px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="#005f5f"
+              />
+            </div>
+          </div>
+
+          {/* Visibility */}
+          <VisibilitySelect
+            value={formData.visibility_status}
+            onChange={(v) => setFormData({ ...formData, visibility_status: v as any })}
+          />
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save Service'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
+        title="Delete Service"
+        message="Are you sure you want to delete this service? This will also delete all subservices, categories, and products under it. This action cannot be undone."
+        confirmText="Delete"
+        danger
+      />
     </div>
   );
 };
