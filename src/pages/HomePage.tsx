@@ -37,6 +37,7 @@ interface ServiceWithStatus extends Service {
   visibilityStatus?: string;
   subtitle?: string;
   accentColor?: string;
+  ctaText?: string;
 }
 
 interface StoryWithStatus extends Story {
@@ -194,7 +195,7 @@ const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
 // =============================================================================
 
 // =============================================================================
-// SERVICE CARD - CNC INDUSTRIAL STYLE
+// SERVICE CARD - CNC INDUSTRIAL STYLE V2
 // =============================================================================
 
 const ServiceCard: React.FC<{
@@ -205,84 +206,69 @@ const ServiceCard: React.FC<{
 }> = ({ service, onClick, showDescription, isPrimary = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
-  const accentColor = service.accentColor || '#005f5f';
 
   // Get subtitle from service if available (technical descriptor)
   const technicalDescriptor = service.subtitle || 'Industrial Service';
+  // Get CTA text from service
+  const ctaText = service.ctaText || 'Explore Services';
 
   return (
     <div 
-      className={`relative flex flex-col justify-between overflow-hidden border rounded-[2rem]
-        w-full h-[480px] md:h-[500px]
-        bg-white text-gray-900 border-gray-200 transition-all duration-300
-        ${isComingSoon ? 'opacity-70' : 'hover:border-gray-900 hover:ring-1 hover:ring-gray-900 hover:shadow-xl cursor-pointer'}
-        ${isPrimary ? 'shadow-sm' : ''}
+      className={`flex-shrink-0 relative flex flex-col justify-between overflow-hidden rounded-3xl
+        w-full h-[500px] md:h-[580px]
+        group transition-all duration-300
+        bg-gray-100 border-4 border-transparent
+        ${isComingSoon ? 'opacity-70' : 'hover:border-black cursor-pointer'}
       `}
       onClick={isComingSoon ? undefined : onClick}
     >
-      {/* Matte Background Visual - 25% Opacity */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* Full-color Background Image */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <img 
           src={imgSrc} 
-          alt="" 
-          className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : 'grayscale'} opacity-25`}
+          alt={service.title} 
+          className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : ''}`}
           onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
-          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-white/30" />
+        {/* Gradient for Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80" />
       </div>
 
       {isComingSoon && <ComingSoonOverlay />}
 
-      {/* Structured Content Container */}
-      <div className="relative z-10 p-8 md:p-10 flex flex-col h-full">
-        {/* Top Header & Metadata */}
-        <div className="flex flex-col">
-          <div className="mb-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div 
-                className={`w-1.5 h-1.5`}
-                style={{ backgroundColor: isPrimary ? accentColor : '#d1d5db' }}
-              />
-              <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-gray-400">
-                {technicalDescriptor}
-              </span>
-            </div>
-            {isPrimary && (
-              <span 
-                className="text-[8px] font-bold uppercase tracking-[0.2em] border px-2 py-1"
-                style={{ borderColor: accentColor, color: accentColor }}
-              >
-                Featured
-              </span>
-            )}
-          </div>
-          <div className={`h-[1px] w-full ${isPrimary ? 'bg-gray-900/10' : 'bg-gray-100'}`} />
+      {/* Content Container */}
+      <div className="relative z-10 p-8 md:p-10 flex flex-col h-full text-white">
+        {/* Technical Descriptor Badge */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold bg-[#005f5f] px-4 py-2 rounded-sm text-white">
+            {technicalDescriptor}
+          </span>
+          {isPrimary && (
+            <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
+          )}
         </div>
 
-        {/* Spacer pushes title and description to the bottom */}
-        <div className="flex-grow flex flex-col justify-end pb-6">
-          <h3 className="text-xl md:text-2xl font-bold mb-3 tracking-tight leading-tight text-gray-900">
+        {/* Main Content pushed to bottom */}
+        <div className="mt-auto">
+          <h4 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight leading-[1.2]">
             {service.title}
-          </h3>
+          </h4>
           {showDescription && service.description && (
-            <p className="text-[13px] leading-relaxed font-normal text-gray-600 line-clamp-3">
+            <p className="text-sm leading-relaxed font-light text-white/70 max-w-[90%] mb-8 group-hover:text-white transition-colors line-clamp-3">
               {service.description}
             </p>
           )}
-        </div>
-        
-        {/* Bottom Divider & CTA */}
-        <div className={`pt-6 border-t ${isPrimary ? 'border-gray-900/10' : 'border-gray-100'}`}>
-          <span className={`text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group
-            ${isComingSoon ? 'text-gray-400' : isPrimary ? 'text-gray-900' : 'text-gray-500 group-hover:text-black transition-colors'}`}>
-            {isComingSoon ? 'Coming Soon' : 'Explore Services'}
-            {!isComingSoon && (
-              <svg className="w-4 h-4 opacity-50 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            )}
-          </span>
+          
+          {!isComingSoon && (
+            <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group/link transition-all">
+                {ctaText}
+                <svg className="w-5 h-5 transition-transform group-hover/link:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -574,6 +560,7 @@ export const HomePage: React.FC = () => {
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
             subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
             description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
+            ctaText: lang === 'he' && s.cta_text_he ? s.cta_text_he : s.cta_text_en || 'Explore Services',
             imageUrl: s.image_url || '',
             heroImageUrl: s.hero_image_url,
             accentColor: s.accent_color,
@@ -655,46 +642,47 @@ export const HomePage: React.FC = () => {
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
-      {/* Services Section - CNC Industrial Style */}
-      <section className="bg-[#f8f8f8] py-16 md:py-24 overflow-hidden select-none">
-        {/* Structural B2B Header */}
-        <div className="max-w-[1280px] mx-auto px-8 mb-12 md:mb-16">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-8 md:pb-12 border-b border-gray-200 gap-6">
+      {/* Services Section - CNC Industrial Style V2 */}
+      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
+        {/* Header with Title and Subtitle stacked vertically */}
+        <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-100">
             <div className="flex flex-col">
-              <h2 className="text-[9px] font-bold uppercase tracking-[0.5em] text-gray-400 mb-2">Service Architecture</h2>
-              <span className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-900 leading-none">{servicesTitle}</span>
-              <p className="text-[13px] text-gray-500 mt-3 font-medium tracking-wide">
-                Professional CNC manufacturing and carpentry services for industrial applications.
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+                {servicesTitle}
+              </h3>
+              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
+                Precision services designed for the modern industrial workflow.
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => scrollServices('left')}
-                className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-gray-800"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Previous"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               <button 
                 onClick={() => scrollServices('right')}
-                className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-gray-800"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Next"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Industrial Domain Grid/Slider */}
+        {/* Service Cards Slider */}
         <div 
           ref={servicesScrollRef}
-          className="flex gap-6 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-8 scroll-smooth"
+          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 scroll-smooth cursor-grab active:cursor-grabbing"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
-            <div key={service.id} className="flex-shrink-0 w-[340px] md:w-[400px]">
+            <div key={service.id} className="flex-shrink-0 w-[340px] md:w-[420px]">
               <ServiceCard 
                 service={service} 
                 onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
@@ -704,8 +692,8 @@ export const HomePage: React.FC = () => {
             </div>
           ))}
           
-          {/* Visual cutoff gap */}
-          <div className="flex-shrink-0 w-16 md:w-32" />
+          {/* Spacer for scroll end */}
+          <div className="flex-shrink-0 w-32 md:w-64" />
         </div>
         
         {services.length === 0 && (
