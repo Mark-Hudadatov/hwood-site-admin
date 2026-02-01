@@ -19,10 +19,14 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 // CONSTANTS
 // =============================================================================
 
+// Icon-based fallback images as data URIs (no external dependencies)
 const FALLBACK = {
-  service: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop',
-  story: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=1000&fit=crop',
-  hero: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop',
+  // Carpentry/cabinet icon - small centered on dark background
+  service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/><rect x="58" y="12" width="15" height="20" rx="2"/><circle cx="18" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="43" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="65" cy="22" r="1.5" fill="#ffffff" fill-opacity="0.4"/></g></svg>`)}`,
+  // News/story icon  
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="80" rx="4"/><line x1="12" y1="18" x2="68" y2="18"/><line x1="12" y1="32" x2="55" y2="32"/><line x1="12" y1="46" x2="62" y2="46"/><line x1="12" y1="60" x2="40" y2="60"/></g></svg>`)}`,
+  // Industrial/CNC hero background
+  hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
 
 // =============================================================================
@@ -31,6 +35,9 @@ const FALLBACK = {
 
 interface ServiceWithStatus extends Service {
   visibilityStatus?: string;
+  subtitle?: string;
+  accentColor?: string;
+  ctaText?: string;
 }
 
 interface StoryWithStatus extends Story {
@@ -187,61 +194,83 @@ const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
 // SERVICE CARD WITH COMING SOON
 // =============================================================================
 
+// =============================================================================
+// SERVICE CARD - CNC INDUSTRIAL STYLE V2
+// =============================================================================
+
 const ServiceCard: React.FC<{
   service: ServiceWithStatus;
   onClick: () => void;
   showDescription: boolean;
-}> = ({ service, onClick, showDescription }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  isPrimary?: boolean;
+}> = ({ service, onClick, showDescription, isPrimary = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
 
+  // Get subtitle from service if available (technical descriptor)
+  const technicalDescriptor = service.subtitle || 'Industrial Service';
+  // Get CTA text from service
+  const ctaText = service.ctaText || 'Explore Services';
+
   return (
     <div 
-      className={`relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`relative flex flex-col justify-between overflow-hidden rounded-3xl
+        w-[340px] h-[500px] md:w-[420px] md:h-[580px]
+        group transition-all duration-300
+        border-4 border-transparent
+        ${isComingSoon ? 'opacity-70' : 'hover:border-black hover:shadow-2xl cursor-pointer'}
+      `}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => !isComingSoon && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={imgSrc}
-        alt={service.title}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-          isComingSoon ? 'grayscale brightness-75' : isHovered ? 'scale-110' : 'scale-100'
-        }`}
-        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
-      />
-      
-      {isComingSoon && <ComingSoonOverlay />}
-      
-      <div className={`absolute inset-0 transition-all duration-500 ${
-        isComingSoon ? 'bg-black/20' :
-        isHovered ? 'bg-gradient-to-t from-[#005f5f] via-[#005f5f]/70 to-[#005f5f]/30' 
-                  : 'bg-gradient-to-t from-black/90 via-black/40 to-transparent'
-      }`} />
-
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className={`text-white text-2xl md:text-3xl font-bold mb-3 tracking-wide transition-transform duration-500 ${
-          isComingSoon ? 'opacity-70' : isHovered ? '-translate-y-2' : ''
-        }`}>
-          {service.title}
-        </h3>
-        {showDescription && !isComingSoon && (
-          <p className="text-white/90 text-sm md:text-base leading-relaxed font-light line-clamp-3">
-            {service.description}
-          </p>
-        )}
-        {!isComingSoon && (
-          <div className={`flex items-center gap-2 mt-4 text-white/90 text-sm font-medium transition-all duration-500 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span>Explore</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        )}
+      {/* Full-color Background Image */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <img 
+          src={imgSrc} 
+          alt={service.title} 
+          className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : ''}`}
+          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
+        />
+        {/* Gradient for Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80" />
       </div>
 
-      {!isComingSoon && (
-        <div className="absolute bottom-0 left-0 h-1 bg-white/80 transition-all duration-500" style={{ width: isHovered ? '100%' : '0%' }} />
-      )}
+      {isComingSoon && <ComingSoonOverlay />}
+
+      {/* Content Container - p-10 = 40px padding */}
+      <div className="relative z-10 p-10 flex flex-col h-full text-white">
+        {/* Technical Descriptor Badge */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[10px] uppercase tracking-[0.3em] font-bold bg-[#005f5f] px-4 py-2 rounded-sm text-white">
+            {technicalDescriptor}
+          </span>
+          {isPrimary && (
+            <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
+          )}
+        </div>
+
+        {/* Main Content pushed to bottom */}
+        <div className="mt-auto">
+          <h4 className="text-xl md:text-2xl font-bold mb-4 tracking-tight leading-tight truncate">
+            {service.title}
+          </h4>
+          {showDescription && service.description && (
+            <p className="text-sm leading-relaxed font-light text-white/70 mb-8 group-hover:text-white transition-colors line-clamp-2">
+              {service.description}
+            </p>
+          )}
+          
+          {!isComingSoon && (
+            <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group/link transition-all">
+                {ctaText}
+                <svg className="w-5 h-5 transition-transform group-hover/link:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -529,7 +558,9 @@ export const HomePage: React.FC = () => {
             id: s.id,
             slug: s.slug,
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+            subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
             description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
+            ctaText: lang === 'he' && s.cta_text_he ? s.cta_text_he : s.cta_text_en || 'Explore Services',
             imageUrl: s.image_url || '',
             heroImageUrl: s.hero_image_url,
             accentColor: s.accent_color,
@@ -587,6 +618,52 @@ export const HomePage: React.FC = () => {
     storiesScrollRef.current?.scrollBy({ left: direction === 'right' ? 400 : -400, behavior: 'smooth' });
   };
 
+  // Services scroll handler with drag support
+  const servicesScrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
+  const scrollServices = (direction: 'left' | 'right') => {
+    servicesScrollRef.current?.scrollBy({ left: direction === 'right' ? 440 : -440, behavior: 'smooth' });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!servicesScrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - servicesScrollRef.current.offsetLeft);
+    setScrollLeft(servicesScrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // Reset hasDragged after a short delay to allow click prevention
+    setTimeout(() => setHasDragged(false), 100);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !servicesScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - servicesScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    // Only mark as dragged if we moved more than 5px
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    servicesScrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleServiceClick = (slug: string) => {
+    if (hasDragged) return; // Don't navigate if we just dragged
+    navigate(ROUTES.SERVICE(slug));
+  };
+
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
@@ -605,28 +682,67 @@ export const HomePage: React.FC = () => {
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
-      {/* Services Section */}
-      <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="w-full px-8 md:px-12 lg:px-16">
-          <ScrollReveal animation="fade-up">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
-          </ScrollReveal>
-          <StaggerReveal 
-            animation="fade-up" 
-            staggerDelay={100}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-          >
-            {services.map((service) => (
-              <ServiceCard 
-                key={service.id} 
-                service={service} 
-                onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
-                showDescription={settings.services_section.show_descriptions} 
-              />
-            ))}
-          </StaggerReveal>
-          {services.length === 0 && <p className="text-center py-12 text-gray-500">No services found</p>}
+      {/* Services Section - CNC Industrial Style V2 */}
+      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
+        {/* Header with Title and Subtitle stacked vertically */}
+        <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
+            <div className="flex flex-col">
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+                {servicesTitle}
+              </h3>
+              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
+                Precision services designed for the modern industrial workflow.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => scrollServices('left')}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              <button 
+                onClick={() => scrollServices('right')}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Service Cards Slider */}
+        <div 
+          ref={servicesScrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 cursor-grab active:cursor-grabbing"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {services.map((service, index) => (
+            <div key={service.id} className="flex-shrink-0">
+              <ServiceCard 
+                service={service} 
+                onClick={() => handleServiceClick(service.slug)} 
+                showDescription={settings.services_section.show_descriptions}
+                isPrimary={index === 0}
+              />
+            </div>
+          ))}
+          
+          {/* Spacer for scroll end */}
+          <div className="flex-shrink-0 w-32 md:w-64" />
+        </div>
+        
+        {services.length === 0 && (
+          <p className="text-center py-12 text-gray-500 max-w-[1280px] mx-auto px-8">No services found</p>
+        )}
       </section>
 
       {/* Stories & About */}
