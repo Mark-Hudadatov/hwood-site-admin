@@ -21,10 +21,10 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 
 // Icon-based fallback images as data URIs (no external dependencies)
 const FALLBACK = {
-  // Carpentry/wood icon for services
-  service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#005f5f"/><g transform="translate(200, 300)" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.3"><rect x="50" y="50" width="300" height="200" rx="8"/><rect x="80" y="100" width="80" height="120" rx="4"/><rect x="180" y="100" width="80" height="120" rx="4"/><rect x="280" y="100" width="50" height="80" rx="4"/><path d="M50 250 L50 350 L350 350 L350 250" stroke-linecap="round"/><circle cx="200" cy="400" r="30"/><path d="M170 400 L230 400 M200 370 L200 430"/></g></svg>`)}`,
+  // Carpentry/cabinet icon - small centered on dark background
+  service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/><rect x="58" y="12" width="15" height="20" rx="2"/><circle cx="18" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="43" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="65" cy="22" r="1.5" fill="#ffffff" fill-opacity="0.4"/></g></svg>`)}`,
   // News/story icon  
-  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#002828"/><g transform="translate(200, 300)" stroke="#ffffff" stroke-width="6" fill="none" opacity="0.3"><rect x="50" y="50" width="300" height="350" rx="12"/><line x1="100" y1="120" x2="300" y2="120"/><line x1="100" y1="170" x2="250" y2="170"/><line x1="100" y1="220" x2="280" y2="220"/><line x1="100" y1="270" x2="200" y2="270"/><rect x="100" y="300" width="200" height="60" rx="6" fill="#ffffff" fill-opacity="0.1"/></g></svg>`)}`,
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="80" rx="4"/><line x1="12" y1="18" x2="68" y2="18"/><line x1="12" y1="32" x2="55" y2="32"/><line x1="12" y1="46" x2="62" y2="46"/><line x1="12" y1="60" x2="40" y2="60"/></g></svg>`)}`,
   // Industrial/CNC hero background
   hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
@@ -215,10 +215,10 @@ const ServiceCard: React.FC<{
   return (
     <div 
       className={`flex-shrink-0 relative flex flex-col justify-between overflow-hidden rounded-3xl
-        w-full h-[500px] md:h-[580px]
+        w-full h-[420px] md:h-[460px]
         group transition-all duration-300
         bg-gray-100 border-4 border-transparent
-        ${isComingSoon ? 'opacity-70' : 'hover:border-black cursor-pointer'}
+        ${isComingSoon ? 'opacity-70' : 'hover:border-white cursor-pointer'}
       `}
       onClick={isComingSoon ? undefined : onClick}
     >
@@ -618,10 +618,50 @@ export const HomePage: React.FC = () => {
     storiesScrollRef.current?.scrollBy({ left: direction === 'right' ? 400 : -400, behavior: 'smooth' });
   };
 
-  // Services scroll handler
+  // Services scroll handler with drag support
   const servicesScrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
   const scrollServices = (direction: 'left' | 'right') => {
     servicesScrollRef.current?.scrollBy({ left: direction === 'right' ? 440 : -440, behavior: 'smooth' });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!servicesScrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - servicesScrollRef.current.offsetLeft);
+    setScrollLeft(servicesScrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // Reset hasDragged after a short delay to allow click prevention
+    setTimeout(() => setHasDragged(false), 100);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !servicesScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - servicesScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    // Only mark as dragged if we moved more than 5px
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    servicesScrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleServiceClick = (slug: string) => {
+    if (hasDragged) return; // Don't navigate if we just dragged
+    navigate(ROUTES.SERVICE(slug));
   };
 
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
@@ -643,15 +683,15 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
+      <section className="bg-[#1a1a1a] py-24 md:py-32 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
         <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-white/10">
             <div className="flex flex-col">
-              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
-              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
+              <p className="text-lg md:text-xl text-white/50 font-light leading-relaxed">
                 Precision services designed for the modern industrial workflow.
               </p>
             </div>
@@ -659,14 +699,14 @@ export const HomePage: React.FC = () => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => scrollServices('left')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all text-white/50"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               <button 
                 onClick={() => scrollServices('right')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all text-white/50"
                 aria-label="Next"
               >
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
@@ -678,14 +718,18 @@ export const HomePage: React.FC = () => {
         {/* Service Cards Slider */}
         <div 
           ref={servicesScrollRef}
-          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 scroll-smooth cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 cursor-grab active:cursor-grabbing"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
             <div key={service.id} className="flex-shrink-0 w-[340px] md:w-[420px]">
               <ServiceCard 
                 service={service} 
-                onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
+                onClick={() => handleServiceClick(service.slug)} 
                 showDescription={settings.services_section.show_descriptions}
                 isPrimary={index === 0}
               />
@@ -697,7 +741,7 @@ export const HomePage: React.FC = () => {
         </div>
         
         {services.length === 0 && (
-          <p className="text-center py-12 text-gray-500 max-w-[1280px] mx-auto px-8">No services found</p>
+          <p className="text-center py-12 text-white/50 max-w-[1280px] mx-auto px-8">No services found</p>
         )}
       </section>
 
