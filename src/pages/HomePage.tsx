@@ -214,11 +214,11 @@ const ServiceCard: React.FC<{
 
   return (
     <div 
-      className={`flex-shrink-0 relative flex flex-col justify-between overflow-hidden rounded-3xl
-        w-full h-[420px] md:h-[460px]
+      className={`relative flex flex-col justify-between overflow-hidden rounded-3xl
+        w-[340px] h-[500px] md:w-[420px] md:h-[580px]
         group transition-all duration-300
-        bg-gray-100 border-4 border-transparent
-        ${isComingSoon ? 'opacity-70' : 'hover:border-white cursor-pointer'}
+        border-4 border-transparent
+        ${isComingSoon ? 'opacity-70' : 'hover:border-black hover:shadow-2xl cursor-pointer'}
       `}
       onClick={isComingSoon ? undefined : onClick}
     >
@@ -236,8 +236,8 @@ const ServiceCard: React.FC<{
 
       {isComingSoon && <ComingSoonOverlay />}
 
-      {/* Content Container */}
-      <div className="relative z-10 p-8 md:p-10 flex flex-col h-full text-white">
+      {/* Content Container - p-10 = 40px padding */}
+      <div className="relative z-10 p-10 flex flex-col h-full text-white">
         {/* Technical Descriptor Badge */}
         <div className="flex items-center justify-between mb-4">
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold bg-[#005f5f] px-4 py-2 rounded-sm text-white">
@@ -250,11 +250,11 @@ const ServiceCard: React.FC<{
 
         {/* Main Content pushed to bottom */}
         <div className="mt-auto">
-          <h4 className="text-2xl md:text-3xl font-bold mb-4 tracking-tight leading-[1.2]">
+          <h4 className="text-xl md:text-2xl font-bold mb-4 tracking-tight leading-tight truncate">
             {service.title}
           </h4>
           {showDescription && service.description && (
-            <p className="text-sm leading-relaxed font-light text-white/70 max-w-[90%] mb-8 group-hover:text-white transition-colors line-clamp-3">
+            <p className="text-sm leading-relaxed font-light text-white/70 mb-8 group-hover:text-white transition-colors line-clamp-2">
               {service.description}
             </p>
           )}
@@ -683,15 +683,15 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#1a1a1a] py-24 md:py-32 overflow-hidden select-none">
+      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
         <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-white/10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-none mb-4 md:mb-6">
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
-              <p className="text-lg md:text-xl text-white/50 font-light leading-relaxed">
+              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
                 Precision services designed for the modern industrial workflow.
               </p>
             </div>
@@ -699,14 +699,14 @@ export const HomePage: React.FC = () => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => scrollServices('left')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all text-white/50"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
               <button 
                 onClick={() => scrollServices('right')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all text-white/50"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Next"
               >
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
@@ -726,7 +726,7 @@ export const HomePage: React.FC = () => {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
-            <div key={service.id} className="flex-shrink-0 w-[340px] md:w-[420px]">
+            <div key={service.id} className="flex-shrink-0">
               <ServiceCard 
                 service={service} 
                 onClick={() => handleServiceClick(service.slug)} 
@@ -741,7 +741,7 @@ export const HomePage: React.FC = () => {
         </div>
         
         {services.length === 0 && (
-          <p className="text-center py-12 text-white/50 max-w-[1280px] mx-auto px-8">No services found</p>
+          <p className="text-center py-12 text-gray-500 max-w-[1280px] mx-auto px-8">No services found</p>
         )}
       </section>
 
