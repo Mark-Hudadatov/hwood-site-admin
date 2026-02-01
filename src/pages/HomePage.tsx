@@ -19,10 +19,14 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 // CONSTANTS
 // =============================================================================
 
+// Icon-based fallback images as data URIs (no external dependencies)
 const FALLBACK = {
-  service: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop',
-  story: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=1000&fit=crop',
-  hero: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop',
+  // Carpentry/wood icon for services
+  service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#005f5f"/><g transform="translate(200, 300)" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.3"><rect x="50" y="50" width="300" height="200" rx="8"/><rect x="80" y="100" width="80" height="120" rx="4"/><rect x="180" y="100" width="80" height="120" rx="4"/><rect x="280" y="100" width="50" height="80" rx="4"/><path d="M50 250 L50 350 L350 350 L350 250" stroke-linecap="round"/><circle cx="200" cy="400" r="30"/><path d="M170 400 L230 400 M200 370 L200 430"/></g></svg>`)}`,
+  // News/story icon  
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#002828"/><g transform="translate(200, 300)" stroke="#ffffff" stroke-width="6" fill="none" opacity="0.3"><rect x="50" y="50" width="300" height="350" rx="12"/><line x1="100" y1="120" x2="300" y2="120"/><line x1="100" y1="170" x2="250" y2="170"/><line x1="100" y1="220" x2="280" y2="220"/><line x1="100" y1="270" x2="200" y2="270"/><rect x="100" y="300" width="200" height="60" rx="6" fill="#ffffff" fill-opacity="0.1"/></g></svg>`)}`,
+  // Industrial/CNC hero background
+  hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
 
 // =============================================================================
@@ -31,6 +35,8 @@ const FALLBACK = {
 
 interface ServiceWithStatus extends Service {
   visibilityStatus?: string;
+  subtitle?: string;
+  accentColor?: string;
 }
 
 interface StoryWithStatus extends Story {
@@ -187,61 +193,98 @@ const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
 // SERVICE CARD WITH COMING SOON
 // =============================================================================
 
+// =============================================================================
+// SERVICE CARD - CNC INDUSTRIAL STYLE
+// =============================================================================
+
 const ServiceCard: React.FC<{
   service: ServiceWithStatus;
   onClick: () => void;
   showDescription: boolean;
-}> = ({ service, onClick, showDescription }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  isPrimary?: boolean;
+}> = ({ service, onClick, showDescription, isPrimary = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
+  const accentColor = service.accentColor || '#005f5f';
+
+  // Get subtitle from service if available (technical descriptor)
+  const technicalDescriptor = service.subtitle || 'Industrial Service';
 
   return (
     <div 
-      className={`relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`relative flex flex-col justify-between overflow-hidden border rounded-[2rem]
+        w-full h-[480px] md:h-[500px]
+        bg-white text-gray-900 border-gray-200 transition-all duration-300
+        ${isComingSoon ? 'opacity-70' : 'hover:border-gray-900 hover:ring-1 hover:ring-gray-900 hover:shadow-xl cursor-pointer'}
+        ${isPrimary ? 'shadow-sm' : ''}
+      `}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => !isComingSoon && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={imgSrc}
-        alt={service.title}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-          isComingSoon ? 'grayscale brightness-75' : isHovered ? 'scale-110' : 'scale-100'
-        }`}
-        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
-      />
-      
-      {isComingSoon && <ComingSoonOverlay />}
-      
-      <div className={`absolute inset-0 transition-all duration-500 ${
-        isComingSoon ? 'bg-black/20' :
-        isHovered ? 'bg-gradient-to-t from-[#005f5f] via-[#005f5f]/70 to-[#005f5f]/30' 
-                  : 'bg-gradient-to-t from-black/90 via-black/40 to-transparent'
-      }`} />
-
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className={`text-white text-2xl md:text-3xl font-bold mb-3 tracking-wide transition-transform duration-500 ${
-          isComingSoon ? 'opacity-70' : isHovered ? '-translate-y-2' : ''
-        }`}>
-          {service.title}
-        </h3>
-        {showDescription && !isComingSoon && (
-          <p className="text-white/90 text-sm md:text-base leading-relaxed font-light line-clamp-3">
-            {service.description}
-          </p>
-        )}
-        {!isComingSoon && (
-          <div className={`flex items-center gap-2 mt-4 text-white/90 text-sm font-medium transition-all duration-500 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span>Explore</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        )}
+      {/* Matte Background Visual - 25% Opacity */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <img 
+          src={imgSrc} 
+          alt="" 
+          className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : 'grayscale'} opacity-25`}
+          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-white/30" />
       </div>
 
-      {!isComingSoon && (
-        <div className="absolute bottom-0 left-0 h-1 bg-white/80 transition-all duration-500" style={{ width: isHovered ? '100%' : '0%' }} />
-      )}
+      {isComingSoon && <ComingSoonOverlay />}
+
+      {/* Structured Content Container */}
+      <div className="relative z-10 p-8 md:p-10 flex flex-col h-full">
+        {/* Top Header & Metadata */}
+        <div className="flex flex-col">
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div 
+                className={`w-1.5 h-1.5`}
+                style={{ backgroundColor: isPrimary ? accentColor : '#d1d5db' }}
+              />
+              <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-gray-400">
+                {technicalDescriptor}
+              </span>
+            </div>
+            {isPrimary && (
+              <span 
+                className="text-[8px] font-bold uppercase tracking-[0.2em] border px-2 py-1"
+                style={{ borderColor: accentColor, color: accentColor }}
+              >
+                Featured
+              </span>
+            )}
+          </div>
+          <div className={`h-[1px] w-full ${isPrimary ? 'bg-gray-900/10' : 'bg-gray-100'}`} />
+        </div>
+
+        {/* Spacer pushes title and description to the bottom */}
+        <div className="flex-grow flex flex-col justify-end pb-6">
+          <h3 className="text-xl md:text-2xl font-bold mb-3 tracking-tight leading-tight text-gray-900">
+            {service.title}
+          </h3>
+          {showDescription && service.description && (
+            <p className="text-[13px] leading-relaxed font-normal text-gray-600 line-clamp-3">
+              {service.description}
+            </p>
+          )}
+        </div>
+        
+        {/* Bottom Divider & CTA */}
+        <div className={`pt-6 border-t ${isPrimary ? 'border-gray-900/10' : 'border-gray-100'}`}>
+          <span className={`text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group
+            ${isComingSoon ? 'text-gray-400' : isPrimary ? 'text-gray-900' : 'text-gray-500 group-hover:text-black transition-colors'}`}>
+            {isComingSoon ? 'Coming Soon' : 'Explore Services'}
+            {!isComingSoon && (
+              <svg className="w-4 h-4 opacity-50 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            )}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -529,6 +572,7 @@ export const HomePage: React.FC = () => {
             id: s.id,
             slug: s.slug,
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+            subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
             description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
             imageUrl: s.image_url || '',
             heroImageUrl: s.hero_image_url,
@@ -587,6 +631,12 @@ export const HomePage: React.FC = () => {
     storiesScrollRef.current?.scrollBy({ left: direction === 'right' ? 400 : -400, behavior: 'smooth' });
   };
 
+  // Services scroll handler
+  const servicesScrollRef = useRef<HTMLDivElement>(null);
+  const scrollServices = (direction: 'left' | 'right') => {
+    servicesScrollRef.current?.scrollBy({ left: direction === 'right' ? 440 : -440, behavior: 'smooth' });
+  };
+
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
@@ -605,28 +655,62 @@ export const HomePage: React.FC = () => {
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
-      {/* Services Section */}
-      <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="w-full px-8 md:px-12 lg:px-16">
-          <ScrollReveal animation="fade-up">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
-          </ScrollReveal>
-          <StaggerReveal 
-            animation="fade-up" 
-            staggerDelay={100}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-          >
-            {services.map((service) => (
+      {/* Services Section - CNC Industrial Style */}
+      <section className="bg-[#f8f8f8] py-16 md:py-24 overflow-hidden select-none">
+        {/* Structural B2B Header */}
+        <div className="max-w-[1280px] mx-auto px-8 mb-12 md:mb-16">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-8 md:pb-12 border-b border-gray-200 gap-6">
+            <div className="flex flex-col">
+              <h2 className="text-[9px] font-bold uppercase tracking-[0.5em] text-gray-400 mb-2">Service Architecture</h2>
+              <span className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-gray-900 leading-none">{servicesTitle}</span>
+              <p className="text-[13px] text-gray-500 mt-3 font-medium tracking-wide">
+                Professional CNC manufacturing and carpentry services for industrial applications.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => scrollServices('left')}
+                className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-gray-800"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => scrollServices('right')}
+                className="w-10 h-10 border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-gray-800"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Industrial Domain Grid/Slider */}
+        <div 
+          ref={servicesScrollRef}
+          className="flex gap-6 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-8 scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {services.map((service, index) => (
+            <div key={service.id} className="flex-shrink-0 w-[340px] md:w-[400px]">
               <ServiceCard 
-                key={service.id} 
                 service={service} 
                 onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
-                showDescription={settings.services_section.show_descriptions} 
+                showDescription={settings.services_section.show_descriptions}
+                isPrimary={index === 0}
               />
-            ))}
-          </StaggerReveal>
-          {services.length === 0 && <p className="text-center py-12 text-gray-500">No services found</p>}
+            </div>
+          ))}
+          
+          {/* Visual cutoff gap */}
+          <div className="flex-shrink-0 w-16 md:w-32" />
         </div>
+        
+        {services.length === 0 && (
+          <p className="text-center py-12 text-gray-500 max-w-[1280px] mx-auto px-8">No services found</p>
+        )}
       </section>
 
       {/* Stories & About */}
