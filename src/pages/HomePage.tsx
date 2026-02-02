@@ -748,6 +748,83 @@ export const HomePage: React.FC = () => {
         )}
       </section>
 
+      {/* Who We Work With Section */}
+      <section className="bg-white py-24 md:py-32 px-8 md:px-20 lg:px-40">
+        {/* Header - aligned with other sections */}
+        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+            {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
+          </h2>
+          <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-2xl">
+            {lang === 'he' 
+              ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
+              : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
+          </p>
+        </div>
+
+        {/* Partner Cards Grid */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {[
+            {
+              title_en: 'Kitchen & Cabinet Manufacturers',
+              title_he: 'יצרני מטבחים וארונות',
+              subtitle_en: 'Series & Project-based Production',
+              subtitle_he: 'ייצור סדרתי ופרויקטאלי',
+              description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.',
+              description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.',
+              bg: '#006666'
+            },
+            {
+              title_en: 'Professional Carpentry & Joinery',
+              title_he: 'נגרות מקצועית',
+              subtitle_en: 'Custom Interior Fabrication',
+              subtitle_he: 'ייצור פנים מותאם אישית',
+              description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.',
+              description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.',
+              bg: '#005f5f'
+            },
+            {
+              title_en: 'Interior & Fit-Out Contractors',
+              title_he: 'קבלני פנים והתאמות',
+              subtitle_en: 'Residential & Commercial Delivery',
+              subtitle_he: 'אספקה למגורים ומסחר',
+              description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.',
+              description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.',
+              bg: '#004d4d'
+            }
+          ].map((partner, index) => (
+            <div 
+              key={index}
+              className="relative h-[380px] lg:h-[420px] rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
+              style={{ backgroundColor: partner.bg }}
+            >
+              {/* Content */}
+              <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end">
+                {/* Subtitle */}
+                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-400/90 mb-4">
+                  {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
+                </span>
+                
+                {/* Title */}
+                <h3 className="text-2xl lg:text-3xl font-bold mb-6 tracking-tight leading-tight text-white">
+                  {lang === 'he' ? partner.title_he : partner.title_en}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-sm leading-relaxed font-light text-white/60 group-hover:text-white/90 transition-colors">
+                  {lang === 'he' ? partner.description_he : partner.description_en}
+                </p>
+              </div>
+
+              {/* Top accent for first card */}
+              {index === 0 && (
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-500/40" />
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Stories & About */}
       <div className="relative w-full overflow-hidden" style={{ backgroundColor: settings.layout.background_dark }}>
         <div className="absolute inset-0 pointer-events-none">
