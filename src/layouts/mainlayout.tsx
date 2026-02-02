@@ -103,7 +103,7 @@ const Header: React.FC = () => {
         <div className="hidden lg:flex items-center gap-2">
           {navData.services.map((service) => (
             <div key={service.id} className="relative" onMouseEnter={() => setActiveDropdown(service.id)} onMouseLeave={() => setActiveDropdown(null)}>
-              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-semibold text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
+              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
                 {service.title}
                 {service.subservices && service.subservices.length > 0 && (
                   <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
@@ -123,7 +123,7 @@ const Header: React.FC = () => {
                     </button>
                   ))}
                   <div className="px-4 py-2 border-t border-neutral-100 mt-1">
-                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-semibold text-brand hover:underline">
+                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-medium text-brand hover:underline">
                       {t('viewAll')} {service.title} →
                     </button>
                   </div>
@@ -161,7 +161,7 @@ const Header: React.FC = () => {
           <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
             {navData.services.map((service) => (
               <div key={service.id}>
-                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-semibold text-neutral-900 hover:bg-neutral-50 rounded-lg">
+                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg">
                   {service.title}
                 </button>
                 {service.subservices && service.subservices.length > 0 && (
