@@ -749,21 +749,23 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Who We Work With Section */}
-      <section className="bg-white py-24 md:py-32 px-8 md:px-20 lg:px-40">
+      <section className="bg-white py-24 md:py-32">
         {/* Header - aligned with other sections */}
-        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
-            {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
-          </h2>
-          <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-2xl">
-            {lang === 'he' 
-              ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
-              : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
-          </p>
+        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
+            </h2>
+            <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-2xl">
+              {lang === 'he' 
+                ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
+                : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
+            </p>
+          </div>
         </div>
 
-        {/* Partner Cards Grid */}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Partner Cards Grid - Full Width */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
           {[
             {
               title_en: 'Kitchen & Cabinet Manufacturers',
@@ -772,7 +774,7 @@ export const HomePage: React.FC = () => {
               subtitle_he: 'ייצור סדרתי ופרויקטאלי',
               description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.',
               description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.',
-              bg: '#006666'
+              bg: '#002b2b'
             },
             {
               title_en: 'Professional Carpentry & Joinery',
@@ -781,7 +783,7 @@ export const HomePage: React.FC = () => {
               subtitle_he: 'ייצור פנים מותאם אישית',
               description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.',
               description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.',
-              bg: '#005f5f'
+              bg: '#002222'
             },
             {
               title_en: 'Interior & Fit-Out Contractors',
@@ -790,18 +792,18 @@ export const HomePage: React.FC = () => {
               subtitle_he: 'אספקה למגורים ומסחר',
               description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.',
               description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.',
-              bg: '#004d4d'
+              bg: '#001a1a'
             }
           ].map((partner, index) => (
             <div 
               key={index}
-              className="relative h-[380px] lg:h-[420px] rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
+              className="relative h-[400px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
               style={{ backgroundColor: partner.bg }}
             >
               {/* Content */}
-              <div className="absolute inset-0 p-8 lg:p-10 flex flex-col justify-end">
+              <div className="absolute inset-0 p-10 lg:p-14 flex flex-col justify-end">
                 {/* Subtitle */}
-                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-400/90 mb-4">
+                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
                   {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
                 </span>
                 
@@ -810,16 +812,22 @@ export const HomePage: React.FC = () => {
                   {lang === 'he' ? partner.title_he : partner.title_en}
                 </h3>
                 
+                {/* Divider */}
+                <div className="w-10 h-[1px] bg-white/20 mb-6"></div>
+                
                 {/* Description */}
-                <p className="text-sm leading-relaxed font-light text-white/60 group-hover:text-white/90 transition-colors">
+                <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
                   {lang === 'he' ? partner.description_he : partner.description_en}
                 </p>
               </div>
 
               {/* Top accent for first card */}
               {index === 0 && (
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-500/40" />
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-600/30" />
               )}
+              
+              {/* Internal border */}
+              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5" />
             </div>
           ))}
         </div>
