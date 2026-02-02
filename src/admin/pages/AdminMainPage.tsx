@@ -385,27 +385,27 @@ export const AdminMainPage: React.FC = () => {
           {activeTab === 'services' && (
             <div className="space-y-6">
               <BilingualInput
-                label="Section Label (Small Text)"
+                label="Section Title"
                 nameEn="title_en"
                 nameHe="title_he"
                 valueEn={servicesSection.title_en}
                 valueHe={servicesSection.title_he}
                 onChangeEn={(v) => setServicesSection({ ...servicesSection, title_en: v })}
                 onChangeHe={(v) => setServicesSection({ ...servicesSection, title_he: v })}
-                placeholder="What We Do"
-                helpText="Small uppercase text above the main title"
+                placeholder="Our Services"
+                helpText="Main heading for the services section"
               />
 
               <BilingualInput
-                label="Section Title (Main Heading)"
+                label="Section Subtitle"
                 nameEn="subtitle_en"
                 nameHe="subtitle_he"
                 valueEn={servicesSection.subtitle_en}
                 valueHe={servicesSection.subtitle_he}
                 onChangeEn={(v) => setServicesSection({ ...servicesSection, subtitle_en: v })}
                 onChangeHe={(v) => setServicesSection({ ...servicesSection, subtitle_he: v })}
-                placeholder="CNC Manufacturing Services"
-                helpText="Large title text for the services section"
+                placeholder="Precision services designed for the modern industrial workflow."
+                helpText="Descriptive text shown below the main title"
               />
 
               <div className="grid md:grid-cols-3 gap-6">
