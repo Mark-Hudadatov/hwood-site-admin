@@ -61,6 +61,8 @@ interface HomepageSettings {
   services_section: {
     title_en: string;
     title_he: string;
+    subtitle_en?: string;
+    subtitle_he?: string;
     show_descriptions: boolean;
   };
   stories_section: {
@@ -102,7 +104,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     right_link: '/services',
     hero_height: '90vh',
   },
-  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', show_descriptions: true },
+  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', subtitle_en: 'Precision services designed for the modern industrial workflow.', subtitle_he: 'שירותי דיוק המיועדים לתהליכי העבודה התעשייתיים המודרניים.', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
   about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
@@ -239,12 +241,12 @@ const ServiceCard: React.FC<{
       {/* Content Container - p-10 = 40px padding */}
       <div className="relative z-10 p-10 flex flex-col h-full text-white">
         {/* Technical Descriptor Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold bg-[#005f5f] px-4 py-2 rounded-sm text-white">
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
             {technicalDescriptor}
           </span>
           {isPrimary && (
-            <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
+            <span className="w-2 h-2 flex-shrink-0 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
           )}
         </div>
 
@@ -307,11 +309,11 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
         )}
       </div>
 
-      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-[#004D4D] text-white text-[10px] md:text-xs font-semibold tracking-wider uppercase">
+      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-[#004D4D] text-white text-[10px] md:text-xs font-semibold tracking-wider uppercase truncate max-w-[200px]">
         {story.type}
       </div>
 
-      <h3 className={`text-lg md:text-xl font-bold text-center leading-tight mb-3 px-2 line-clamp-3 transition-colors duration-300 ${
+      <h3 className={`text-base md:text-lg font-bold text-center leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${
         isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
       }`}>
         {story.title}
@@ -378,7 +380,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
               {leftTitle}
             </h1>
             {leftSubtitle && (
-              <p className={`text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+              <p className={`text-white/80 text-sm md:text-lg lg:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                 {leftSubtitle}
               </p>
             )}
@@ -665,6 +667,7 @@ export const HomePage: React.FC = () => {
   };
 
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
+  const servicesSubtitle = lang === 'he' && settings.services_section.subtitle_he ? settings.services_section.subtitle_he : (settings.services_section.subtitle_en || 'Precision services designed for the modern industrial workflow.');
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
 
@@ -685,14 +688,14 @@ export const HomePage: React.FC = () => {
       {/* Services Section - CNC Industrial Style V2 */}
       <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
+        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
-              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
-                Precision services designed for the modern industrial workflow.
+              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+                {servicesSubtitle}
               </p>
             </div>
 
@@ -722,7 +725,7 @@ export const HomePage: React.FC = () => {
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 cursor-grab active:cursor-grabbing"
+          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-20 lg:px-40 pb-12 cursor-grab active:cursor-grabbing"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
@@ -753,10 +756,10 @@ export const HomePage: React.FC = () => {
         </div>
 
         <section className="relative z-10 w-full text-white py-16 md:py-24">
-          <div className="w-full px-8 md:px-12 lg:px-16">
+          <div className="w-full px-8 md:px-20 lg:px-40">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">{storiesTitle}</h1>
                 <div className="flex items-center gap-4">
                   <div className="hidden md:flex gap-2">
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
