@@ -686,12 +686,12 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
+      <section className="bg-[#f8f8f8] py-24 md:py-32 px-8 md:px-20 lg:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
               <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
@@ -718,14 +718,14 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Service Cards Slider */}
+        {/* Service Cards Slider - no max-w to allow cards to extend */}
         <div 
           ref={servicesScrollRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-20 lg:px-40 pb-12 cursor-grab active:cursor-grabbing"
+          className="flex gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
@@ -755,11 +755,11 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-16 md:py-24">
-          <div className="w-full px-8 md:px-20 lg:px-40">
+        <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
+          <div className="max-w-7xl mx-auto">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
                 <div className="flex items-center gap-4">
                   <div className="hidden md:flex gap-2">
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
@@ -772,15 +772,16 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             </ScrollReveal>
-
-            <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12">
-              {stories.map((story) => (
-                <div key={story.id} className="snap-start"><StoryCard story={story} /></div>
-              ))}
-              <div className="w-12 flex-shrink-0" />
-            </div>
-            {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
           </div>
+
+          {/* Stories slider - extends beyond max-w */}
+          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
+            {stories.map((story) => (
+              <div key={story.id} className="snap-start"><StoryCard story={story} /></div>
+            ))}
+            <div className="w-12 flex-shrink-0" />
+          </div>
+          {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
         </section>
 
         <AboutSection settings={settings.about_section} lang={lang} />
