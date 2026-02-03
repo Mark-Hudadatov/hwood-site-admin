@@ -23,8 +23,8 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 const FALLBACK = {
   // Carpentry/cabinet icon - small centered on dark background
   service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/><rect x="58" y="12" width="15" height="20" rx="2"/><circle cx="18" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="43" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="65" cy="22" r="1.5" fill="#ffffff" fill-opacity="0.4"/></g></svg>`)}`,
-  // News/story icon  
-  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="80" rx="4"/><line x1="12" y1="18" x2="68" y2="18"/><line x1="12" y1="32" x2="55" y2="32"/><line x1="12" y1="46" x2="62" y2="46"/><line x1="12" y1="60" x2="40" y2="60"/></g></svg>`)}`,
+  // Camera icon for stories - dark background
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="5" y="20" width="70" height="50" rx="6"/><circle cx="40" cy="45" r="15"/><circle cx="40" cy="45" r="8"/><rect x="25" y="10" width="30" height="14" rx="3"/><circle cx="62" cy="30" r="4"/></g></svg>`)}`,
   // Industrial/CNC hero background
   hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
@@ -281,12 +281,13 @@ const ServiceCard: React.FC<{
 // STORY CARD WITH COMING SOON
 // =============================================================================
 
-const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
+const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ story, lang = 'en' }) => {
   const isComingSoon = story.visibilityStatus === 'coming_soon';
   const imgSrc = story.imageUrl || FALLBACK.story;
+  const isRTL = lang === 'he';
 
   const content = (
-    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col items-center ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
+    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
       <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[3rem] shadow-lg mb-6">
         <img
           src={imgSrc}
@@ -302,7 +303,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
               <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <ArrowRight className="w-6 h-6 text-white" />
+                <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
               </div>
             </div>
           </>
@@ -313,13 +314,13 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
         {story.type}
       </div>
 
-      <h3 className={`text-base md:text-lg font-bold text-center leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${
+      <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
         isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
       }`}>
         {story.title}
       </h3>
 
-      <div className="text-white/80 text-sm font-medium">{story.date}</div>
+      <div className="text-white/80 text-sm font-medium px-2">{story.date}</div>
     </div>
   );
 
@@ -699,7 +700,7 @@ export const HomePage: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
               <button 
                 onClick={() => scrollServices('left')}
                 className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
@@ -749,14 +750,14 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Who We Work With Section */}
-      <section className="bg-white py-24 md:py-32">
+      <section className="bg-white pt-24 md:pt-32">
         {/* Header - aligned with other sections */}
         <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
               {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
             </h2>
-            <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-2xl">
+            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
               {lang === 'he' 
                 ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
                 : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
@@ -841,12 +842,12 @@ export const HomePage: React.FC = () => {
         </div>
 
         <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto mb-10 md:mb-16">
             <ScrollReveal animation="fade-up">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
-                <div className="flex items-center gap-4">
-                  <div className="hidden md:flex gap-2">
+                <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
                     <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
                   </div>
@@ -862,7 +863,7 @@ export const HomePage: React.FC = () => {
           {/* Stories slider - extends beyond max-w */}
           <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
             {stories.map((story) => (
-              <div key={story.id} className="snap-start"><StoryCard story={story} /></div>
+              <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
             ))}
             <div className="w-12 flex-shrink-0" />
           </div>
