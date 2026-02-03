@@ -192,6 +192,10 @@ const Header: React.FC = () => {
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
   return (
     <footer className="w-full px-8 md:px-12 lg:px-16 pt-16 pb-8 text-white relative z-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
@@ -224,11 +228,20 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between gap-4 text-meta-sm text-neutral-500">
+      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
         <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex flex-wrap gap-6">
-          <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-wrap gap-6">
+            <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          </div>
+          <button 
+            onClick={scrollToTop}
+            className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors"
+            aria-label="Back to top"
+          >
+            <ChevronDown className="w-5 h-5 rotate-180" />
+          </button>
         </div>
       </div>
     </footer>
