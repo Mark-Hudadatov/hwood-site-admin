@@ -25,8 +25,8 @@ import {
 import { getProductWithBreadcrumb, getProductConfiguration } from '../services/data/dataService';
 import { ROUTES } from '../router';
 
-// Fallback image for products - light gray background with small wood plank icon
-const PRODUCT_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="#f8f8f8"/><g transform="translate(360, 260)" stroke="#9ca3af" stroke-width="2.5" fill="none" opacity="0.6"><rect x="0" y="5" width="80" height="12" rx="2"/><rect x="0" y="22" width="80" height="12" rx="2"/><rect x="0" y="39" width="80" height="12" rx="2"/><rect x="0" y="56" width="80" height="12" rx="2"/><line x1="20" y1="5" x2="20" y2="68" stroke-width="1" opacity="0.3"/><line x1="40" y1="5" x2="40" y2="68" stroke-width="1" opacity="0.3"/><line x1="60" y1="5" x2="60" y2="68" stroke-width="1" opacity="0.3"/></g></svg>`)}`;
+// Fallback image for products - dark background with small wood plank icon
+const PRODUCT_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="#1a1a1a"/><g transform="translate(360, 260)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="0" y="5" width="80" height="12" rx="2"/><rect x="0" y="22" width="80" height="12" rx="2"/><rect x="0" y="39" width="80" height="12" rx="2"/><rect x="0" y="56" width="80" height="12" rx="2"/><line x1="20" y1="5" x2="20" y2="68" stroke-width="1" opacity="0.3"/><line x1="40" y1="5" x2="40" y2="68" stroke-width="1" opacity="0.3"/><line x1="60" y1="5" x2="60" y2="68" stroke-width="1" opacity="0.3"/></g></svg>`)}`;
 
 // =============================================================================
 // LOADING SKELETON
