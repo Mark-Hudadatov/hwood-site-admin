@@ -103,7 +103,7 @@ const Header: React.FC = () => {
         <div className="hidden lg:flex items-center gap-2">
           {navData.services.map((service) => (
             <div key={service.id} className="relative" onMouseEnter={() => setActiveDropdown(service.id)} onMouseLeave={() => setActiveDropdown(null)}>
-              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-semibold text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
+              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
                 {service.title}
                 {service.subservices && service.subservices.length > 0 && (
                   <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
@@ -123,7 +123,7 @@ const Header: React.FC = () => {
                     </button>
                   ))}
                   <div className="px-4 py-2 border-t border-neutral-100 mt-1">
-                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-semibold text-brand hover:underline">
+                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-medium text-brand hover:underline">
                       {t('viewAll')} {service.title} →
                     </button>
                   </div>
@@ -161,7 +161,7 @@ const Header: React.FC = () => {
           <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
             {navData.services.map((service) => (
               <div key={service.id}>
-                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-semibold text-neutral-900 hover:bg-neutral-50 rounded-lg">
+                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg">
                   {service.title}
                 </button>
                 {service.subservices && service.subservices.length > 0 && (
@@ -191,6 +191,10 @@ const Header: React.FC = () => {
 // Footer Component
 const Footer: React.FC = () => {
   const { t } = useTranslation();
+  
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   return (
     <footer className="w-full px-8 md:px-12 lg:px-16 pt-16 pb-8 text-white relative z-10">
@@ -224,11 +228,20 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between gap-4 text-meta-sm text-neutral-500">
+      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
         <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex flex-wrap gap-6">
-          <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-wrap gap-6">
+            <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          </div>
+          <button 
+            onClick={scrollToTop}
+            className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors"
+            aria-label="Back to top"
+          >
+            <ChevronDown className="w-5 h-5 rotate-180" />
+          </button>
         </div>
       </div>
     </footer>

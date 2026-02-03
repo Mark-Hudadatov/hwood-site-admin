@@ -23,8 +23,8 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 const FALLBACK = {
   // Carpentry/cabinet icon - small centered on dark background
   service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/><rect x="58" y="12" width="15" height="20" rx="2"/><circle cx="18" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="43" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="65" cy="22" r="1.5" fill="#ffffff" fill-opacity="0.4"/></g></svg>`)}`,
-  // News/story icon  
-  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="80" rx="4"/><line x1="12" y1="18" x2="68" y2="18"/><line x1="12" y1="32" x2="55" y2="32"/><line x1="12" y1="46" x2="62" y2="46"/><line x1="12" y1="60" x2="40" y2="60"/></g></svg>`)}`,
+  // Camera icon for stories - dark background
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="5" y="20" width="70" height="50" rx="6"/><circle cx="40" cy="45" r="15"/><circle cx="40" cy="45" r="8"/><rect x="25" y="10" width="30" height="14" rx="3"/><circle cx="62" cy="30" r="4"/></g></svg>`)}`,
   // Industrial/CNC hero background
   hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
@@ -61,6 +61,8 @@ interface HomepageSettings {
   services_section: {
     title_en: string;
     title_he: string;
+    subtitle_en?: string;
+    subtitle_he?: string;
     show_descriptions: boolean;
   };
   stories_section: {
@@ -102,7 +104,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     right_link: '/services',
     hero_height: '90vh',
   },
-  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', show_descriptions: true },
+  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', subtitle_en: 'Precision services designed for the modern industrial workflow.', subtitle_he: 'שירותי דיוק המיועדים לתהליכי העבודה התעשייתיים המודרניים.', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
   about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
@@ -239,12 +241,12 @@ const ServiceCard: React.FC<{
       {/* Content Container - p-10 = 40px padding */}
       <div className="relative z-10 p-10 flex flex-col h-full text-white">
         {/* Technical Descriptor Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold bg-[#005f5f] px-4 py-2 rounded-sm text-white">
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
             {technicalDescriptor}
           </span>
           {isPrimary && (
-            <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
+            <span className="w-2 h-2 flex-shrink-0 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
           )}
         </div>
 
@@ -279,12 +281,13 @@ const ServiceCard: React.FC<{
 // STORY CARD WITH COMING SOON
 // =============================================================================
 
-const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
+const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ story, lang = 'en' }) => {
   const isComingSoon = story.visibilityStatus === 'coming_soon';
   const imgSrc = story.imageUrl || FALLBACK.story;
+  const isRTL = lang === 'he';
 
   const content = (
-    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col items-center ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
+    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
       <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[3rem] shadow-lg mb-6">
         <img
           src={imgSrc}
@@ -300,24 +303,24 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
               <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <ArrowRight className="w-6 h-6 text-white" />
+                <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
               </div>
             </div>
           </>
         )}
       </div>
 
-      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-[#004D4D] text-white text-[10px] md:text-xs font-semibold tracking-wider uppercase">
+      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-[#004D4D] text-white text-[10px] md:text-xs font-semibold tracking-wider uppercase truncate max-w-[200px]">
         {story.type}
       </div>
 
-      <h3 className={`text-lg md:text-xl font-bold text-center leading-tight mb-3 px-2 line-clamp-3 transition-colors duration-300 ${
+      <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
         isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
       }`}>
         {story.title}
       </h3>
 
-      <div className="text-white/80 text-sm font-medium">{story.date}</div>
+      <div className="text-white/80 text-sm font-medium px-2">{story.date}</div>
     </div>
   );
 
@@ -378,7 +381,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
               {leftTitle}
             </h1>
             {leftSubtitle && (
-              <p className={`text-white/80 text-lg md:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+              <p className={`text-white/80 text-sm md:text-lg lg:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                 {leftSubtitle}
               </p>
             )}
@@ -665,6 +668,7 @@ export const HomePage: React.FC = () => {
   };
 
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
+  const servicesSubtitle = lang === 'he' && settings.services_section.subtitle_he ? settings.services_section.subtitle_he : (settings.services_section.subtitle_en || 'Precision services designed for the modern industrial workflow.');
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
 
@@ -683,20 +687,20 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-24 md:py-32 overflow-hidden select-none">
+      <section className="bg-[#f8f8f8] py-24 md:py-32 px-8 md:px-20 lg:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="max-w-[1280px] mx-auto px-8 mb-16 md:mb-20">
+        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
               <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
-              <p className="text-lg md:text-xl text-gray-500 font-light leading-relaxed">
-                Precision services designed for the modern industrial workflow.
+              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+                {servicesSubtitle}
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
               <button 
                 onClick={() => scrollServices('left')}
                 className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
@@ -715,14 +719,14 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Service Cards Slider */}
+        {/* Service Cards Slider - no max-w to allow cards to extend */}
         <div 
           ref={servicesScrollRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-8 overflow-x-auto scrollbar-hide px-8 md:px-[calc((100vw-1280px)/2+32px)] pb-12 cursor-grab active:cursor-grabbing"
+          className="flex gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
@@ -745,6 +749,91 @@ export const HomePage: React.FC = () => {
         )}
       </section>
 
+      {/* Who We Work With Section */}
+      <section className="bg-white pt-24 md:pt-32">
+        {/* Header - aligned with other sections */}
+        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
+            </h2>
+            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
+              {lang === 'he' 
+                ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
+                : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Partner Cards Grid - Full Width */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
+          {[
+            {
+              title_en: 'Kitchen & Cabinet Manufacturers',
+              title_he: 'יצרני מטבחים וארונות',
+              subtitle_en: 'Series & Project-based Production',
+              subtitle_he: 'ייצור סדרתי ופרויקטאלי',
+              description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.',
+              description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.',
+              bg: '#002b2b'
+            },
+            {
+              title_en: 'Professional Carpentry & Joinery',
+              title_he: 'נגרות מקצועית',
+              subtitle_en: 'Custom Interior Fabrication',
+              subtitle_he: 'ייצור פנים מותאם אישית',
+              description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.',
+              description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.',
+              bg: '#002222'
+            },
+            {
+              title_en: 'Interior & Fit-Out Contractors',
+              title_he: 'קבלני פנים והתאמות',
+              subtitle_en: 'Residential & Commercial Delivery',
+              subtitle_he: 'אספקה למגורים ומסחר',
+              description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.',
+              description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.',
+              bg: '#001a1a'
+            }
+          ].map((partner, index) => (
+            <div 
+              key={index}
+              className="relative h-[400px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
+              style={{ backgroundColor: partner.bg }}
+            >
+              {/* Content */}
+              <div className="absolute inset-0 p-10 lg:p-14 flex flex-col justify-end">
+                {/* Subtitle */}
+                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
+                  {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
+                </span>
+                
+                {/* Title */}
+                <h3 className="text-2xl lg:text-3xl font-bold mb-6 tracking-tight leading-tight text-white">
+                  {lang === 'he' ? partner.title_he : partner.title_en}
+                </h3>
+                
+                {/* Divider */}
+                <div className="w-10 h-[1px] bg-white/20 mb-6"></div>
+                
+                {/* Description */}
+                <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
+                  {lang === 'he' ? partner.description_he : partner.description_en}
+                </p>
+              </div>
+
+              {/* Top accent for first card */}
+              {index === 0 && (
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-600/30" />
+              )}
+              
+              {/* Internal border */}
+              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5" />
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Stories & About */}
       <div className="relative w-full overflow-hidden" style={{ backgroundColor: settings.layout.background_dark }}>
         <div className="absolute inset-0 pointer-events-none">
@@ -752,13 +841,13 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-16 md:py-24">
-          <div className="w-full px-8 md:px-12 lg:px-16">
+        <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
+          <div className="max-w-7xl mx-auto mb-10 md:mb-16">
             <ScrollReveal animation="fade-up">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
-                <div className="flex items-center gap-4">
-                  <div className="hidden md:flex gap-2">
+                <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
                     <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
                   </div>
@@ -769,15 +858,16 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             </ScrollReveal>
-
-            <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12">
-              {stories.map((story) => (
-                <div key={story.id} className="snap-start"><StoryCard story={story} /></div>
-              ))}
-              <div className="w-12 flex-shrink-0" />
-            </div>
-            {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
           </div>
+
+          {/* Stories slider - extends beyond max-w */}
+          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
+            {stories.map((story) => (
+              <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
+            ))}
+            <div className="w-12 flex-shrink-0" />
+          </div>
+          {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
         </section>
 
         <AboutSection settings={settings.about_section} lang={lang} />
