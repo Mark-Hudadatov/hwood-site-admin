@@ -191,6 +191,7 @@ const Header: React.FC = () => {
 // Footer Component
 const Footer: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -212,52 +213,48 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-16">
         <div>
           <h3 className="text-body-lg font-medium mb-4">Updates</h3>
           <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Subscribe to receive technical updates and production news.</p>
-          <button className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Technical updates, production insights, and system changes.</p>
+          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
         </div>
 
         <div>
           <h3 className="text-body-lg font-medium mb-4">Technical Support</h3>
           <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">After-sales service supporting the reliability and quality of production systems.</p>
-          <button className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Post-delivery support for production systems, components, and CNC workflows.</p>
+          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
         </div>
+      </div>
+
+      {/* Back to Top Button - larger, above copyright */}
+      <div className="flex justify-center mb-8">
+        <button 
+          onClick={scrollToTop}
+          className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 text-white/70 hover:bg-white hover:text-neutral-900 transition-all group"
+          aria-label="Back to top"
+        >
+          <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
+          <span className="text-sm font-medium">Back to top</span>
+        </button>
       </div>
 
       <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
         <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex items-center gap-6">
-          <div className="flex flex-wrap gap-6">
-            <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          </div>
-          <button 
-            onClick={scrollToTop}
-            className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors"
-            aria-label="Back to top"
-          >
-            <ChevronDown className="w-5 h-5 rotate-180" />
-          </button>
+        <div className="flex flex-wrap gap-6">
+          <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
+          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
         </div>
       </div>
     </footer>
   );
 };
 
-// Footer Wrapper
+// Footer Wrapper - simplified to blend with dark sections
 const FooterWrapper: React.FC = () => (
-  <div className="relative w-full bg-[#002828] overflow-hidden pt-16">
-    <div className="absolute inset-0 w-[140%] -left-[10%] h-full z-0 pointer-events-none">
-      <div className="absolute inset-0 bg-[#001f1f]" />
-      <div className="absolute -left-40 -top-40 h-[200%] w-80 bg-[#004D4D] -skew-x-[20deg]" />
-      <div className="absolute left-0 -top-40 h-[200%] w-64 bg-brand -skew-x-[20deg] opacity-70" />
-      <div className="absolute left-56 -top-40 h-[200%] w-40 bg-[#003f3f] -skew-x-[20deg] opacity-50" />
-      <div className="absolute left-96 -top-40 h-[200%] w-32 bg-[#004D4D] -skew-x-[20deg] opacity-30" />
-    </div>
+  <div className="relative w-full bg-[#002828] overflow-hidden">
     <Footer />
   </div>
 );
