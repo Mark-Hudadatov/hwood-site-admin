@@ -871,6 +871,31 @@ export const HomePage: React.FC = () => {
         </section>
 
         <AboutSection settings={settings.about_section} lang={lang} />
+        
+        {/* Masters of Materials Section */}
+        <section className="relative w-full py-24 md:py-32">
+          <div className="max-w-4xl mx-auto px-8 md:px-20 text-center">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white leading-tight mb-8">
+              {lang === 'he' ? (
+                <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
+              ) : (
+                <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
+              )}
+            </h2>
+            <p className="text-lg md:text-xl text-white/70 font-light leading-relaxed mb-12 max-w-3xl mx-auto">
+              {lang === 'he' 
+                ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
+                : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
+            </p>
+            <button 
+              onClick={() => navigate('/contact')}
+              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white text-white rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+            >
+              {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
+              <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+        </section>
       </div>
     </>
   );
