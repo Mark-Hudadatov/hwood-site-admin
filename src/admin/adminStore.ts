@@ -17,8 +17,12 @@ export interface AdminService {
   slug: string;
   title_en: string;
   title_he?: string;
+  subtitle_en?: string;
+  subtitle_he?: string;
   description_en?: string;
   description_he?: string;
+  cta_text_en?: string;
+  cta_text_he?: string;
   image_url?: string;
   hero_image_url?: string;
   accent_color?: string;

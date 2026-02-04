@@ -35,8 +35,12 @@ const [formData, setFormData] = useState<{
     slug: string;
     title_en: string;
     title_he: string;
+    subtitle_en: string;
+    subtitle_he: string;
     description_en: string;
     description_he: string;
+    cta_text_en: string;
+    cta_text_he: string;
     image_url: string;
     hero_image_url: string;
     accent_color: string;
@@ -45,8 +49,12 @@ const [formData, setFormData] = useState<{
     slug: '',
     title_en: '',
     title_he: '',
+    subtitle_en: '',
+    subtitle_he: '',
     description_en: '',
     description_he: '',
+    cta_text_en: 'Learn more',
+    cta_text_he: 'לפרטים נוספים',
     image_url: '',
     hero_image_url: '',
     accent_color: '#005f5f',
@@ -74,8 +82,12 @@ const [formData, setFormData] = useState<{
       slug: '',
       title_en: '',
       title_he: '',
+      subtitle_en: '',
+      subtitle_he: '',
       description_en: '',
       description_he: '',
+      cta_text_en: 'Learn more',
+      cta_text_he: 'לפרטים נוספים',
       image_url: '',
       hero_image_url: '',
       accent_color: '#005f5f',
@@ -90,8 +102,12 @@ const [formData, setFormData] = useState<{
       slug: service.slug,
       title_en: service.title_en,
       title_he: service.title_he || '',
+      subtitle_en: service.subtitle_en || '',
+      subtitle_he: service.subtitle_he || '',
       description_en: service.description_en || '',
       description_he: service.description_he || '',
+      cta_text_en: service.cta_text_en || 'Learn more',
+      cta_text_he: service.cta_text_he || 'לפרטים נוספים',
       image_url: service.image_url || '',
       hero_image_url: service.hero_image_url || '',
       accent_color: service.accent_color || '#005f5f',
@@ -303,6 +319,19 @@ const [formData, setFormData] = useState<{
             placeholder="Service title"
           />
 
+          {/* Subtitle / Technical Label */}
+          <BilingualInput
+            label="Subtitle (Technical Label)"
+            nameEn="subtitle_en"
+            nameHe="subtitle_he"
+            valueEn={formData.subtitle_en}
+            valueHe={formData.subtitle_he}
+            onChangeEn={(v) => setFormData({ ...formData, subtitle_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, subtitle_he: v })}
+            placeholder="e.g., Cabinet Systems, CNC Machining"
+            helpText="Short technical descriptor shown above the title"
+          />
+
           {/* Description */}
           <BilingualInput
             label="Description"
@@ -314,6 +343,19 @@ const [formData, setFormData] = useState<{
             onChangeHe={(v) => setFormData({ ...formData, description_he: v })}
             type="textarea"
             placeholder="Brief description of the service"
+          />
+
+          {/* CTA Text */}
+          <BilingualInput
+            label="Button Text (CTA)"
+            nameEn="cta_text_en"
+            nameHe="cta_text_he"
+            valueEn={formData.cta_text_en}
+            valueHe={formData.cta_text_he}
+            onChangeEn={(v) => setFormData({ ...formData, cta_text_en: v })}
+            onChangeHe={(v) => setFormData({ ...formData, cta_text_he: v })}
+            placeholder="e.g., Learn more, View catalog"
+            helpText="Text shown on the service card button"
           />
 
           {/* Images */}

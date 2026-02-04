@@ -227,5 +227,31 @@ CREATE POLICY "Public read visible products" ON products
   FOR SELECT USING (visibility_status = 'visible' OR visibility_status = 'not_in_stock');
 
 -- ============================================
+-- PARTNERS TABLE
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS partners (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL,
+  logo_url TEXT NOT NULL,
+  website_url TEXT,
+  sort_order INTEGER DEFAULT 0,
+  is_visible BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
+
+-- Public can read visible partners
+CREATE POLICY "Public read visible partners" ON partners 
+  FOR SELECT USING (is_visible = true);
+
+-- Authenticated users can manage partners
+CREATE POLICY "Authenticated manage partners" ON partners 
+  FOR ALL USING (auth.role() = 'authenticated');
+
+-- ============================================
 -- DONE
 -- ============================================

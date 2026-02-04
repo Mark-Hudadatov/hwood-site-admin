@@ -19,13 +19,15 @@ import { ScrollReveal, StaggerReveal } from '../components/premium';
 // CONSTANTS
 // =============================================================================
 
+// Icon-based fallback images as data URIs (no external dependencies)
 const FALLBACK = {
-  service: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1000&fit=crop',
-  story: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=1000&fit=crop',
-  hero: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop',
+  // Carpentry/cabinet icon - small centered on dark background
+  service: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.4"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/><rect x="58" y="12" width="15" height="20" rx="2"/><circle cx="18" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="43" cy="27" r="2" fill="#ffffff" fill-opacity="0.4"/><circle cx="65" cy="22" r="1.5" fill="#ffffff" fill-opacity="0.4"/></g></svg>`)}`,
+  // Camera icon for stories - dark background
+  story: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360, 460)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="5" y="20" width="70" height="50" rx="6"/><circle cx="40" cy="45" r="15"/><circle cx="40" cy="45" r="8"/><rect x="25" y="10" width="30" height="14" rx="3"/><circle cx="62" cy="30" r="4"/></g></svg>`)}`,
+  // Industrial/CNC hero background
+  hero: `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none"><rect width="1600" height="900" fill="#1a1a1a"/><g opacity="0.15"><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="#005f5f" stroke-width="1"/></pattern><rect width="1600" height="900" fill="url(#grid)"/></g><g transform="translate(600, 300)" stroke="#005f5f" stroke-width="4" fill="none" opacity="0.4"><rect x="0" y="0" width="400" height="300" rx="20"/><circle cx="200" cy="150" r="80"/><circle cx="200" cy="150" r="40"/><path d="M120 150 L80 150 M280 150 L320 150 M200 70 L200 30 M200 230 L200 270"/></g></svg>`)}`,
 };
-
-const PARTNER_NAMES = ['Biesse', 'Homag', 'Blum', 'Hettich', 'Grass', 'Festool'];
 
 // =============================================================================
 // TYPES
@@ -33,6 +35,9 @@ const PARTNER_NAMES = ['Biesse', 'Homag', 'Blum', 'Hettich', 'Grass', 'Festool']
 
 interface ServiceWithStatus extends Service {
   visibilityStatus?: string;
+  subtitle?: string;
+  accentColor?: string;
+  ctaText?: string;
 }
 
 interface StoryWithStatus extends Story {
@@ -56,6 +61,8 @@ interface HomepageSettings {
   services_section: {
     title_en: string;
     title_he: string;
+    subtitle_en?: string;
+    subtitle_he?: string;
     show_descriptions: boolean;
   };
   stories_section: {
@@ -87,19 +94,19 @@ const DEFAULT_SETTINGS: HomepageSettings = {
   hero: {
     left_image_url: FALLBACK.hero,
     left_video_url: '',
-    left_title_en: 'Industrial Carpentry Systems',
-    left_title_he: 'מערכות נגרות תעשייתיות',
-    left_subtitle_en: 'CNC production systems for construction, architecture, and manufacturing',
-    left_subtitle_he: '',
-    right_image_url: FALLBACK.hero,
-    right_title_en: 'Modular Cabinet Systems',
+    left_title_en: 'CNC Production Systems',
+    left_title_he: 'מערכות ייצור CNC',
+    left_subtitle_en: 'Modular systems and CNC processing for kitchen and interior production.',
+    left_subtitle_he: 'מערכות מודולריות ועיבוד CNC לייצור מטבחים ופנים.',
+    right_image_url: '',
+    right_title_en: '',
     right_title_he: '',
-    right_link: '/services/modular-cabinet-systems',
-    hero_height: '100vh',
+    right_link: '/services',
+    hero_height: '90vh',
   },
-  services_section: { title_en: 'Production Systems', title_he: 'מערכות ייצור', show_descriptions: true },
-  stories_section: { title_en: 'Projects', title_he: 'פרויקטים', button_text_en: 'View all projects', button_text_he: '', button_link: '/portfolio' },
-  about_section: { title_en: 'HWOOD', title_he: '', description_en: 'Industrial-grade carpentry and CNC production facility serving construction, architecture, and manufacturing sectors in Israel.', description_he: '', button_text_en: 'About Facility', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
+  services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', subtitle_en: 'Precision services designed for the modern industrial workflow.', subtitle_he: 'שירותי דיוק המיועדים לתהליכי העבודה התעשייתיים המודרניים.', show_descriptions: true },
+  stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
+  about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
 };
 
@@ -120,90 +127,152 @@ const ComingSoonOverlay: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md
   return (
     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-10">
       <Clock className={`${iconSize} text-white mb-2`} />
-      <span className={`text-white ${textSize} font-medium uppercase tracking-wider`}>Coming Soon</span>
+      <span className={`text-white ${textSize} font-bold uppercase tracking-wider`}>Coming Soon</span>
     </div>
   );
 };
 
 // =============================================================================
-// PARTNERS SECTION
+// PARTNERS SECTION (DYNAMIC FROM SUPABASE)
 // =============================================================================
 
-const PartnersSection: React.FC = () => (
-  <section className="w-full bg-white py-8 md:py-12 overflow-hidden border-b border-neutral-100">
-    <div className="relative">
-      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-white to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-white to-transparent z-10" />
-      <div className="flex animate-marquee">
-        {[...PARTNER_NAMES, ...PARTNER_NAMES, ...PARTNER_NAMES].map((name, i) => (
-          <span key={i} className="flex-shrink-0 mx-8 md:mx-16 text-h2 text-neutral-300 hover:text-neutral-500 transition-colors tracking-wide uppercase whitespace-nowrap">
-            {name}
-          </span>
-        ))}
+interface Partner {
+  id: string;
+  name: string;
+  logo_url: string;
+  website_url?: string;
+}
+
+const PartnersSection: React.FC<{ partners: Partner[] }> = ({ partners }) => {
+  // If no partners, show nothing or fallback text
+  if (partners.length === 0) {
+    return null;
+  }
+
+  // Triple the partners for seamless loop
+  const displayPartners = [...partners, ...partners, ...partners];
+
+  return (
+    <section className="w-full bg-white py-6 md:py-10 overflow-hidden border-b border-gray-100">
+      <div className="relative">
+        <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10" />
+        <div className="flex animate-marquee">
+          {displayPartners.map((partner, i) => (
+            partner.website_url ? (
+              <a
+                key={`${partner.id}-${i}`}
+                href={partner.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 mx-8 md:mx-12 flex items-center justify-center h-12 md:h-16 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={partner.logo_url}
+                  alt={partner.name}
+                  className="h-8 md:h-12 w-auto max-w-[120px] md:max-w-[160px] object-contain grayscale hover:grayscale-0 transition-all"
+                />
+              </a>
+            ) : (
+              <div
+                key={`${partner.id}-${i}`}
+                className="flex-shrink-0 mx-8 md:mx-12 flex items-center justify-center h-12 md:h-16 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={partner.logo_url}
+                  alt={partner.name}
+                  className="h-8 md:h-12 w-auto max-w-[120px] md:max-w-[160px] object-contain grayscale hover:grayscale-0 transition-all"
+                />
+              </div>
+            )
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // =============================================================================
 // SERVICE CARD WITH COMING SOON
+// =============================================================================
+
+// =============================================================================
+// SERVICE CARD - CNC INDUSTRIAL STYLE V2
 // =============================================================================
 
 const ServiceCard: React.FC<{
   service: ServiceWithStatus;
   onClick: () => void;
   showDescription: boolean;
-}> = ({ service, onClick, showDescription }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  isPrimary?: boolean;
+}> = ({ service, onClick, showDescription, isPrimary = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
 
+  // Get subtitle from service if available (technical descriptor)
+  const technicalDescriptor = service.subtitle || 'Industrial Service';
+  // Get CTA text from service
+  const ctaText = service.ctaText || 'Explore Services';
+
   return (
     <div 
-      className={`relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg ${isComingSoon ? '' : 'cursor-pointer group'}`}
+      className={`relative flex flex-col justify-between overflow-hidden rounded-3xl
+        w-[340px] h-[500px] md:w-[420px] md:h-[580px]
+        group transition-all duration-300
+        border-4 border-transparent
+        ${isComingSoon ? 'opacity-70' : 'hover:border-black hover:shadow-2xl cursor-pointer'}
+      `}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => !isComingSoon && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <img
-        src={imgSrc}
-        alt={service.title}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
-          isComingSoon ? 'grayscale brightness-75' : isHovered ? 'scale-105' : 'scale-100'
-        }`}
-        onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
-      />
-      
-      {isComingSoon && <ComingSoonOverlay />}
-      
-      <div className={`absolute inset-0 transition-all duration-300 ${
-        isComingSoon ? 'bg-black/20' :
-        isHovered ? 'bg-gradient-to-t from-brand via-brand/60 to-brand/20' 
-                  : 'bg-gradient-to-t from-black/80 via-black/30 to-transparent'
-      }`} />
-
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-8">
-        <h3 className={`text-white text-h2 mb-3 transition-transform duration-300 ${
-          isComingSoon ? 'opacity-70' : isHovered ? '-translate-y-1' : ''
-        }`}>
-          {service.title}
-        </h3>
-        {showDescription && !isComingSoon && (
-          <p className="text-white/80 text-body leading-relaxed line-clamp-3">
-            {service.description}
-          </p>
-        )}
-        {!isComingSoon && (
-          <div className={`flex items-center gap-2 mt-4 text-white/80 text-meta transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <span>View System</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        )}
+      {/* Full-color Background Image */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <img 
+          src={imgSrc} 
+          alt={service.title} 
+          className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : ''}`}
+          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
+        />
+        {/* Gradient for Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80" />
       </div>
 
-      {!isComingSoon && (
-        <div className="absolute bottom-0 left-0 h-0.5 bg-white/80 transition-all duration-300" style={{ width: isHovered ? '100%' : '0%' }} />
-      )}
+      {isComingSoon && <ComingSoonOverlay />}
+
+      {/* Content Container - p-10 = 40px padding */}
+      <div className="relative z-10 p-10 flex flex-col h-full text-white">
+        {/* Technical Descriptor Badge */}
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
+            {technicalDescriptor}
+          </span>
+          {isPrimary && (
+            <span className="w-2 h-2 flex-shrink-0 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"></span>
+          )}
+        </div>
+
+        {/* Main Content pushed to bottom */}
+        <div className="mt-auto">
+          <h4 className="text-xl md:text-2xl font-bold mb-4 tracking-tight leading-tight truncate">
+            {service.title}
+          </h4>
+          {showDescription && service.description && (
+            <p className="text-sm leading-relaxed font-light text-white/70 mb-8 group-hover:text-white transition-colors line-clamp-2">
+              {service.description}
+            </p>
+          )}
+          
+          {!isComingSoon && (
+            <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-[0.3em] font-bold inline-flex items-center gap-3 group/link transition-all">
+                {ctaText}
+                <svg className="w-5 h-5 transition-transform group-hover/link:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -212,38 +281,49 @@ const ServiceCard: React.FC<{
 // STORY CARD WITH COMING SOON
 // =============================================================================
 
-const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
+const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ story, lang = 'en' }) => {
   const isComingSoon = story.visibilityStatus === 'coming_soon';
   const imgSrc = story.imageUrl || FALLBACK.story;
+  const isRTL = lang === 'he';
 
   const content = (
-    <div className={`flex-shrink-0 w-[280px] md:w-[320px] flex flex-col items-center ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-1'}`}>
-      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl shadow-lg mb-6">
+    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
+      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[3rem] shadow-lg mb-6">
         <img
           src={imgSrc}
           alt={story.title}
-          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
-            isComingSoon ? 'grayscale brightness-75' : 'group-hover:scale-105'
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+            isComingSoon ? 'grayscale brightness-75' : 'group-hover:scale-110'
           }`}
           onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.story; }}
         />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+        
+        {/* Type label inside image - top */}
+        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'}`}>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white">
+            {story.type}
+          </span>
+        </div>
+        
         {isComingSoon && <ComingSoonOverlay />}
         {!isComingSoon && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
+            </div>
+          </div>
         )}
       </div>
 
-      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-brand/80 text-white text-meta-sm tracking-wider uppercase">
-        {story.type}
-      </div>
-
-      <h3 className={`text-body-lg font-medium text-center leading-tight mb-3 px-2 line-clamp-3 transition-colors duration-300 ${
-        isComingSoon ? 'text-white/60' : 'text-white group-hover:text-neutral-200'
+      <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
+        isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
       }`}>
         {story.title}
       </h3>
 
-      <div className="text-white/70 text-meta">{story.date}</div>
+      <div className={`text-white/80 text-sm font-medium px-2 ${isRTL ? 'text-right' : 'text-left'}`}>{story.date}</div>
     </div>
   );
 
@@ -263,16 +343,17 @@ const StoryCard: React.FC<{ story: StoryWithStatus }> = ({ story }) => {
 // =============================================================================
 
 const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | 'he' }> = ({ settings, lang }) => {
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const leftTitle = lang === 'he' && settings.left_title_he ? settings.left_title_he : settings.left_title_en;
   const leftSubtitle = lang === 'he' && settings.left_subtitle_he ? settings.left_subtitle_he : settings.left_subtitle_en || '';
-  const rightTitle = lang === 'he' && settings.right_title_he ? settings.right_title_he : settings.right_title_en;
   const leftImg = settings.left_image_url || FALLBACK.hero;
-  const rightImg = settings.right_image_url || FALLBACK.hero;
+  
+  // Bilingual content for right panel
+  const buttonText = lang === 'he' ? 'לצפות במערכות הייצור' : 'Review Production Systems';
+  const tagText = lang === 'he' ? 'זרימת עבודה מדויקת' : 'Precision Workflow';
 
   useEffect(() => { setTimeout(() => setIsVisible(true), 100); }, []);
 
@@ -285,43 +366,135 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-black" style={{ height: settings.hero_height, minHeight: '600px' }}>
+    <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
       <div className="absolute inset-0 flex flex-col md:flex-row">
-        {/* Left Panel */}
-        <div className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden">
+        {/* Left Panel - 70% with Video */}
+        <div className="relative w-full md:w-[70%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
           {settings.left_video_url ? (
-            <video ref={videoRef} autoPlay loop muted playsInline preload="auto" poster="" className="absolute inset-0 w-full h-full object-cover">
+            <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
               <source src={settings.left_video_url} type="video/mp4" />
             </video>
           ) : (
             <img src={leftImg} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20" />
-          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 pb-24 md:pb-32">
-            <h1 className={`text-white text-display-sm md:text-display mb-4 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>{leftTitle}</h1>
-            {leftSubtitle && <p className={`text-white/70 text-body-lg max-w-lg transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>{leftSubtitle}</p>}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
+          
+          <div className={`absolute inset-0 flex flex-col justify-end p-8 md:p-16 lg:p-20 pb-20 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+            <h1 className={`text-white font-bold mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}>
+              {leftTitle}
+            </h1>
+            {leftSubtitle && (
+              <p className={`text-white/80 text-sm md:text-lg lg:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+                {leftSubtitle}
+              </p>
+            )}
           </div>
+          
           {settings.left_video_url && (
-            <button onClick={toggleVideo} className="absolute bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all">
+            <button onClick={toggleVideo} className="absolute bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10">
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
             </button>
           )}
         </div>
 
-        {/* Right Panel */}
-        <Link to={settings.right_link || '/'} className="relative w-full md:w-1/2 h-1/2 md:h-full overflow-hidden group">
-          <img src={rightImg} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
-          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 pb-24 md:pb-32">
-            <div className="flex items-end gap-4">
-              <h2 className={`text-white text-h1 md:text-display-sm transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>{rightTitle}</h2>
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
-                <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-white group-hover:text-brand transition-colors" />
-              </div>
+        {/* Right Panel - 30% Black with Button */}
+        <div className={`relative w-full md:w-[30%] h-1/2 md:h-full flex items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+          <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
+            <Link 
+              to={settings.right_link || '/services'} 
+              className={`inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn whitespace-nowrap ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
+            >
+              {buttonText}
+              <span className="bg-black text-white rounded-full p-1 group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
+                <ArrowRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+              </span>
+            </Link>
+            
+            <div className={`mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+              <span>{tagText}</span>
+              <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
-            <span className="text-white/50 text-meta mt-4 tracking-wide uppercase group-hover:text-white/70 transition-colors">View Systems →</span>
           </div>
-        </Link>
+          
+          {/* Decorative background element */}
+          <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none">
+            <svg width="300" height="300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="48" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
+              <path d="M50 2v96M2 50h96" stroke="white" strokeWidth="0.2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// =============================================================================
+// CONTENT BLOCK SECTION (NEW)
+// =============================================================================
+
+const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }> = ({ lang, primaryColor }) => {
+  const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.2 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const content = {
+    en: {
+      title: 'Work starts from the',
+      highlight: 'inside',
+      p1: 'Production is rarely static. Layouts change, dimensions vary, and each project introduces new constraints that must be handled without disrupting the workflow.',
+      p2: 'We focus on the internal logic of CNC-based production. We bring order where complexity is unavoidable — enabling stable throughput, fewer errors, and predictable results even in variable and custom manufacturing environments.',
+      link: 'Explore Our Engineering'
+    },
+    he: {
+      title: 'העבודה מתחילה',
+      highlight: 'מבפנים',
+      p1: 'הייצור לעיתים רחוקות סטטי. פריסות משתנות, מידות משתנות, וכל פרויקט מציג אילוצים חדשים שיש לטפל בהם מבלי לשבש את זרימת העבודה.',
+      p2: 'אנחנו מתמקדים בלוגיקה הפנימית של ייצור מבוסס CNC. אנחנו מביאים סדר במקום שבו מורכבות בלתי נמנעת — מאפשרים תפוקה יציבה, פחות שגיאות, ותוצאות צפויות גם בסביבות ייצור משתנות ומותאמות אישית.',
+      link: 'לחקור את ההנדסה שלנו'
+    }
+  };
+
+  const c = content[lang];
+  const isRTL = lang === 'he';
+
+  return (
+    <section ref={sectionRef} className="bg-white py-24 md:py-32 px-8 md:px-20 lg:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-7xl mx-auto">
+        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
+        </h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24">
+          <div className="space-y-8">
+            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
+              {c.p1}
+            </p>
+            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
+              {c.p2}
+            </p>
+          </div>
+          
+          <div className={`flex flex-col justify-end ${isRTL ? 'lg:items-start' : 'lg:items-end'}`}>
+            <button 
+              onClick={() => navigate('/about')}
+              className={`relative group cursor-pointer inline-flex items-center gap-4 text-black font-bold uppercase tracking-widest text-sm py-4 border-b-2 border-black transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${isRTL ? 'flex-row-reverse' : ''}`}
+              style={{ transitionDelay: '600ms' }}
+            >
+              {c.link}
+              <ArrowRight className={`w-5 h-5 transform group-hover:translate-x-2 transition-transform ${isRTL ? 'rotate-180 group-hover:-translate-x-2 group-hover:translate-x-0' : ''}`} />
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -339,11 +512,12 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
 
   return (
     <section className="relative w-full min-h-[500px] flex md:pt-12">
-      <div className="relative z-10 flex-1 rounded-tl-[60px] md:rounded-tl-[100px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-xl" style={{ backgroundColor: settings.background_color }}>
-        <h2 className="text-display-sm font-medium mb-8" style={{ color: settings.text_color }}>{title}</h2>
-        <p className="text-neutral-700 text-body-lg leading-relaxed mb-12 max-w-2xl">{description}</p>
-        <button onClick={() => navigate(settings.button_link)} className="text-white px-8 py-3 rounded font-medium text-meta tracking-wide self-start hover:opacity-90 transition-opacity" style={{ backgroundColor: settings.text_color }}>
-          {buttonText}
+      <div className="relative z-10 flex-1 rounded-l-[80px] md:rounded-l-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
+        <h2 className="text-2xl md:text-3xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
+        <p className="text-gray-900 text-xl md:text-2xl font-light leading-relaxed mb-12 max-w-2xl">{description}</p>
+        <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
+          <span className="relative z-10">{buttonText}</span>
+          <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
         </button>
       </div>
     </section>
@@ -358,6 +532,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState<ServiceWithStatus[]>([]);
   const [stories, setStories] = useState<StoryWithStatus[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [settings, setSettings] = useState<HomepageSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const storiesScrollRef = useRef<HTMLDivElement>(null);
@@ -366,6 +541,17 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Fetch partners
+        const { data: partnersData } = await supabase
+          .from('partners')
+          .select('*')
+          .eq('is_visible', true)
+          .order('sort_order', { ascending: true });
+        
+        if (partnersData) {
+          setPartners(partnersData);
+        }
+
         // Fetch services with visibility_status
         const { data: servicesData } = await supabase
           .from('services')
@@ -378,7 +564,9 @@ export const HomePage: React.FC = () => {
             id: s.id,
             slug: s.slug,
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+            subtitle: lang === 'he' && s.subtitle_he ? s.subtitle_he : s.subtitle_en || '',
             description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
+            ctaText: lang === 'he' && s.cta_text_he ? s.cta_text_he : s.cta_text_en || 'Explore Services',
             imageUrl: s.image_url || '',
             heroImageUrl: s.hero_image_url,
             accentColor: s.accent_color,
@@ -436,14 +624,61 @@ export const HomePage: React.FC = () => {
     storiesScrollRef.current?.scrollBy({ left: direction === 'right' ? 400 : -400, behavior: 'smooth' });
   };
 
+  // Services scroll handler with drag support
+  const servicesScrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
+  const scrollServices = (direction: 'left' | 'right') => {
+    servicesScrollRef.current?.scrollBy({ left: direction === 'right' ? 440 : -440, behavior: 'smooth' });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!servicesScrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - servicesScrollRef.current.offsetLeft);
+    setScrollLeft(servicesScrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // Reset hasDragged after a short delay to allow click prevention
+    setTimeout(() => setHasDragged(false), 100);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !servicesScrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - servicesScrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    // Only mark as dragged if we moved more than 5px
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    servicesScrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleServiceClick = (slug: string) => {
+    if (hasDragged) return; // Don't navigate if we just dragged
+    navigate(ROUTES.SERVICE(slug));
+  };
+
   const servicesTitle = lang === 'he' && settings.services_section.title_he ? settings.services_section.title_he : settings.services_section.title_en;
+  const servicesSubtitle = lang === 'he' && settings.services_section.subtitle_he ? settings.services_section.subtitle_he : (settings.services_section.subtitle_en || 'Precision services designed for the modern industrial workflow.');
   const storiesTitle = lang === 'he' && settings.stories_section.title_he ? settings.stories_section.title_he : settings.stories_section.title_en;
   const storiesButtonText = lang === 'he' && settings.stories_section.button_text_he ? settings.stories_section.button_text_he : settings.stories_section.button_text_en;
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-12 h-12 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-2 border-[#005f5f] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -451,66 +686,219 @@ export const HomePage: React.FC = () => {
   return (
     <>
       <HeroSection settings={settings.hero} lang={lang} />
-      <PartnersSection />
+      <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
+      <PartnersSection partners={partners} />
 
-      {/* Services Section */}
-      <section className="w-full bg-[#EAEAEA] py-16 md:py-24">
-        <div className="w-full px-8 md:px-12 lg:px-16">
-          <ScrollReveal animation="fade-up">
-            <h2 className="text-display-sm md:text-display tracking-tight mb-12" style={{ color: settings.layout.primary_color }}>{servicesTitle}</h2>
-          </ScrollReveal>
-          <StaggerReveal 
-            animation="fade-up" 
-            staggerDelay={100}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {services.map((service) => (
+      {/* Services Section - CNC Industrial Style V2 */}
+      <section className="bg-[#f8f8f8] py-24 md:py-32 px-8 md:px-20 lg:px-40 overflow-hidden select-none">
+        {/* Header with Title and Subtitle stacked vertically */}
+        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
+            <div className="flex flex-col">
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+                {servicesTitle}
+              </h3>
+              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+                {servicesSubtitle}
+              </p>
+            </div>
+
+            <div className={`flex items-center gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+              <button 
+                onClick={() => scrollServices('left')}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              <button 
+                onClick={() => scrollServices('right')}
+                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Service Cards Slider - no max-w to allow cards to extend */}
+        <div 
+          ref={servicesScrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="flex gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {services.map((service, index) => (
+            <div key={service.id} className="flex-shrink-0">
               <ServiceCard 
-                key={service.id} 
                 service={service} 
-                onClick={() => navigate(ROUTES.SERVICE(service.slug))} 
-                showDescription={settings.services_section.show_descriptions} 
+                onClick={() => handleServiceClick(service.slug)} 
+                showDescription={settings.services_section.show_descriptions}
+                isPrimary={index === 0}
               />
-            ))}
-          </StaggerReveal>
-          {services.length === 0 && <p className="text-center py-12 text-neutral-500">No production systems available</p>}
+            </div>
+          ))}
+          
+          {/* Spacer for scroll end */}
+          <div className="flex-shrink-0 w-32 md:w-64" />
+        </div>
+        
+        {services.length === 0 && (
+          <p className="text-center py-12 text-gray-500 max-w-[1280px] mx-auto px-8">No services found</p>
+        )}
+      </section>
+
+      {/* Who We Work With Section */}
+      <section className="bg-white pt-24 md:pt-32">
+        {/* Header - aligned with other sections */}
+        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
+            </h2>
+            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
+              {lang === 'he' 
+                ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
+                : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Partner Cards Grid - Full Width */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
+          {[
+            {
+              title_en: 'Kitchen & Cabinet Manufacturers',
+              title_he: 'יצרני מטבחים וארונות',
+              subtitle_en: 'Series & Project-based Production',
+              subtitle_he: 'ייצור סדרתי ופרויקטאלי',
+              description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.',
+              description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.',
+              bg: '#002b2b'
+            },
+            {
+              title_en: 'Professional Carpentry & Joinery',
+              title_he: 'נגרות מקצועית',
+              subtitle_en: 'Custom Interior Fabrication',
+              subtitle_he: 'ייצור פנים מותאם אישית',
+              description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.',
+              description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.',
+              bg: '#002222'
+            },
+            {
+              title_en: 'Interior & Fit-Out Contractors',
+              title_he: 'קבלני פנים והתאמות',
+              subtitle_en: 'Residential & Commercial Delivery',
+              subtitle_he: 'אספקה למגורים ומסחר',
+              description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.',
+              description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.',
+              bg: '#001a1a'
+            }
+          ].map((partner, index) => (
+            <div 
+              key={index}
+              className="relative h-[400px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
+              style={{ backgroundColor: partner.bg }}
+            >
+              {/* Content */}
+              <div className="absolute inset-0 p-10 lg:p-14 flex flex-col justify-end">
+                {/* Subtitle */}
+                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
+                  {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
+                </span>
+                
+                {/* Title */}
+                <h3 className="text-2xl lg:text-3xl font-bold mb-6 tracking-tight leading-tight text-white">
+                  {lang === 'he' ? partner.title_he : partner.title_en}
+                </h3>
+                
+                {/* Divider */}
+                <div className="w-10 h-[1px] bg-white/20 mb-6"></div>
+                
+                {/* Description */}
+                <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
+                  {lang === 'he' ? partner.description_he : partner.description_en}
+                </p>
+              </div>
+
+              {/* Top accent for first card */}
+              {index === 0 && (
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-600/30" />
+              )}
+              
+              {/* Internal border */}
+              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5" />
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Stories & About */}
       <div className="relative w-full overflow-hidden" style={{ backgroundColor: settings.layout.background_dark }}>
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -left-16 -top-40 h-[200%] w-64 transform -skew-x-[20deg] opacity-30" style={{ backgroundColor: settings.layout.primary_color }} />
+          <div className="absolute -left-16 -top-40 h-[200%] w-64 transform -skew-x-[20deg]" style={{ backgroundColor: settings.layout.primary_color }} />
+          <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-16 md:py-24">
-          <div className="w-full px-8 md:px-12 lg:px-16">
+        <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
+          <div className="max-w-7xl mx-auto mb-16 md:mb-20">
             <ScrollReveal animation="fade-up">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6">
-                <h2 className="text-display-sm tracking-tight">{storiesTitle}</h2>
-                <div className="flex items-center gap-4">
-                  <div className="hidden md:flex gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
+                <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
                     <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
                   </div>
-                  <button onClick={() => navigate(settings.stories_section.button_link)} className="px-8 py-2 rounded border border-white text-white text-meta font-medium hover:bg-white hover:text-brand transition-all">
-                    {storiesButtonText}
+                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
+                    <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
+                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   </button>
                 </div>
               </div>
             </ScrollReveal>
-
-            <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8">
-              {stories.map((story) => (
-                <div key={story.id} className="snap-start"><StoryCard story={story} /></div>
-              ))}
-              <div className="w-12 flex-shrink-0" />
-            </div>
-            {stories.length === 0 && <p className="text-center py-12 text-white/50">No projects available</p>}
           </div>
+
+          {/* Stories slider - extends beyond max-w */}
+          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
+            {stories.map((story) => (
+              <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
+            ))}
+            <div className="w-12 flex-shrink-0" />
+          </div>
+          {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
         </section>
 
         <AboutSection settings={settings.about_section} lang={lang} />
+        
+        {/* Masters of Materials Section */}
+        <section className="relative w-full py-16 md:py-24">
+          <div className="max-w-4xl mx-auto px-8 md:px-20 text-center">
+            <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-6">
+              {lang === 'he' ? (
+                <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
+              ) : (
+                <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
+              )}
+            </h2>
+            <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-16 max-w-3xl mx-auto">
+              {lang === 'he' 
+                ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
+                : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
+            </p>
+            <button 
+              onClick={() => navigate('/contact')}
+              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white/70 text-white/70 rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 hover:border-white transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+            >
+              {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
+              <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+        </section>
       </div>
     </>
   );
