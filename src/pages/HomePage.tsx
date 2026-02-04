@@ -297,21 +297,24 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
           }`}
           onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.story; }}
         />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
+        
+        {/* Type label inside image - top */}
+        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'}`}>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white">
+            {story.type}
+          </span>
+        </div>
+        
         {isComingSoon && <ComingSoonOverlay />}
         {!isComingSoon && (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
-              </div>
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
             </div>
-          </>
+          </div>
         )}
-      </div>
-
-      <div className="mb-4 px-4 py-1 rounded-full border border-white/30 bg-[#004D4D] text-white text-[10px] md:text-xs font-semibold tracking-wider uppercase truncate max-w-[200px]">
-        {story.type}
       </div>
 
       <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
@@ -320,7 +323,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
         {story.title}
       </h3>
 
-      <div className="text-white/80 text-sm font-medium px-2">{story.date}</div>
+      <div className={`text-white/80 text-sm font-medium px-2 ${isRTL ? 'text-right' : 'text-left'}`}>{story.date}</div>
     </div>
   );
 
@@ -509,8 +512,8 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
 
   return (
     <section className="relative w-full min-h-[500px] flex md:pt-12">
-      <div className="relative z-10 flex-1 rounded-tl-[80px] md:rounded-tl-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
-        <h2 className="text-3xl md:text-4xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
+      <div className="relative z-10 flex-1 rounded-l-[80px] md:rounded-l-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
+        <h2 className="text-2xl md:text-3xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
         <p className="text-gray-900 text-xl md:text-2xl font-light leading-relaxed mb-12 max-w-2xl">{description}</p>
         <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
           <span className="relative z-10">{buttonText}</span>
@@ -692,7 +695,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto mb-16 md:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
               <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
@@ -754,7 +757,7 @@ export const HomePage: React.FC = () => {
         {/* Header - aligned with other sections */}
         <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
               {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
             </h2>
             <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
@@ -842,10 +845,10 @@ export const HomePage: React.FC = () => {
         </div>
 
         <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
-          <div className="max-w-7xl mx-auto mb-10 md:mb-16">
+          <div className="max-w-7xl mx-auto mb-16 md:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
                 <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                   <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
@@ -873,23 +876,23 @@ export const HomePage: React.FC = () => {
         <AboutSection settings={settings.about_section} lang={lang} />
         
         {/* Masters of Materials Section */}
-        <section className="relative w-full py-24 md:py-32">
+        <section className="relative w-full py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-8 md:px-20 text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white leading-tight mb-8">
+            <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-6">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
               ) : (
                 <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
               )}
             </h2>
-            <p className="text-lg md:text-xl text-white/70 font-light leading-relaxed mb-12 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-16 max-w-3xl mx-auto">
               {lang === 'he' 
                 ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
                 : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
             </p>
             <button 
               onClick={() => navigate('/contact')}
-              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white text-white rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white/70 text-white/70 rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 hover:border-white transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
             >
               {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
               <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
