@@ -205,7 +205,8 @@ const ServiceCard: React.FC<{
   onClick: () => void;
   showDescription: boolean;
   isPrimary?: boolean;
-}> = ({ service, onClick, showDescription, isPrimary = false }) => {
+  isGridMode?: boolean;
+}> = ({ service, onClick, showDescription, isPrimary = false, isGridMode = false }) => {
   const isComingSoon = service.visibilityStatus === 'coming_soon';
   const imgSrc = service.imageUrl || FALLBACK.service;
 
@@ -217,7 +218,10 @@ const ServiceCard: React.FC<{
   return (
     <div 
       className={`relative flex flex-col justify-between overflow-hidden rounded-3xl
-        w-[340px] h-[500px] md:w-[420px] md:h-[580px]
+        ${isGridMode 
+          ? 'w-full h-[420px] sm:h-[480px]' 
+          : 'w-[85vw] max-w-[340px] h-[450px] sm:h-[500px] lg:w-[380px] xl:w-[420px] lg:h-[540px] xl:h-[580px]'
+        }
         group transition-all duration-300
         border-4 border-transparent
         ${isComingSoon ? 'opacity-70' : 'hover:border-black hover:shadow-2xl cursor-pointer'}
@@ -281,14 +285,14 @@ const ServiceCard: React.FC<{
 // STORY CARD WITH COMING SOON
 // =============================================================================
 
-const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ story, lang = 'en' }) => {
+const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he'; isGridMode?: boolean }> = ({ story, lang = 'en', isGridMode = false }) => {
   const isComingSoon = story.visibilityStatus === 'coming_soon';
   const imgSrc = story.imageUrl || FALLBACK.story;
   const isRTL = lang === 'he';
 
   const content = (
-    <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
-      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[3rem] shadow-lg mb-6">
+    <div className={`flex-shrink-0 ${isGridMode ? 'w-full' : 'w-[75vw] max-w-[300px] sm:max-w-[320px] lg:w-[280px] xl:w-[320px]'} flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
+      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[2rem] sm:rounded-[3rem] shadow-lg mb-4 sm:mb-6">
         <img
           src={imgSrc}
           alt={story.title}
@@ -301,8 +305,8 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
         
         {/* Type label inside image - top */}
-        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'}`}>
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white">
+        <div className={`absolute top-4 sm:top-6 ${isRTL ? 'right-4 sm:right-6' : 'left-4 sm:left-6'}`}>
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-2 sm:px-3 py-1.5 sm:py-2 rounded-sm text-white">
             {story.type}
           </span>
         </div>
@@ -310,20 +314,20 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
         {isComingSoon && <ComingSoonOverlay />}
         {!isComingSoon && (
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <ArrowRight className={`w-6 h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <ArrowRight className={`w-5 h-5 sm:w-6 sm:h-6 text-white ${isRTL ? 'rotate-180' : ''}`} />
             </div>
           </div>
         )}
       </div>
 
-      <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
+      <h3 className={`text-sm sm:text-base md:text-lg font-bold leading-tight mb-2 sm:mb-3 px-1 sm:px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
         isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
       }`}>
         {story.title}
       </h3>
 
-      <div className={`text-white/80 text-sm font-medium px-2 ${isRTL ? 'text-right' : 'text-left'}`}>{story.date}</div>
+      <div className={`text-white/80 text-xs sm:text-sm font-medium px-1 sm:px-2 ${isRTL ? 'text-right' : 'text-left'}`}>{story.date}</div>
     </div>
   );
 
@@ -366,59 +370,62 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
+    <section className="relative w-full overflow-hidden bg-[#121212] min-h-[600px] md:h-screen">
       <div className="absolute inset-0 flex flex-col md:flex-row">
         {/* Left Panel - 70% with Video */}
         <div className="relative w-full md:w-[70%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
-          {settings.left_video_url ? (
-            <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
-              <source src={settings.left_video_url} type="video/mp4" />
-            </video>
-          ) : (
-            <img src={leftImg} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
-          )}
+          {/* Media - hidden on very small screens (<360px) */}
+          <div className="hidden min-[360px]:block absolute inset-0">
+            {settings.left_video_url ? (
+              <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
+                <source src={settings.left_video_url} type="video/mp4" />
+              </video>
+            ) : (
+              <img src={leftImg} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.hero; }} />
+            )}
+          </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
           
-          <div className={`absolute inset-0 flex flex-col justify-end p-8 md:p-16 lg:p-20 pb-20 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-            <h1 className={`text-white font-bold mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}>
+          <div className={`absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 pb-16 sm:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+            <h1 className={`text-white text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 tracking-tight leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               {leftTitle}
             </h1>
             {leftSubtitle && (
-              <p className={`text-white/80 text-sm md:text-lg lg:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+              <p className={`text-white/80 text-sm sm:text-base md:text-lg lg:text-xl font-light leading-relaxed max-w-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                 {leftSubtitle}
               </p>
             )}
           </div>
           
           {settings.left_video_url && (
-            <button onClick={toggleVideo} className="absolute bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10">
-              {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+            <button onClick={toggleVideo} className="absolute bottom-6 sm:bottom-8 right-6 sm:right-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10">
+              {isPlaying ? <Pause className="w-4 h-4 sm:w-5 sm:h-5" /> : <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />}
             </button>
           )}
         </div>
 
         {/* Right Panel - 30% Black with Button */}
-        <div className={`relative w-full md:w-[30%] h-1/2 md:h-full flex items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+        <div className={`relative w-full md:w-[30%] h-1/2 md:h-full flex items-end pb-16 sm:pb-20 px-6 sm:px-8 md:px-10 lg:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
           <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
             <Link 
               to={settings.right_link || '/services'} 
-              className={`inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn whitespace-nowrap ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
+              className={`inline-flex items-center gap-2 sm:gap-3 bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-base font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn whitespace-nowrap ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
             >
               {buttonText}
               <span className="bg-black text-white rounded-full p-1 group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
-                <ArrowRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+                <ArrowRight className={`w-3 h-3 sm:w-4 sm:h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
               </span>
             </Link>
             
-            <div className={`mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+            <div className={`mt-4 sm:mt-6 flex items-center gap-2 text-[9px] sm:text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
               <span>{tagText}</span>
-              <span className="w-12 h-[1px] bg-gray-700"></span>
+              <span className="w-8 sm:w-12 h-[1px] bg-gray-700"></span>
             </div>
           </div>
           
-          {/* Decorative background element */}
-          <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none">
-            <svg width="300" height="300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Decorative background element - hidden on mobile */}
+          <div className="absolute top-0 right-0 p-6 sm:p-8 md:p-12 opacity-5 pointer-events-none hidden sm:block">
+            <svg width="200" height="200" className="md:w-[300px] md:h-[300px]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="50" cy="50" r="48" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
               <path d="M50 2v96M2 50h96" stroke="white" strokeWidth="0.2" />
             </svg>
@@ -468,18 +475,18 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
   const isRTL = lang === 'he';
 
   return (
-    <section ref={sectionRef} className="bg-white py-24 md:py-32 px-8 md:px-20 lg:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section ref={sectionRef} className="bg-white py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32 px-6 md:px-12 lg:px-24 xl:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
-        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <h2 className={`text-3xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
         </h2>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24">
-          <div className="space-y-8">
-            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-16 lg:gap-24">
+          <div className="space-y-6 sm:space-y-8">
+            <p className={`text-base sm:text-lg md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
               {c.p1}
             </p>
-            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
+            <p className={`text-base sm:text-lg md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
               {c.p2}
             </p>
           </div>
@@ -487,11 +494,11 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
           <div className={`flex flex-col justify-end ${isRTL ? 'lg:items-start' : 'lg:items-end'}`}>
             <button 
               onClick={() => navigate('/about')}
-              className={`relative group cursor-pointer inline-flex items-center gap-4 text-black font-bold uppercase tracking-widest text-sm py-4 border-b-2 border-black transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`relative group cursor-pointer inline-flex items-center gap-3 sm:gap-4 text-black font-bold uppercase tracking-widest text-xs sm:text-sm py-3 sm:py-4 border-b-2 border-black transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${isRTL ? 'flex-row-reverse' : ''}`}
               style={{ transitionDelay: '600ms' }}
             >
               {c.link}
-              <ArrowRight className={`w-5 h-5 transform group-hover:translate-x-2 transition-transform ${isRTL ? 'rotate-180 group-hover:-translate-x-2 group-hover:translate-x-0' : ''}`} />
+              <ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-2 transition-transform ${isRTL ? 'rotate-180 group-hover:-translate-x-2 group-hover:translate-x-0' : ''}`} />
             </button>
           </div>
         </div>
@@ -511,11 +518,11 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
   const buttonText = lang === 'he' && settings.button_text_he ? settings.button_text_he : settings.button_text_en;
 
   return (
-    <section className="relative w-full min-h-[500px] flex md:pt-12">
-      <div className="relative z-10 flex-1 rounded-l-[80px] md:rounded-l-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
-        <h2 className="text-2xl md:text-3xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
-        <p className="text-gray-900 text-xl md:text-2xl font-light leading-relaxed mb-12 max-w-2xl">{description}</p>
-        <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
+    <section className="relative w-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] flex md:pt-12">
+      <div className="relative z-10 flex-1 rounded-l-[40px] sm:rounded-l-[60px] md:rounded-l-[120px] lg:rounded-l-[160px] ml-4 sm:ml-6 md:ml-24 lg:ml-48 flex flex-col justify-center px-6 sm:px-8 md:px-16 lg:px-24 py-10 sm:py-12 md:py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
+        <h2 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-normal mb-5 sm:mb-6 md:mb-8" style={{ color: settings.text_color }}>{title}</h2>
+        <p className="text-gray-900 text-base sm:text-lg md:text-xl lg:text-2xl font-light leading-relaxed mb-8 sm:mb-10 md:mb-12 max-w-2xl">{description}</p>
+        <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-md font-semibold text-xs sm:text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
           <span className="relative z-10">{buttonText}</span>
           <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
         </button>
@@ -690,46 +697,47 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-24 md:py-32 px-8 md:px-20 lg:px-40 overflow-hidden select-none">
+      <section className="bg-[#f8f8f8] py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32 px-6 md:px-12 lg:px-24 xl:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto mb-10 sm:mb-12 md:mb-16 lg:mb-20">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 sm:gap-8 md:gap-12 pb-8 sm:pb-10 md:pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-tight mb-3 sm:mb-4 md:mb-6">
                 {servicesTitle}
               </h3>
-              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+              <p className="text-sm sm:text-base md:text-base lg:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
                 {servicesSubtitle}
               </p>
             </div>
 
-            <div className={`flex items-center gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex items-center gap-2 sm:gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
               <button 
                 onClick={() => scrollServices('left')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Previous"
               >
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               </button>
               <button 
                 onClick={() => scrollServices('right')}
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Next"
               >
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Service Cards Slider - no max-w to allow cards to extend */}
+        {/* Service Cards - Grid on tablet, Scroll on mobile and desktop */}
+        {/* Mobile & Desktop: Horizontal Scroll */}
         <div 
           ref={servicesScrollRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40"
+          className="flex md:hidden lg:flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-hide pb-8 sm:pb-12 cursor-grab active:cursor-grabbing -mx-6 lg:-mx-24 xl:-mx-40 px-6 lg:px-24 xl:px-40"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
@@ -744,7 +752,21 @@ export const HomePage: React.FC = () => {
           ))}
           
           {/* Spacer for scroll end */}
-          <div className="flex-shrink-0 w-32 md:w-64" />
+          <div className="flex-shrink-0 w-16 sm:w-32 lg:w-64" />
+        </div>
+
+        {/* Tablet: Grid Layout */}
+        <div className="hidden md:grid lg:hidden grid-cols-2 gap-6 pb-8">
+          {services.map((service, index) => (
+            <ServiceCard 
+              key={service.id}
+              service={service} 
+              onClick={() => handleServiceClick(service.slug)} 
+              showDescription={settings.services_section.show_descriptions}
+              isPrimary={index === 0}
+              isGridMode={true}
+            />
+          ))}
         </div>
         
         {services.length === 0 && (
@@ -753,14 +775,14 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Who We Work With Section */}
-      <section className="bg-white pt-24 md:pt-32">
+      <section className="bg-white pt-16 sm:pt-20 md:pt-24 lg:pt-28 xl:pt-32">
         {/* Header - aligned with other sections */}
-        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+        <div className="px-6 md:px-12 lg:px-24 xl:px-40 mb-10 sm:mb-12 md:mb-16 lg:mb-20">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-tight mb-3 sm:mb-4 md:mb-6">
               {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
             </h2>
-            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
+            <p className="text-sm sm:text-base md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
               {lang === 'he' 
                 ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
                 : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
@@ -768,8 +790,8 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Partner Cards Grid - Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
+        {/* Partner Cards Grid - 1 col mobile, 2 col tablet, 3 col desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
           {[
             {
               title_en: 'Kitchen & Cabinet Manufacturers',
@@ -801,26 +823,26 @@ export const HomePage: React.FC = () => {
           ].map((partner, index) => (
             <div 
               key={index}
-              className="relative h-[400px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
+              className={`relative min-h-[280px] sm:min-h-[320px] md:h-[380px] lg:h-[420px] xl:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-b md:border-b-0 md:border-r border-white/5 last:border-b-0 last:border-r-0 ${index === 2 ? 'md:col-span-2 lg:col-span-1' : ''}`}
               style={{ backgroundColor: partner.bg }}
             >
               {/* Content */}
-              <div className="absolute inset-0 p-10 lg:p-14 flex flex-col justify-end">
+              <div className="absolute inset-0 p-6 sm:p-8 md:p-10 lg:p-12 xl:p-14 flex flex-col justify-end">
                 {/* Subtitle */}
-                <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
+                <span className="inline-block text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-3 sm:mb-4">
                   {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
                 </span>
                 
                 {/* Title */}
-                <h3 className="text-2xl lg:text-3xl font-bold mb-6 tracking-tight leading-tight text-white">
+                <h3 className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-bold mb-4 sm:mb-6 tracking-tight leading-tight text-white">
                   {lang === 'he' ? partner.title_he : partner.title_en}
                 </h3>
                 
                 {/* Divider */}
-                <div className="w-10 h-[1px] bg-white/20 mb-6"></div>
+                <div className="w-8 sm:w-10 h-[1px] bg-white/20 mb-4 sm:mb-6"></div>
                 
                 {/* Description */}
-                <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
+                <p className="text-xs sm:text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
                   {lang === 'he' ? partner.description_he : partner.description_en}
                 </p>
               </div>
@@ -831,7 +853,7 @@ export const HomePage: React.FC = () => {
               )}
               
               {/* Internal border */}
-              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5" />
+              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5 hidden md:block" />
             </div>
           ))}
         </div>
@@ -844,18 +866,18 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
-          <div className="max-w-7xl mx-auto mb-16 md:mb-20">
+        <section className="relative z-10 w-full text-white py-12 sm:py-16 md:py-20 lg:py-24 px-6 md:px-12 lg:px-24 xl:px-40">
+          <div className="max-w-7xl mx-auto mb-10 sm:mb-12 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
-                <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-                    <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
-                    <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
+                <h1 className="text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
+                <div className={`flex items-center gap-3 sm:gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`hidden lg:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
+                    <button onClick={() => scrollStories('left')} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" /></button>
+                    <button onClick={() => scrollStories('right')} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                   </div>
-                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
-                    <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
+                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-5 sm:px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
+                    <span className="relative z-10 text-xs sm:text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
                     <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   </button>
                 </div>
@@ -863,39 +885,47 @@ export const HomePage: React.FC = () => {
             </ScrollReveal>
           </div>
 
-          {/* Stories slider - extends beyond max-w */}
-          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
+          {/* Stories - Mobile & Desktop: Horizontal Scroll */}
+          <div ref={storiesScrollRef} className="flex md:hidden lg:flex overflow-x-auto no-scrollbar pb-8 sm:pb-10 scroll-smooth snap-x snap-mandatory gap-4 sm:gap-6 lg:gap-8 -mx-6 lg:-mx-24 xl:-mx-40 px-6 lg:px-24 xl:px-40">
             {stories.map((story) => (
               <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
             ))}
-            <div className="w-12 flex-shrink-0" />
+            <div className="w-8 sm:w-12 flex-shrink-0" />
           </div>
+
+          {/* Stories - Tablet: Grid Layout */}
+          <div className="hidden md:grid lg:hidden grid-cols-2 gap-6 pb-8">
+            {stories.map((story) => (
+              <StoryCard key={story.id} story={story} lang={lang} isGridMode={true} />
+            ))}
+          </div>
+
           {stories.length === 0 && <p className="text-center py-12 text-white/50">No stories found</p>}
         </section>
 
         <AboutSection settings={settings.about_section} lang={lang} />
         
         {/* Masters of Materials Section */}
-        <section className="relative w-full py-16 md:py-24">
-          <div className="max-w-4xl mx-auto px-8 md:px-20 text-center">
-            <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-6">
+        <section className="relative w-full py-12 sm:py-16 md:py-20 lg:py-24">
+          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-20 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 sm:mb-6">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
               ) : (
                 <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
               )}
             </h2>
-            <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-16 max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base md:text-base lg:text-lg text-white/60 font-light leading-relaxed mb-10 sm:mb-12 md:mb-16 max-w-3xl mx-auto">
               {lang === 'he' 
                 ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
                 : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
             </p>
             <button 
               onClick={() => navigate('/contact')}
-              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white/70 text-white/70 rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 hover:border-white transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+              className={`inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-3.5 border border-white/70 text-white/70 rounded-md font-semibold text-xs sm:text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 hover:border-white transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
             >
               {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
-              <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+              <ChevronRight className={`w-3 h-3 sm:w-4 sm:h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </section>
