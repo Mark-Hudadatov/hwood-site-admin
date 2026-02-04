@@ -198,52 +198,52 @@ const Footer: React.FC = () => {
   };
   
   return (
-    <footer className="w-full px-8 md:px-12 lg:px-16 pt-16 pb-8 text-white relative z-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+    <footer className="w-full px-6 md:px-12 lg:px-24 xl:px-40 pt-12 sm:pt-16 pb-6 sm:pb-8 text-white relative z-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 sm:mb-12 md:mb-16 gap-6 sm:gap-8">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
+          <img src="/logo.png" alt="HWOOD Logo" className="h-8 sm:h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3 sm:gap-4">
           {[Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-              <Icon className="w-5 h-5" />
+            <a key={idx} href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </a>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-16 lg:gap-24 mb-10 sm:mb-12 md:mb-16">
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Updates</h3>
-          <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Technical updates, production insights, and system changes.</p>
-          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
+          <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Updates</h3>
+          <div className="w-full h-px bg-neutral-600 mb-4 sm:mb-6" />
+          <p className="mb-6 sm:mb-8 text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-md">Technical updates, production insights, and system changes.</p>
+          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-6 sm:px-8 py-2.5 sm:py-3 rounded text-sm font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
         </div>
 
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Technical Support</h3>
-          <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Post-delivery support for production systems, components, and CNC workflows.</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
+          <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Technical Support</h3>
+          <div className="w-full h-px bg-brand mb-4 sm:mb-6" />
+          <p className="mb-6 sm:mb-8 text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-md">Post-delivery support for production systems, components, and CNC workflows.</p>
+          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded text-sm font-medium hover:bg-teal-600 transition-colors">Request Support</button>
         </div>
       </div>
 
       {/* Back to Top Button - larger, above copyright */}
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-6 sm:mb-8">
         <button 
           onClick={scrollToTop}
-          className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 text-white/70 hover:bg-white hover:text-neutral-900 transition-all group"
+          className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full border border-white/30 text-white/70 hover:bg-white hover:text-neutral-900 transition-all group"
           aria-label="Back to top"
         >
-          <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
-          <span className="text-sm font-medium">Back to top</span>
+          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 rotate-180 group-hover:animate-bounce" />
+          <span className="text-xs sm:text-sm font-medium">Back to top</span>
         </button>
       </div>
 
-      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
+      <div className="border-t border-neutral-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-neutral-500">
         <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex flex-wrap gap-6">
+        <div className="flex flex-wrap gap-4 sm:gap-6">
           <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
           <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
         </div>
