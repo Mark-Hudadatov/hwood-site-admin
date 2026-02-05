@@ -198,8 +198,8 @@ const Footer: React.FC = () => {
   };
   
   return (
-    <footer className="w-full px-8 md:px-12 lg:px-16 pt-16 pb-8 text-white relative z-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+    <footer className="w-full px-6 md:px-12 lg:px-24 xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6 md:gap-8">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
         </div>
@@ -213,7 +213,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 mb-10 md:mb-16">
         <div>
           <h3 className="text-body-lg font-medium mb-4">Updates</h3>
           <div className="w-full h-px bg-neutral-600 mb-6" />
