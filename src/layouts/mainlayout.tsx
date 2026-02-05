@@ -100,10 +100,10 @@ const Header: React.FC = () => {
         </div>
 
         {/* Center Links - Desktop */}
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
           {navData.services.map((service) => (
             <div key={service.id} className="relative" onMouseEnter={() => setActiveDropdown(service.id)} onMouseLeave={() => setActiveDropdown(null)}>
-              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
+              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-3 xl:px-4 py-2 text-sm xl:text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
                 {service.title}
                 {service.subservices && service.subservices.length > 0 && (
                   <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
@@ -198,8 +198,8 @@ const Footer: React.FC = () => {
   };
   
   return (
-    <footer className="w-full px-8 md:px-12 lg:px-16 pt-16 pb-8 text-white relative z-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+    <footer className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6 md:gap-8">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
         </div>
@@ -213,7 +213,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-20 xl:gap-24 mb-10 md:mb-16">
         <div>
           <h3 className="text-body-lg font-medium mb-4">Updates</h3>
           <div className="w-full h-px bg-neutral-600 mb-6" />
@@ -284,7 +284,7 @@ export const MainLayout: React.FC = () => {
       {/* Loading Screen - shows on first visit only */}
       <LoadingScreen minDuration={1200} />
       
-      <div className="w-full min-h-screen font-sans flex flex-col">
+      <div className="w-full min-h-screen font-sans flex flex-col overflow-x-hidden">
         <ScrollToTop />
         <Header />
         <main className="flex-1 flex flex-col">

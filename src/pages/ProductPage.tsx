@@ -269,7 +269,7 @@ export const ProductPage: React.FC = () => {
         </button>
 
         {/* Main content grid */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-12 xl:gap-16">
           
           {/* Left: Gallery */}
           <div className="w-full lg:w-3/5 lg:sticky lg:top-8 lg:self-start">

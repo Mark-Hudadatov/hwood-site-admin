@@ -277,7 +277,7 @@ export const SubservicePage: React.FC = () => {
 
           {/* Dark Hero Card */}
           <ScrollReveal animation="fade-up" duration={800}>
-            <div className="w-full relative rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
+            <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
               <div className="absolute inset-0">
                 <img 
                   src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
