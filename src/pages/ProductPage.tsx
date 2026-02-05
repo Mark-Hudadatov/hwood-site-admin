@@ -161,6 +161,7 @@ export const ProductPage: React.FC = () => {
 
   // Gallery state
   const [selectedImage, setSelectedImage] = useState(0);
+  const [viewMode, setViewMode] = useState<'gallery' | '3d'>('gallery');
 
   // Load data
   useEffect(() => {
@@ -278,13 +279,74 @@ export const ProductPage: React.FC = () => {
               <p className="text-body-lg text-neutral-500 mb-8">{product.subtitle}</p>
             )}
 
+            {/* View Mode Toggle (only if 3D model exists) */}
+            {product.modelUrl && product.has3DView && (
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setViewMode('gallery')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    viewMode === 'gallery' 
+                      ? 'bg-neutral-900 text-white' 
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                  }`}
+                >
+                  Gallery
+                </button>
+                <button
+                  onClick={() => setViewMode('3d')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                    viewMode === '3d' 
+                      ? 'bg-neutral-900 text-white' 
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                  }`}
+                >
+                  <Rotate3d className="w-4 h-4" />
+                  3D View
+                </button>
+              </div>
+            )}
+
+            {/* 3D Viewer */}
+            {viewMode === '3d' && product.modelUrl && (
+              <div className="relative aspect-[4/3] bg-neutral-50 rounded-2xl overflow-hidden mb-4 border border-neutral-200">
+                {/* @ts-ignore - model-viewer is a web component loaded via CDN */}
+                <model-viewer
+                  src={product.modelUrl}
+                  alt={product.title}
+                  auto-rotate
+                  camera-controls
+                  shadow-intensity="1"
+                  environment-image="neutral"
+                  style={{ width: '100%', height: '100%', backgroundColor: '#f5f5f5' }}
+                  loading="eager"
+                  poster={allImages[0] || PRODUCT_FALLBACK}
+                >
+                  <div slot="progress-bar" className="absolute bottom-4 left-4 right-4">
+                    <div className="bg-neutral-200 rounded-full h-1 overflow-hidden">
+                      <div className="bg-neutral-900 h-full rounded-full transition-all" style={{ width: '0%' }} />
+                    </div>
+                  </div>
+                {/* @ts-ignore */}
+                </model-viewer>
+                <div className="absolute bottom-4 right-4 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full">
+                  Drag to rotate · Scroll to zoom
+                </div>
+              </div>
+            )}
+
+            {/* Gallery (default view) */}
+            {viewMode === 'gallery' && (
+              <>
             {/* Main image */}
             <div className="relative aspect-[4/3] bg-neutral-100 rounded-2xl overflow-hidden mb-4">
-              {product.has3DView && (
-                <div className="absolute top-4 right-4 bg-black/60 text-white text-meta px-3 py-1 rounded-full flex items-center gap-2 z-10">
+              {product.has3DView && product.modelUrl && (
+                <button 
+                  onClick={() => setViewMode('3d')}
+                  className="absolute top-4 right-4 bg-black/60 text-white text-meta px-3 py-1 rounded-full flex items-center gap-2 z-10 hover:bg-black/80 transition-colors cursor-pointer"
+                >
                   <Rotate3d className="w-4 h-4" />
                   360° View
-                </div>
+                </button>
               )}
               <img
                 src={allImages[selectedImage] || PRODUCT_FALLBACK}
@@ -310,6 +372,8 @@ export const ProductPage: React.FC = () => {
                   </button>
                 ))}
               </div>
+            )}
+              </>
             )}
 
             {/* Video */}
