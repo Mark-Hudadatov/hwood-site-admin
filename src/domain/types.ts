@@ -73,6 +73,7 @@ export interface Product {
   features?: string[];             // Key features list
   specifications?: ProductSpecification[];
   has3DView?: boolean;             // Whether 360° view is available
+  modelUrl?: string;               // URL to GLB/glTF 3D model file
   visibilityStatus?: string;
 }
 

@@ -75,6 +75,7 @@ export interface AdminProduct {
   features_he?: string[];
   specifications?: { label: string; value: string; unit?: string }[];
   has_3d_view?: boolean;
+  model_url?: string;
   visibility_status: VisibilityStatus;
   is_featured?: boolean;
   sort_order: number;
