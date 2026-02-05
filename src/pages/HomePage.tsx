@@ -217,7 +217,7 @@ const ServiceCard: React.FC<{
   return (
     <div 
       className={`relative flex flex-col justify-between overflow-hidden rounded-3xl
-        w-[340px] h-[500px] md:w-[420px] md:h-[580px]
+        w-[280px] h-[420px] sm:w-[320px] sm:h-[480px] md:w-[420px] md:h-[580px]
         group transition-all duration-300
         border-4 border-transparent
         ${isComingSoon ? 'opacity-70' : 'hover:border-black hover:shadow-2xl cursor-pointer'}
@@ -239,7 +239,7 @@ const ServiceCard: React.FC<{
       {isComingSoon && <ComingSoonOverlay />}
 
       {/* Content Container - p-10 = 40px padding */}
-      <div className="relative z-10 p-10 flex flex-col h-full text-white">
+      <div className="relative z-10 p-6 md:p-10 flex flex-col h-full text-white">
         {/* Technical Descriptor Badge */}
         <div className="flex items-center justify-between mb-4 gap-2">
           <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
@@ -288,7 +288,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
 
   const content = (
     <div className={`flex-shrink-0 w-[280px] md:w-[340px] flex flex-col ${isRTL ? 'items-end' : 'items-start'} ${isComingSoon ? '' : 'group cursor-pointer'} transition-transform duration-300 ${isComingSoon ? '' : 'hover:-translate-y-2'}`}>
-      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-[3rem] shadow-lg mb-6">
+      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl md:rounded-[3rem] shadow-lg mb-6">
         <img
           src={imgSrc}
           alt={story.title}
@@ -402,7 +402,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
             <Link 
               to={settings.right_link || '/services'} 
-              className={`inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn whitespace-nowrap ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
+              className={`inline-flex items-center gap-3 bg-white text-black px-6 md:px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn text-sm md:text-base ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
             >
               {buttonText}
               <span className="bg-black text-white rounded-full p-1 group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
@@ -468,18 +468,18 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
   const isRTL = lang === 'he';
 
   return (
-    <section ref={sectionRef} className="bg-white py-24 md:py-32 px-8 md:px-20 lg:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section ref={sectionRef} className="bg-white py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-24 xl:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
-        <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <h2 className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 md:mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
         </h2>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-24">
-          <div className="space-y-8">
-            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 lg:gap-24">
+          <div className="space-y-6 md:space-y-8">
+            <p className={`text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
               {c.p1}
             </p>
-            <p className={`text-lg md:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
+            <p className={`text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
               {c.p2}
             </p>
           </div>
@@ -511,10 +511,10 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
   const buttonText = lang === 'he' && settings.button_text_he ? settings.button_text_he : settings.button_text_en;
 
   return (
-    <section className="relative w-full min-h-[500px] flex md:pt-12">
-      <div className="relative z-10 flex-1 rounded-l-[80px] md:rounded-l-[160px] ml-8 md:ml-48 flex flex-col justify-center px-8 md:px-24 py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
-        <h2 className="text-2xl md:text-3xl font-normal mb-8" style={{ color: settings.text_color }}>{title}</h2>
-        <p className="text-gray-900 text-xl md:text-2xl font-light leading-relaxed mb-12 max-w-2xl">{description}</p>
+    <section className="relative w-full min-h-[400px] md:min-h-[500px] flex md:pt-12">
+      <div className="relative z-10 flex-1 rounded-l-[40px] md:rounded-l-[80px] lg:rounded-l-[120px] xl:rounded-l-[160px] ml-4 md:ml-16 lg:ml-32 xl:ml-48 flex flex-col justify-center px-6 md:px-12 lg:px-24 py-12 md:py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-normal mb-6 md:mb-8" style={{ color: settings.text_color }}>{title}</h2>
+        <p className="text-gray-900 text-lg md:text-xl lg:text-2xl font-light leading-relaxed mb-8 md:mb-12 max-w-2xl">{description}</p>
         <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
           <span className="relative z-10">{buttonText}</span>
           <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -690,12 +690,12 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-24 md:py-32 px-8 md:px-20 lg:px-40 overflow-hidden select-none">
+      <section className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-24 xl:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="max-w-7xl mx-auto mb-16 md:mb-20">
+        <div className="max-w-7xl mx-auto mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
                 {servicesTitle}
               </h3>
               <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
@@ -729,7 +729,7 @@ export const HomePage: React.FC = () => {
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40"
+          className="flex gap-6 md:gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-6 md:-mx-12 lg:-mx-24 xl:-mx-40 px-6 md:px-12 lg:px-24 xl:px-40"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {services.map((service, index) => (
@@ -753,11 +753,11 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Who We Work With Section */}
-      <section className="bg-white pt-24 md:pt-32">
+      <section className="bg-white pt-16 md:pt-24 xl:pt-32">
         {/* Header - aligned with other sections */}
-        <div className="px-8 md:px-20 lg:px-40 mb-16 md:mb-20">
+        <div className="px-6 md:px-12 lg:px-24 xl:px-40 mb-10 md:mb-16 lg:mb-20">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-4 md:mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
               {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
             </h2>
             <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
@@ -801,23 +801,23 @@ export const HomePage: React.FC = () => {
           ].map((partner, index) => (
             <div 
               key={index}
-              className="relative h-[400px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
+              className="relative h-[280px] md:h-[360px] lg:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
               style={{ backgroundColor: partner.bg }}
             >
               {/* Content */}
-              <div className="absolute inset-0 p-10 lg:p-14 flex flex-col justify-end">
+              <div className="absolute inset-0 p-6 md:p-10 lg:p-14 flex flex-col justify-end">
                 {/* Subtitle */}
                 <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
                   {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
                 </span>
                 
                 {/* Title */}
-                <h3 className="text-2xl lg:text-3xl font-bold mb-6 tracking-tight leading-tight text-white">
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 tracking-tight leading-tight text-white">
                   {lang === 'he' ? partner.title_he : partner.title_en}
                 </h3>
                 
                 {/* Divider */}
-                <div className="w-10 h-[1px] bg-white/20 mb-6"></div>
+                <div className="w-10 h-[1px] bg-white/20 mb-4 md:mb-6"></div>
                 
                 {/* Description */}
                 <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
@@ -844,17 +844,17 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-16 md:py-24 px-8 md:px-20 lg:px-40">
-          <div className="max-w-7xl mx-auto mb-16 md:mb-20">
+        <section className="relative z-10 w-full text-white py-12 md:py-20 xl:py-24 px-6 md:px-12 lg:px-24 xl:px-40">
+          <div className="max-w-7xl mx-auto mb-10 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
                 <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                   <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
                     <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
                   </div>
-                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
+                  <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-6 md:px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
                     <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
                     <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   </button>
@@ -864,7 +864,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Stories slider - extends beyond max-w */}
-          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-8 md:gap-12 -mx-8 md:-mx-20 lg:-mx-40 px-8 md:px-20 lg:px-40">
+          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-6 md:gap-8 lg:gap-12 -mx-6 md:-mx-12 lg:-mx-24 xl:-mx-40 px-6 md:px-12 lg:px-24 xl:px-40">
             {stories.map((story) => (
               <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
             ))}
@@ -876,16 +876,16 @@ export const HomePage: React.FC = () => {
         <AboutSection settings={settings.about_section} lang={lang} />
         
         {/* Masters of Materials Section */}
-        <section className="relative w-full py-16 md:py-24">
-          <div className="max-w-4xl mx-auto px-8 md:px-20 text-center">
-            <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-6">
+        <section className="relative w-full py-12 md:py-20 xl:py-24">
+          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-20 text-center">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 md:mb-6">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
               ) : (
                 <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
               )}
             </h2>
-            <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-16 max-w-3xl mx-auto">
+            <p className="text-sm md:text-base lg:text-lg text-white/60 font-light leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
               {lang === 'he' 
                 ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
                 : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
