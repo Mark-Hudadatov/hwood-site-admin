@@ -60,6 +60,7 @@ export const AdminProducts: React.FC = () => {
     features_he: string[];
     specifications: { label: string; value: string; unit?: string }[];
     has_3d_view: boolean;
+    model_url: string;
     visibility_status: VisibilityStatus;
     is_featured: boolean;
   }>({
@@ -78,6 +79,7 @@ export const AdminProducts: React.FC = () => {
     features_he: [],
     specifications: [],
     has_3d_view: false,
+    model_url: '',
     visibility_status: 'visible',
     is_featured: false,
   });
@@ -123,6 +125,7 @@ export const AdminProducts: React.FC = () => {
       features_he: [],
       specifications: [],
       has_3d_view: false,
+    model_url: '',
       visibility_status: 'visible',
       is_featured: false,
     });
@@ -147,6 +150,7 @@ export const AdminProducts: React.FC = () => {
       features_he: item.features_he || [],
       specifications: item.specifications || [],
       has_3d_view: item.has_3d_view || false,
+      model_url: item.model_url || '',
       visibility_status: item.visibility_status,
       is_featured: item.is_featured || false,
     });
@@ -530,7 +534,20 @@ export const AdminProducts: React.FC = () => {
                 <p className="text-xs text-gray-500 mt-1">YouTube, Vimeo, or direct MP4 URL</p>
               </div>
 
-              {/* 3D View Placeholder */}
+              {/* 3D Model */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  3D Model URL (.glb)
+                </label>
+                <input
+                  type="url"
+                  value={formData.model_url}
+                  onChange={(e) => setFormData({ ...formData, model_url: e.target.value, has_3d_view: !!e.target.value })}
+                  placeholder="https://your-supabase.co/storage/v1/object/public/images/models/model.glb"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">GLB file URL from Supabase Storage. 3D badge auto-enables when URL is set.</p>
+              </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
                 <input
                   type="checkbox"
@@ -540,7 +557,7 @@ export const AdminProducts: React.FC = () => {
                   className="w-4 h-4 text-[#005f5f] rounded"
                 />
                 <label htmlFor="has3d" className="text-sm text-gray-700">
-                  Has 3D View (Coming Soon - Sketchfab integration)
+                  Show 3D Viewer on product page
                 </label>
               </div>
             </div>
