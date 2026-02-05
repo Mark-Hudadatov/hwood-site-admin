@@ -284,7 +284,7 @@ export const MainLayout: React.FC = () => {
       {/* Loading Screen - shows on first visit only */}
       <LoadingScreen minDuration={1200} />
       
-      <div className="w-full min-h-screen font-sans flex flex-col">
+      <div className="w-full min-h-screen font-sans flex flex-col overflow-x-hidden">
         <ScrollToTop />
         <Header />
         <main className="flex-1 flex flex-col">
