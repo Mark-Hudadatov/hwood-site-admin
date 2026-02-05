@@ -285,6 +285,7 @@ export async function getProducts(): Promise<Product[]> {
       features: lang === 'he' && p.features_he ? p.features_he : p.features_en || [],
       specifications: p.specifications || [],
       has3DView: p.has_3d_view,
+      modelUrl: p.model_url,
       visibilityStatus: p.visibility_status,
     }));
   } catch (e) {
@@ -319,6 +320,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
       features: lang === 'he' && p.features_he ? p.features_he : p.features_en || [],
       specifications: p.specifications || [],
       has3DView: p.has_3d_view,
+      modelUrl: p.model_url,
       visibilityStatus: p.visibility_status,
     }));
   } catch (e) {
@@ -352,6 +354,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       features: lang === 'he' && data.features_he ? data.features_he : data.features_en || [],
       specifications: data.specifications || [],
       has3DView: data.has_3d_view,
+      modelUrl: data.model_url,
       visibilityStatus: data.visibility_status,
     };
   } catch (e) {
