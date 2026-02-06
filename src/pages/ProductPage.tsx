@@ -122,7 +122,7 @@ const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({
           >
             {option.values.map((value) => (
               <option key={value.id} value={value.slug}>
-                {value.label}{option.unit ? ` ${option.unit}` : ''}
+                {value.label}
               </option>
             ))}
           </select>
@@ -152,7 +152,7 @@ const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({
                 className="w-4 h-4 text-brand rounded border-neutral-300 focus:ring-brand"
               />
               <span className="text-body text-neutral-600">
-                {value.label}{option.unit ? ` ${option.unit}` : ''}
+                {value.label}
               </span>
             </label>
           ))}
@@ -186,7 +186,6 @@ const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({
             `}
           >
             {value.label}
-            {option.unit ? ` ${option.unit}` : ''}
           </button>
         ))}
       </div>
@@ -319,7 +318,7 @@ export const ProductPage: React.FC = () => {
           {/* ========================================================== */}
           {/* LEFT: 3D Hero with overlay thumbnails                       */}
           {/* ========================================================== */}
-          <div className="w-full lg:w-3/5 lg:sticky lg:top-8 lg:self-start">
+          <div className="w-full lg:w-3/5 lg:sticky lg:top-8 lg:self-start lg:max-h-[calc(100vh-4rem)]">
             <h1 className="text-display-sm font-medium text-neutral-900 mb-2">{product.title}</h1>
             {product.subtitle && (
               <p className="text-body-lg text-neutral-500 mb-6">{product.subtitle}</p>
