@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
 import { getNavigationData } from '../services/data/dataService';
+import { supabase } from '../services/supabase';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
@@ -192,6 +193,24 @@ const Header: React.FC = () => {
 const Footer: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
+  
+  useEffect(() => {
+    supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
+      .then(({ data }) => {
+        if (data) setSocialLinks(data.filter((l: any) => l.url).map((l: any) => ({ platform: l.platform, url: l.url })));
+      });
+  }, []);
+
+  const platformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook': return Facebook;
+      case 'instagram': return Instagram;
+      case 'linkedin': return Linkedin;
+      case 'youtube': return Youtube;
+      default: return null;
+    }
+  };
   
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -205,11 +224,23 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="flex gap-4">
-          {[Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-              <Icon className="w-5 h-5" />
-            </a>
-          ))}
+          {socialLinks.length > 0 ? (
+            socialLinks.map((link) => {
+              const Icon = platformIcon(link.platform);
+              if (!Icon) return null;
+              return (
+                <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                  <Icon className="w-5 h-5" />
+                </a>
+              );
+            })
+          ) : (
+            [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
+              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                <Icon className="w-5 h-5" />
+              </a>
+            ))
+          )}
         </div>
       </div>
 
