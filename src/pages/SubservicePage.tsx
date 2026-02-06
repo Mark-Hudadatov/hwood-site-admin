@@ -87,7 +87,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
   const { i18n } = useTranslation();
-  const isRTL = i18n.language?.startsWith('he');
+  const isRTL = i18n.language?.startsWith('he') || document.documentElement.dir === 'rtl';
 
   // Drag scroll state
   const [isDragging, setIsDragging] = useState(false);
@@ -121,8 +121,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const amount = direction === 'right' ? 300 : -300;
-      const rtlAmount = isRTL ? -amount : amount;
-      scrollRef.current.scrollBy({ left: rtlAmount, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
     }
   };
 
@@ -176,25 +175,30 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
 
   if (categories.length === 0) return null;
 
+  // In RTL: left-side arrow scrolls left (shows next), right-side arrow scrolls right (shows previous)
+  // In LTR: left-side arrow scrolls left (shows previous), right-side arrow scrolls right (shows next)
+  const LeftSideIcon = isRTL ? ChevronRight : ChevronLeft;
+  const RightSideIcon = isRTL ? ChevronLeft : ChevronRight;
+
   return (
     <div className="relative">
-      {/* Left Arrow */}
+      {/* Left-side Arrow */}
       {showLeftArrow && (
         <button
           onClick={() => scroll('left')}
-          className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all ${isRTL ? 'right-0' : 'left-0'}`}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
         >
-          <ChevronLeft className="w-6 h-6 text-neutral-700" />
+          <LeftSideIcon className="w-6 h-6 text-neutral-700" />
         </button>
       )}
 
-      {/* Right Arrow */}
+      {/* Right-side Arrow */}
       {showRightArrow && (
         <button
           onClick={() => scroll('right')}
-          className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all ${isRTL ? 'left-0' : 'right-0'}`}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
         >
-          <ChevronRight className="w-6 h-6 text-neutral-700" />
+          <RightSideIcon className="w-6 h-6 text-neutral-700" />
         </button>
       )}
 
@@ -210,7 +214,6 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
         onTouchEnd={handleTouchEnd}
         className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth px-12 cursor-grab active:cursor-grabbing select-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        dir={isRTL ? 'rtl' : 'ltr'}
       >
         {categories.map((category) => (
           <button
