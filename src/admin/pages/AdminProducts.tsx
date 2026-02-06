@@ -5,7 +5,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Save, Copy, Search, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Copy, Search, X, Image as ImageIcon, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AdminProduct,
   AdminCategory,
@@ -20,6 +23,7 @@ import {
   updateProduct,
   deleteProduct,
   duplicateProduct,
+  reorderProducts,
 } from '../adminStore';
 import {
   BilingualInput,
@@ -30,6 +34,56 @@ import {
   Modal,
   ConfirmDialog,
 } from '../components';
+
+// Sortable row for drag-and-drop
+const SortableProductItem: React.FC<{
+  item: AdminProduct;
+  breadcrumb: string;
+  onEdit: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+}> = ({ item, breadcrumb, onEdit, onDelete, onDuplicate }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${item.visibility_status !== 'visible' ? 'opacity-60' : ''}`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+        <GripVertical className="w-5 h-5" />
+      </div>
+      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        {item.image_url ? (
+          <img src={item.image_url} alt={item.title_en} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon className="w-6 h-6" /></div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
+        <p className="text-sm text-gray-500 truncate">{breadcrumb}</p>
+      </div>
+      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        item.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
+        item.visibility_status === 'not_in_stock' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+      }`}>
+        {item.visibility_status === 'visible' ? 'Visible' : item.visibility_status === 'not_in_stock' ? 'Out of Stock' : 'Hidden'}
+      </div>
+      <div className="flex items-center gap-1">
+        <button onClick={onDuplicate} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Duplicate">
+          <Copy className="w-4 h-4" />
+        </button>
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -323,64 +377,35 @@ export const AdminProducts: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredProducts.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
-                  item.visibility_status !== 'visible' ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.title_en} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <ImageIcon className="w-6 h-6" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
-                  <p className="text-sm text-gray-500 truncate">{getBreadcrumb(item.category_id)}</p>
-                </div>
-
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  item.visibility_status === 'visible' 
-                    ? 'bg-green-100 text-green-700'
-                    : item.visibility_status === 'not_in_stock'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {item.visibility_status === 'visible' ? 'Visible' :
-                   item.visibility_status === 'not_in_stock' ? 'Out of Stock' : 'Hidden'}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleDuplicate(item.id)}
-                    className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Duplicate"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => openEditModal(item)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(item.id)}
-                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+          <DndContext
+            sensors={useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))}
+            collisionDetection={closestCenter}
+            onDragEnd={async (event: DragEndEvent) => {
+              const { active, over } = event;
+              if (over && active.id !== over.id) {
+                const oldIndex = products.findIndex(p => p.id === active.id);
+                const newIndex = products.findIndex(p => p.id === over.id);
+                const reordered = arrayMove(products, oldIndex, newIndex);
+                setProducts(reordered);
+                await reorderProducts(reordered.map(p => p.id));
+              }
+            }}
+          >
+            <SortableContext items={filteredProducts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              <div className="divide-y divide-gray-100">
+                {filteredProducts.map((item) => (
+                  <SortableProductItem
+                    key={item.id}
+                    item={item}
+                    breadcrumb={getBreadcrumb(item.category_id)}
+                    onEdit={() => openEditModal(item)}
+                    onDelete={() => setDeleteConfirm(item.id)}
+                    onDuplicate={() => handleDuplicate(item.id)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
