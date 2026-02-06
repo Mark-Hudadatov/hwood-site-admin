@@ -1,788 +1,512 @@
 /**
- * ADMIN SHARED COMPONENTS
- * ========================
+ * PRODUCT PAGE
+ * ============
+ * Displays a single product with:
+ * - 3D model as hero (left), with gallery thumbnails overlaying bottom
+ * - Right column: Configurations → Description → Buttons → Features
+ * - Dynamic configurator options (loaded from database)
+ * - Quote request CTA
+ * 
+ * Route: /products/:productSlug
  */
 
-import React, { useState, useRef, useCallback } from 'react';
-import { Upload, X, Image as ImageIcon, AlertCircle, GripVertical, Eye, EyeOff, Clock } from 'lucide-react';
-import { uploadImage } from '../adminStore';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Check, Rotate3d, Info, ChevronLeft, ChevronDown } from 'lucide-react';
+import { 
+  Product, 
+  ProductCategory, 
+  Subservice, 
+  Service,
+  ProductConfiguration,
+  ConfigOptionType,
+  SelectedConfiguration 
+} from '../domain/types';
+import { getProductWithBreadcrumb, getProductConfiguration } from '../services/data/dataService';
+import { ROUTES } from '../router';
 
-// ============================================================================
-// BILINGUAL INPUT (EN/HE Tabs)
-// ============================================================================
+// Fallback image for products - dark background with small wood plank icon
+const PRODUCT_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="#1a1a1a"/><g transform="translate(360, 260)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="0" y="5" width="80" height="12" rx="2"/><rect x="0" y="22" width="80" height="12" rx="2"/><rect x="0" y="39" width="80" height="12" rx="2"/><rect x="0" y="56" width="80" height="12" rx="2"/><line x1="20" y1="5" x2="20" y2="68" stroke-width="1" opacity="0.3"/><line x1="40" y1="5" x2="40" y2="68" stroke-width="1" opacity="0.3"/><line x1="60" y1="5" x2="60" y2="68" stroke-width="1" opacity="0.3"/></g></svg>`)}`;
 
-interface BilingualInputProps {
-  label: string;
-  nameEn: string;
-  nameHe: string;
-  valueEn: string;
-  valueHe: string;
-  onChangeEn: (value: string) => void;
-  onChangeHe: (value: string) => void;
-  type?: 'input' | 'textarea';
-  required?: boolean;
-  placeholder?: string;
-  helpText?: string;
-}
+// =============================================================================
+// LOADING SKELETON
+// =============================================================================
 
-export const BilingualInput: React.FC<BilingualInputProps> = ({
-  label,
-  valueEn,
-  valueHe,
-  onChangeEn,
-  onChangeHe,
-  type = 'input',
-  required = false,
-  placeholder,
-  helpText,
-}) => {
-  const [activeTab, setActiveTab] = useState<'en' | 'he'>('en');
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('en')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            EN
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('he')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            HE
-          </button>
+const LoadingSkeleton: React.FC = () => (
+  <div className="min-h-screen w-full bg-white animate-pulse">
+    <div className="max-w-[1600px] mx-auto px-16 py-8">
+      <div className="h-4 w-96 bg-neutral-200 rounded mb-8" />
+      <div className="flex gap-16">
+        <div className="w-3/5">
+          <div className="h-10 w-64 bg-neutral-200 rounded mb-8" />
+          <div className="aspect-[4/3] bg-neutral-200 rounded-2xl" />
         </div>
-      </div>
-      
-      {type === 'textarea' ? (
-        <textarea
-          value={activeTab === 'en' ? valueEn : valueHe}
-          onChange={(e) => activeTab === 'en' ? onChangeEn(e.target.value) : onChangeHe(e.target.value)}
-          placeholder={placeholder}
-          dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-          rows={4}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all resize-none"
-        />
-      ) : (
-        <input
-          type="text"
-          value={activeTab === 'en' ? valueEn : valueHe}
-          onChange={(e) => activeTab === 'en' ? onChangeEn(e.target.value) : onChangeHe(e.target.value)}
-          placeholder={placeholder}
-          dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
-        />
-      )}
-      
-      {helpText && (
-        <p className="text-xs text-gray-500">{helpText}</p>
-      )}
-    </div>
-  );
-};
-
-// ============================================================================
-// VISIBILITY SELECT
-// ============================================================================
-
-interface VisibilitySelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  type?: 'service' | 'product';
-}
-
-export const VisibilitySelect: React.FC<VisibilitySelectProps> = ({ 
-  value, 
-  onChange, 
-  type = 'service' 
-}) => {
-  const options = type === 'product' 
-    ? [
-        { value: 'visible', label: 'Visible', icon: Eye, color: 'text-green-600' },
-        { value: 'hidden', label: 'Hidden', icon: EyeOff, color: 'text-gray-500' },
-        { value: 'not_in_stock', label: 'Not in Stock', icon: Clock, color: 'text-orange-500' },
-      ]
-    : [
-        { value: 'visible', label: 'Visible', icon: Eye, color: 'text-green-600' },
-        { value: 'hidden', label: 'Hidden', icon: EyeOff, color: 'text-gray-500' },
-        { value: 'coming_soon', label: 'Coming Soon', icon: Clock, color: 'text-blue-500' },
-      ];
-
-  return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">Visibility</label>
-      <div className="flex gap-2">
-        {options.map((option) => {
-          const Icon = option.icon;
-          const isActive = value === option.value;
-          
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => onChange(option.value)}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg border transition-all
-                ${isActive 
-                  ? 'border-[#005f5f] bg-[#005f5f]/10' 
-                  : 'border-gray-200 hover:border-gray-300'
-                }
-              `}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? option.color : 'text-gray-400'}`} />
-              <span className={`text-sm ${isActive ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
-                {option.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-// ============================================================================
-// IMAGE UPLOAD
-// ============================================================================
-
-interface ImageUploadProps {
-  value?: string;
-  onChange: (url: string) => void;
-  folder?: string;
-  label?: string;
-  helpText?: string;
-}
-
-export const ImageUpload: React.FC<ImageUploadProps> = ({
-  value,
-  onChange,
-  folder = 'general',
-  label = 'Image',
-  helpText = 'Max 5MB. JPG, PNG, WebP, or GIF.',
-}) => {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState('');
-  const [dragActive, setDragActive] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFile = async (file: File) => {
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!validTypes.includes(file.type)) {
-      setError('Invalid file type. Use JPG, PNG, WebP, or GIF.');
-      return;
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File too large. Maximum 5MB.');
-      return;
-    }
-
-    setError('');
-    setUploading(true);
-
-    try {
-      const url = await uploadImage(file, folder);
-      onChange(url);
-    } catch (err) {
-      setError('Failed to upload image. Please try again.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  }, [folder]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      
-      {value ? (
-        <div className="relative group">
-          <img
-            src={value}
-            alt="Uploaded"
-            className="w-full h-48 object-cover rounded-lg border border-gray-200"
-          />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ) : (
-        <div
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-          className={`
-            border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all
-            ${dragActive 
-              ? 'border-[#005f5f] bg-[#005f5f]/5' 
-              : 'border-gray-300 hover:border-gray-400'
-            }
-            ${uploading ? 'opacity-50 pointer-events-none' : ''}
-          `}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={handleChange}
-            className="hidden"
-          />
-          
-          {uploading ? (
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f] mb-2" />
-              <span className="text-sm text-gray-500">Uploading...</span>
-            </div>
-          ) : (
-            <>
-              <Upload className="w-10 h-10 mx-auto text-gray-400 mb-3" />
-              <p className="text-sm text-gray-600 mb-1">
-                Drag & drop or click to upload
-              </p>
-              <p className="text-xs text-gray-400">{helpText}</p>
-            </>
-          )}
-        </div>
-      )}
-
-      {error && (
-        <div className="flex items-center gap-2 text-red-600 text-sm">
-          <AlertCircle className="w-4 h-4" />
-          <span>{error}</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ============================================================================
-// FEATURES LIST EDITOR
-// ============================================================================
-
-interface FeaturesEditorProps {
-  label: string;
-  featuresEn: string[];
-  featuresHe: string[];
-  onChangeFeaturesEn: (features: string[]) => void;
-  onChangeFeaturesHe: (features: string[]) => void;
-}
-
-export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({
-  label,
-  featuresEn,
-  featuresHe,
-  onChangeFeaturesEn,
-  onChangeFeaturesHe,
-}) => {
-  const [activeTab, setActiveTab] = useState<'en' | 'he'>('en');
-  const features = activeTab === 'en' ? featuresEn : featuresHe;
-  const setFeatures = activeTab === 'en' ? onChangeFeaturesEn : onChangeFeaturesHe;
-
-  const addFeature = () => {
-    setFeatures([...features, '']);
-  };
-
-  const updateFeature = (index: number, value: string) => {
-    const newFeatures = [...features];
-    newFeatures[index] = value;
-    setFeatures(newFeatures);
-  };
-
-  const removeFeature = (index: number) => {
-    setFeatures(features.filter((_, i) => i !== index));
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('en')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            EN ({featuresEn.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('he')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            HE ({featuresHe.length})
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        {features.map((feature, index) => (
-          <div key={index} className="flex gap-2">
-            <input
-              type="text"
-              value={feature}
-              onChange={(e) => updateFeature(index, e.target.value)}
-              placeholder={`Feature ${index + 1}`}
-              dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => removeFeature(index)}
-              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        <div className="w-2/5">
+          <div className="h-6 w-32 bg-neutral-200 rounded mb-4" />
+          <div className="h-24 w-full bg-neutral-200 rounded mb-10" />
+          <div className="space-y-8">
+            {[1, 2, 3].map(i => (
+              <div key={i}>
+                <div className="h-4 w-24 bg-neutral-200 rounded mb-3" />
+                <div className="flex gap-4">
+                  <div className="h-10 w-10 bg-neutral-200 rounded-full" />
+                  <div className="h-10 w-10 bg-neutral-200 rounded-full" />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-        <button
-          type="button"
-          onClick={addFeature}
-          className="text-sm text-[#005f5f] hover:underline"
-        >
-          + Add Feature
-        </button>
+        </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
-// ============================================================================
-// SPECIFICATIONS EDITOR
-// ============================================================================
+// =============================================================================
+// CONFIGURATOR OPTION COMPONENT
+// =============================================================================
 
-interface Specification {
-  label: string;
-  value: string;
-  unit?: string;
+interface ConfiguratorOptionProps {
+  option: ConfigOptionType;
+  selectedValue: string;
+  onSelect: (value: string) => void;
 }
 
-interface SpecificationsEditorProps {
-  specifications: Specification[];
-  onChange: (specs: Specification[]) => void;
-}
-
-export const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({
-  specifications,
-  onChange,
+const ConfiguratorOption: React.FC<ConfiguratorOptionProps> = ({
+  option,
+  selectedValue,
+  onSelect,
 }) => {
-  const predefinedSpecs = [
-    { label: 'Width', unit: 'cm' },
-    { label: 'Height', unit: 'cm' },
-    { label: 'Depth', unit: 'cm' },
-    { label: 'Weight', unit: 'kg' },
-    { label: 'Material', unit: '' },
-    { label: 'Color', unit: '' },
-    { label: 'Finish', unit: '' },
-  ];
+  const selectedLabel = option.values.find(v => v.slug === selectedValue)?.label || '';
 
-  const addSpec = (label: string, unit: string) => {
-    if (specifications.find(s => s.label === label)) return;
-    onChange([...specifications, { label, value: '', unit }]);
-  };
-
-  const updateSpec = (index: number, value: string) => {
-    const newSpecs = [...specifications];
-    newSpecs[index] = { ...newSpecs[index], value };
-    onChange(newSpecs);
-  };
-
-  const removeSpec = (index: number) => {
-    onChange(specifications.filter((_, i) => i !== index));
-  };
-
-  const availableSpecs = predefinedSpecs.filter(
-    ps => !specifications.find(s => s.label === ps.label)
-  );
-
-  return (
-    <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-700">Specifications</label>
-      
-      {/* Current specs */}
-      <div className="space-y-2">
-        {specifications.map((spec, index) => (
-          <div key={spec.label} className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-            <span className="text-sm font-medium text-gray-700 w-24">{spec.label}</span>
-            <input
-              type="text"
-              value={spec.value}
-              onChange={(e) => updateSpec(index, e.target.value)}
-              placeholder="Value"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none text-sm"
+  // Color picker rendering
+  if (option.inputType === 'color_picker') {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-meta font-medium text-neutral-900 uppercase tracking-wide">
+            {option.name}
+          </span>
+          <span className="text-meta-sm text-neutral-400 capitalize">{selectedLabel}</span>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {option.values.map((value) => (
+            <button
+              key={value.id}
+              onClick={() => onSelect(value.slug)}
+              className={`w-10 h-10 rounded-full ring-2 ring-offset-2 transition-all ${
+                selectedValue === value.slug
+                  ? 'ring-brand'
+                  : 'ring-transparent hover:ring-neutral-200'
+              }`}
+              style={{ backgroundColor: value.colorHex || '#ccc' }}
+              title={value.label}
             />
-            {spec.unit && (
-              <span className="text-sm text-gray-500 w-12">{spec.unit}</span>
-            )}
-            <button
-              type="button"
-              onClick={() => removeSpec(index)}
-              className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Add spec buttons */}
-      {availableSpecs.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-gray-500">Add:</span>
-          {availableSpecs.map((spec) => (
-            <button
-              key={spec.label}
-              type="button"
-              onClick={() => addSpec(spec.label, spec.unit)}
-              className="px-3 py-1 text-xs border border-gray-300 rounded-full hover:border-[#005f5f] hover:text-[#005f5f] transition-colors"
-            >
-              + {spec.label}
-            </button>
           ))}
         </div>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  }
 
-// ============================================================================
-// SIMPLE RICH TEXT EDITOR
-// ============================================================================
-
-interface RichTextEditorProps {
-  label: string;
-  valueEn: string;
-  valueHe: string;
-  onChangeEn: (value: string) => void;
-  onChangeHe: (value: string) => void;
-}
-
-export const RichTextEditor: React.FC<RichTextEditorProps> = ({
-  label,
-  valueEn,
-  valueHe,
-  onChangeEn,
-  onChangeHe,
-}) => {
-  const [activeTab, setActiveTab] = useState<'en' | 'he'>('en');
-  const value = activeTab === 'en' ? valueEn : valueHe;
-  const onChange = activeTab === 'en' ? onChangeEn : onChangeHe;
-
-  const insertFormatting = (before: string, after: string) => {
-    const textarea = document.getElementById('richtext-editor') as HTMLTextAreaElement;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = value.substring(start, end);
-    const newValue = value.substring(0, start) + before + selectedText + after + value.substring(end);
-    onChange(newValue);
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab('en')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+  // Dropdown rendering
+  if (option.inputType === 'dropdown') {
+    return (
+      <div>
+        <label className="block text-meta font-medium text-neutral-900 uppercase tracking-wide mb-2">
+          {option.name}
+        </label>
+        <div className="relative">
+          <select
+            value={selectedValue}
+            onChange={(e) => onSelect(e.target.value)}
+            className="w-full appearance-none px-4 py-3 pr-10 border border-neutral-200 rounded-lg text-body text-neutral-700 bg-white focus:ring-2 focus:ring-brand/30 focus:border-brand outline-none transition-all cursor-pointer"
           >
-            EN
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('he')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-              activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            HE
-          </button>
+            {option.values.map((value) => (
+              <option key={value.id} value={value.slug}>
+                {value.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
         </div>
       </div>
+    );
+  }
 
-      {/* Toolbar */}
-      <div className="flex gap-1 p-2 bg-gray-50 rounded-t-lg border border-b-0 border-gray-300">
-        <button
-          type="button"
-          onClick={() => insertFormatting('**', '**')}
-          className="p-2 hover:bg-gray-200 rounded font-bold text-sm"
-          title="Bold"
-        >
-          B
-        </button>
-        <button
-          type="button"
-          onClick={() => insertFormatting('*', '*')}
-          className="p-2 hover:bg-gray-200 rounded italic text-sm"
-          title="Italic"
-        >
-          I
-        </button>
-        <button
-          type="button"
-          onClick={() => insertFormatting('\n## ', '\n')}
-          className="p-2 hover:bg-gray-200 rounded text-sm"
-          title="Heading"
-        >
-          H
-        </button>
-        <button
-          type="button"
-          onClick={() => insertFormatting('\n- ', '')}
-          className="p-2 hover:bg-gray-200 rounded text-sm"
-          title="List item"
-        >
-          •
-        </button>
-        <button
-          type="button"
-          onClick={() => insertFormatting('[', '](url)')}
-          className="p-2 hover:bg-gray-200 rounded text-sm"
-          title="Link"
-        >
-          🔗
-        </button>
-      </div>
-
-      <textarea
-        id="richtext-editor"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-        rows={10}
-        className="w-full px-4 py-3 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all resize-none font-mono text-sm"
-        placeholder="Write your content here. Use **bold**, *italic*, ## Heading, - List items, [link](url)"
-      />
-
-      <p className="text-xs text-gray-500">
-        Supports Markdown: **bold**, *italic*, ## Heading, - List items, [link](url)
-      </p>
-    </div>
-  );
-};
-
-// ============================================================================
-// SORTABLE LIST ITEM (for drag & drop with @dnd-kit)
-// ============================================================================
-
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-interface SortableItemProps {
-  id: string;
-  children: React.ReactNode;
-}
-
-export const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 'auto' as any,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-3">
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
-      >
-        <GripVertical className="w-5 h-5" />
-      </div>
-      <div className="flex-1">{children}</div>
-    </div>
-  );
-};
-
-// ============================================================================
-// MODAL
-// ============================================================================
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-}
-
-export const Modal: React.FC<ModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  children,
-  size = 'md' 
-}) => {
-  if (!isOpen) return null;
-
-  const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl',
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className={`relative bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden flex flex-col`}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+  // Checkbox group rendering
+  if (option.inputType === 'checkbox_group') {
+    return (
+      <div>
+        <span className="block text-meta font-medium text-neutral-900 uppercase tracking-wide mb-3">
+          {option.name}
+        </span>
+        <div className="space-y-2">
+          {option.values.map((value) => (
+            <label
+              key={value.id}
+              className="flex items-center gap-3 cursor-pointer py-1"
+            >
+              <input
+                type="checkbox"
+                checked={selectedValue === value.slug}
+                onChange={() => onSelect(value.slug)}
+                className="w-4 h-4 text-brand rounded border-neutral-300 focus:ring-brand"
+              />
+              <span className="text-body text-neutral-600">
+                {value.label}
+              </span>
+            </label>
+          ))}
         </div>
+      </div>
+    );
+  }
+
+  // Button group rendering (default)
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-meta font-medium text-neutral-900 uppercase tracking-wide">
+          {option.name}
+        </span>
+        {option.description && (
+          <Info className="w-4 h-4 text-neutral-300 cursor-pointer hover:text-brand" />
+        )}
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {option.values.map((value) => (
+          <button
+            key={value.id}
+            onClick={() => onSelect(value.slug)}
+            className={`
+              px-5 py-3 rounded-lg border text-meta font-medium transition-all
+              ${selectedValue === value.slug
+                ? 'border-brand bg-brand/5 text-brand'
+                : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
+              }
+            `}
+          >
+            {value.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+export const ProductPage: React.FC = () => {
+  const { productSlug } = useParams<{ productSlug: string }>();
+  const navigate = useNavigate();
+
+  // Core data state
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<ProductCategory | null>(null);
+  const [subservice, setSubservice] = useState<Subservice | null>(null);
+  const [service, setService] = useState<Service | null>(null);
+
+  // Configuration state
+  const [configuration, setConfiguration] = useState<ProductConfiguration | null>(null);
+  const [selections, setSelections] = useState<SelectedConfiguration>({});
+
+  // View state: '3d' or image index (0, 1, 2...)
+  const [activeView, setActiveView] = useState<'3d' | number>('3d');
+
+  // Load data
+  useEffect(() => {
+    const loadData = async () => {
+      if (!productSlug) return;
+
+      setLoading(true);
+      try {
+        const breadcrumbData = await getProductWithBreadcrumb(productSlug);
+        if (!breadcrumbData) {
+          console.error('Product not found:', productSlug);
+          setLoading(false);
+          return;
+        }
+
+        const { service, subservice, category, product } = breadcrumbData;
+        setService(service);
+        setSubservice(subservice);
+        setCategory(category);
+        setProduct(product);
+
+        // Default to 3D if available, otherwise first image
+        if (product.modelUrl && product.has3DView) {
+          setActiveView('3d');
+        } else {
+          setActiveView(0);
+        }
+
+        // Load configuration
+        const config = await getProductConfiguration(product.id, subservice.id);
+        if (config) {
+          setConfiguration(config);
+          setSelections(config.defaults);
+        }
+      } catch (error) {
+        console.error('Failed to load product data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [productSlug]);
+
+  const handleSelectionChange = (optionSlug: string, valueSlug: string) => {
+    setSelections(prev => ({ ...prev, [optionSlug]: valueSlug }));
+  };
+
+  const getQuoteUrl = () => {
+    const params = new URLSearchParams();
+    params.set('product', product?.slug || '');
+    params.set('productTitle', product?.title || '');
+    Object.entries(selections).forEach(([optionSlug, valueSlug]) => {
+      params.set(`config_${optionSlug}`, valueSlug);
+    });
+    return `${ROUTES.QUOTE}?${params.toString()}`;
+  };
+
+  if (loading) return <LoadingSkeleton />;
+
+  if (!product || !service || !subservice || !category) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-h1 font-medium text-neutral-900 mb-4">Product Not Found</h1>
+          <Link to={ROUTES.HOME} className="text-brand hover:underline">Return to Home</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const allImages = [product.imageUrl, ...(product.galleryImages || [])].filter(Boolean);
+  const has3D = !!(product.modelUrl && product.has3DView);
+
+  return (
+    <div className="min-h-screen w-full bg-white">
+      <div className="max-w-[1600px] mx-auto px-8 md:px-16 py-8">
         
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-meta text-neutral-500 mb-8">
+          <Link to={ROUTES.HOME} className="hover:text-brand">Home</Link>
+          <span>/</span>
+          <Link to={ROUTES.SERVICE(service.slug)} className="hover:text-brand">{service.title}</Link>
+          <span>/</span>
+          <Link to={`${ROUTES.SUBSERVICE}/${subservice.slug}`} className="hover:text-brand">{subservice.title}</Link>
+          <span>/</span>
+          <span className="text-neutral-900">{product.title}</span>
+        </nav>
+
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-neutral-500 hover:text-brand mb-6 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
+
+        {/* Main content grid */}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-12 xl:gap-16">
+          
+          {/* ========================================================== */}
+          {/* LEFT: 3D Hero with overlay thumbnails                       */}
+          {/* ========================================================== */}
+          <div className="w-full lg:w-3/5 lg:sticky lg:top-4 lg:self-start lg:h-[calc(100vh-2rem)] lg:flex lg:flex-col">
+            <h1 className="text-display-sm font-medium text-neutral-900 mb-2 flex-shrink-0">{product.title}</h1>
+            {product.subtitle && (
+              <p className="text-body-lg text-neutral-500 mb-4 flex-shrink-0">{product.subtitle}</p>
+            )}
+
+            {/* Hero viewer area - fills remaining height on desktop */}
+            <div className="relative aspect-[4/3] lg:aspect-auto lg:flex-1 lg:min-h-0 rounded-2xl overflow-hidden bg-neutral-50 border border-neutral-200">
+              
+              {/* 3D Viewer */}
+              {activeView === '3d' && has3D && (
+                <>
+                  {/* @ts-ignore */}
+                  <model-viewer
+                    src={product.modelUrl}
+                    alt={product.title}
+                    auto-rotate
+                    camera-controls
+                    shadow-intensity="1"
+                    environment-image="neutral"
+                    style={{ width: '100%', height: '100%', backgroundColor: '#f5f5f5' }}
+                    loading="eager"
+                    poster={allImages[0] || PRODUCT_FALLBACK}
+                  >
+                  {/* @ts-ignore */}
+                  </model-viewer>
+                  <div className="absolute top-4 left-4 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <Rotate3d className="w-3.5 h-3.5" />
+                    3D Interactive
+                  </div>
+                  <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full">
+                    Drag to rotate · Scroll to zoom
+                  </div>
+                </>
+              )}
+
+              {/* Image Viewer */}
+              {typeof activeView === 'number' && (
+                <>
+                  <img
+                    src={allImages[activeView] || PRODUCT_FALLBACK}
+                    alt={product.title}
+                    className="w-full h-full object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).src = PRODUCT_FALLBACK; }}
+                  />
+                  {has3D && (
+                    <button 
+                      onClick={() => setActiveView('3d')}
+                      className="absolute top-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 hover:bg-black/80 transition-colors cursor-pointer"
+                    >
+                      <Rotate3d className="w-3.5 h-3.5" />
+                      Back to 3D
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* Overlay Thumbnails */}
+              {(allImages.length > 0 || has3D) && (
+                <div className="absolute bottom-4 left-4 right-4 flex justify-center">
+                  <div className="flex gap-2 bg-black/40 backdrop-blur-sm rounded-xl p-2">
+                    {/* 3D thumb */}
+                    {has3D && (
+                      <button
+                        onClick={() => setActiveView('3d')}
+                        className={`flex-shrink-0 w-14 h-14 rounded-lg flex items-center justify-center transition-all border-2 ${
+                          activeView === '3d' 
+                            ? 'border-white bg-white/20' 
+                            : 'border-transparent bg-white/10 hover:bg-white/20'
+                        }`}
+                        title="3D View"
+                      >
+                        <Rotate3d className="w-5 h-5 text-white" />
+                      </button>
+                    )}
+                    {/* Image thumbs */}
+                    {allImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveView(idx)}
+                        className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden transition-all border-2 ${
+                          activeView === idx 
+                            ? 'border-white' 
+                            : 'border-transparent opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Video - below sticky panel on mobile */}
+            {product.videoUrl && (
+              <div className="mt-4 flex-shrink-0 lg:hidden">
+                <video src={product.videoUrl} controls className="w-full rounded-xl" />
+              </div>
+            )}
+          </div>
+
+          {/* ========================================================== */}
+          {/* RIGHT: Config → Description → Buttons → Features           */}
+          {/* ========================================================== */}
+          <div className="w-full lg:w-2/5">
+
+            {/* 1. CONFIGURATIONS */}
+            {configuration && configuration.options.length > 0 ? (
+              <div className="mb-10">
+                <h2 className="text-h2 font-medium text-neutral-900 mb-5">Configure</h2>
+                <div className="flex flex-col gap-5">
+                  {configuration.options.map((option) => (
+                    <ConfiguratorOption
+                      key={option.id}
+                      option={option}
+                      selectedValue={selections[option.slug] || ''}
+                      onSelect={(value) => handleSelectionChange(option.slug, value)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-6 bg-neutral-50 rounded-xl mb-10">
+                <p className="text-meta text-neutral-500">Configuration options not available for this product.</p>
+              </div>
+            )}
+
+            <div className="w-full h-px bg-neutral-200 mb-10" />
+
+            {/* 2. DESCRIPTION */}
+            <div className="mb-10">
+              <h2 className="text-h2 font-medium text-neutral-900 mb-3">Description</h2>
+              <p className="text-body text-neutral-600 leading-relaxed">{product.description}</p>
+            </div>
+
+            {/* Specifications */}
+            {product.specifications && product.specifications.length > 0 && (
+              <div className="mb-10">
+                <h3 className="text-h2 font-medium text-neutral-900 mb-4">Technical Specifications</h3>
+                <div className="space-y-3">
+                  {product.specifications.map((spec, i) => (
+                    <div key={i} className="flex justify-between py-2 border-b border-neutral-100">
+                      <span className="text-meta text-neutral-500">{spec.label}</span>
+                      <span className="text-body font-medium text-neutral-900">
+                        {spec.value}{spec.unit ? ` ${spec.unit}` : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. ACTION BUTTONS */}
+            <div className="flex flex-col gap-4 mb-10">
+              <button 
+                onClick={() => navigate(getQuoteUrl())}
+                className="w-full bg-brand text-white py-3 rounded-xl font-medium hover:bg-brand/90 transition-colors"
+              >
+                Request Quote
+              </button>
+              <button 
+                onClick={() => navigate(ROUTES.CONTACT)}
+                className="w-full border border-brand text-brand py-3 rounded-xl font-medium hover:bg-brand/5 transition-colors"
+              >
+                Contact
+              </button>
+            </div>
+
+            {/* 4. FEATURES */}
+            {product.features && product.features.length > 0 && (
+              <div>
+                <h3 className="text-h2 font-medium text-neutral-900 mb-4">Features</h3>
+                <ul className="space-y-2">
+                  {product.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-brand flex-shrink-0 mt-0.5" />
+                      <span className="text-body text-neutral-600">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// ============================================================================
-// CONFIRM DIALOG
-// ============================================================================
-
-interface ConfirmDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  danger?: boolean;
-}
-
-export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  danger = false,
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6">{message}</p>
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            {cancelText}
-          </button>
-          <button
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-            className={`px-4 py-2 text-white rounded-lg transition-colors ${
-              danger 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-[#005f5f] hover:bg-[#004d4d]'
-            }`}
-          >
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+export default ProductPage;
