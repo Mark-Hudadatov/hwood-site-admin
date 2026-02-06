@@ -162,9 +162,9 @@ export const AdminMainPage: React.FC = () => {
     section_description_en: 'If you produce cabinets for real clients — not concepts — we speak the same language.',
     section_description_he: 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.',
     boxes: [
-      { ...defaultBox, title_en: 'Kitchen & Cabinet Manufacturers', subtitle_en: 'Series & Project-based Production', description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.', overlay_opacity: 70 },
-      { ...defaultBox, title_en: 'Professional Carpentry & Joinery', subtitle_en: 'Custom Interior Fabrication', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', overlay_opacity: 75 },
-      { ...defaultBox, title_en: 'Interior & Fit-Out Contractors', subtitle_en: 'Residential & Commercial Delivery', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', overlay_opacity: 80 },
+      { ...defaultBox, title_en: 'Kitchen & Cabinet Manufacturers', title_he: 'יצרני מטבחים וארונות', subtitle_en: 'Series & Project-based Production', subtitle_he: 'ייצור סדרתי ופרויקטאלי', description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.', description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.', overlay_opacity: 70 },
+      { ...defaultBox, title_en: 'Professional Carpentry & Joinery', title_he: 'נגרות מקצועית', subtitle_en: 'Custom Interior Fabrication', subtitle_he: 'ייצור פנים מותאם אישית', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.', overlay_opacity: 75 },
+      { ...defaultBox, title_en: 'Interior & Fit-Out Contractors', title_he: 'קבלני פנים והתאמות', subtitle_en: 'Residential & Commercial Delivery', subtitle_he: 'אספקה למגורים ומסחר', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.', overlay_opacity: 80 },
     ],
   });
 
@@ -196,9 +196,24 @@ export const AdminMainPage: React.FC = () => {
             case 'layout':
               setLayoutSettings({ ...layoutSettings, ...row.settings });
               break;
-            case 'partners_section':
-              setPartnersSection({ ...partnersSection, ...row.settings });
+            case 'partners_section': {
+              const dbSettings = row.settings;
+              const defaultBoxes = [
+                { title_he: 'יצרני מטבחים וארונות', subtitle_he: 'ייצור סדרתי ופרויקטאלי', description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.' },
+                { title_he: 'נגרות מקצועית', subtitle_he: 'ייצור פנים מותאם אישית', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.' },
+                { title_he: 'קבלני פנים והתאמות', subtitle_he: 'אספקה למגורים ומסחר', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.' },
+              ];
+              const mergedBoxes = (dbSettings.boxes || []).map((box: any, i: number) => ({
+                ...partnersSection.boxes[i],
+                ...box,
+                // Fill empty Hebrew from defaults
+                title_he: box.title_he || defaultBoxes[i]?.title_he || '',
+                subtitle_he: box.subtitle_he || defaultBoxes[i]?.subtitle_he || '',
+                description_he: box.description_he || defaultBoxes[i]?.description_he || '',
+              }));
+              setPartnersSection({ ...partnersSection, ...dbSettings, boxes: mergedBoxes });
               break;
+            }
           }
         });
       }
