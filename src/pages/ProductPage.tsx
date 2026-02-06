@@ -318,14 +318,14 @@ export const ProductPage: React.FC = () => {
           {/* ========================================================== */}
           {/* LEFT: 3D Hero with overlay thumbnails                       */}
           {/* ========================================================== */}
-          <div className="w-full lg:w-3/5">
+          <div className="w-full lg:w-3/5 lg:sticky lg:top-4 lg:self-start">
             <h1 className="text-display-sm font-medium text-neutral-900 mb-2">{product.title}</h1>
             {product.subtitle && (
               <p className="text-body-lg text-neutral-500 mb-6">{product.subtitle}</p>
             )}
 
-            {/* Hero viewer area */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-neutral-50 border border-neutral-200">
+            {/* Hero viewer area — aspect ratio on mobile, capped height on desktop to fit viewport */}
+            <div className="relative aspect-[4/3] lg:aspect-auto lg:h-[calc(100vh-12rem)] rounded-2xl overflow-hidden bg-neutral-50 border border-neutral-200">
               
               {/* 3D Viewer */}
               {activeView === '3d' && has3D && (
@@ -412,9 +412,9 @@ export const ProductPage: React.FC = () => {
               )}
             </div>
 
-            {/* Video */}
+            {/* Video - hidden on desktop to keep sticky panel within viewport */}
             {product.videoUrl && (
-              <div className="mt-6">
+              <div className="mt-6 lg:hidden">
                 <video src={product.videoUrl} controls className="w-full rounded-xl" />
               </div>
             )}
