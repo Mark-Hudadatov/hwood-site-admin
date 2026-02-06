@@ -73,6 +73,7 @@ export const AdminSubservices: React.FC = () => {
   const [subservices, setSubservices] = useState<AdminSubservice[]>([]);
   const [services, setServices] = useState<AdminService[]>([]);
   const [loading, setLoading] = useState(true);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [editingItem, setEditingItem] = useState<AdminSubservice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -252,7 +253,7 @@ export const AdminSubservices: React.FC = () => {
           </div>
         ) : (
           <DndContext
-            sensors={useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))}
+            sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={async (event: DragEndEvent) => {
               const { active, over } = event;
