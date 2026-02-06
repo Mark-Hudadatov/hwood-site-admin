@@ -97,18 +97,13 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
 
   const checkScroll = useCallback(() => {
     if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      const absScroll = Math.abs(scrollLeft);
-      const maxScroll = scrollWidth - clientWidth;
-      if (isRTL) {
-        setShowRightArrow(absScroll > 10);
-        setShowLeftArrow(absScroll < maxScroll - 10);
-      } else {
-        setShowLeftArrow(absScroll > 10);
-        setShowRightArrow(absScroll < maxScroll - 10);
-      }
+      const { scrollWidth, clientWidth } = scrollRef.current;
+      const hasOverflow = scrollWidth > clientWidth + 10;
+      // Always show both arrows if there's overflow - RTL scroll detection is unreliable
+      setShowLeftArrow(hasOverflow);
+      setShowRightArrow(hasOverflow);
     }
-  }, [isRTL]);
+  }, []);
 
   useEffect(() => {
     checkScroll();
