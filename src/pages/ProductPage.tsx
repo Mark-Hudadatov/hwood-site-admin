@@ -318,7 +318,8 @@ export const ProductPage: React.FC = () => {
           {/* ========================================================== */}
           {/* LEFT: 3D Hero with overlay thumbnails                       */}
           {/* ========================================================== */}
-          <div className="w-full lg:w-3/5 lg:sticky lg:top-4 lg:self-start">
+          <div className="w-full lg:w-3/5">
+            <div className="lg:sticky lg:top-4">
             <h1 className="text-display-sm font-medium text-neutral-900 mb-2">{product.title}</h1>
             {product.subtitle && (
               <p className="text-body-lg text-neutral-500 mb-6">{product.subtitle}</p>
@@ -418,6 +419,7 @@ export const ProductPage: React.FC = () => {
                 <video src={product.videoUrl} controls className="w-full rounded-xl" />
               </div>
             )}
+            </div>{/* end sticky wrapper */}
           </div>
 
           {/* ========================================================== */}
