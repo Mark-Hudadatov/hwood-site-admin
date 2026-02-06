@@ -5,6 +5,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AdminService,
   VisibilityStatus,
@@ -21,6 +24,57 @@ import {
   Modal,
   ConfirmDialog,
 } from '../components';
+
+// Sortable row component for drag-and-drop
+const SortableServiceItem: React.FC<{
+  service: AdminService;
+  onEdit: () => void;
+  onDelete: () => void;
+}> = ({ service, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: service.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
+        service.visibility_status !== 'visible' ? 'opacity-60' : ''
+      }`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+        <GripVertical className="w-5 h-5" />
+      </div>
+      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        {service.image_url ? (
+          <img src={service.image_url} alt={service.title_en} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">No img</div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{service.title_en}</h3>
+        <p className="text-sm text-gray-500 truncate">/{service.slug}</p>
+      </div>
+      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        service.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
+        service.visibility_status === 'coming_soon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+      }`}>
+        {service.visibility_status === 'visible' ? 'Visible' :
+         service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
+      </div>
+      <div className="w-6 h-6 rounded-full border-2 border-white shadow" style={{ backgroundColor: service.accent_color || '#005f5f' }} />
+      <div className="flex items-center gap-2">
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const AdminServices: React.FC = () => {
   const [services, setServices] = useState<AdminService[]>([]);
@@ -197,80 +251,33 @@ const [formData, setFormData] = useState<{
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {services.map((service, index) => (
-              <div
-                key={service.id}
-                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
-                  service.visibility_status !== 'visible' ? 'opacity-60' : ''
-                }`}
-              >
-                {/* Drag Handle */}
-                <div className="cursor-grab text-gray-400">
-                  <GripVertical className="w-5 h-5" />
-                </div>
-
-                {/* Image */}
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {service.image_url ? (
-                    <img
-                      src={service.image_url}
-                      alt={service.title_en}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No img
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">
-                    {service.title_en}
-                  </h3>
-                  <p className="text-sm text-gray-500 truncate">
-                    /{service.slug}
-                  </p>
-                </div>
-
-                {/* Status Badge */}
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  service.visibility_status === 'visible' 
-                    ? 'bg-green-100 text-green-700'
-                    : service.visibility_status === 'coming_soon'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {service.visibility_status === 'visible' ? 'Visible' :
-                   service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
-                </div>
-
-                {/* Accent Color */}
-                <div
-                  className="w-6 h-6 rounded-full border-2 border-white shadow"
-                  style={{ backgroundColor: service.accent_color || '#005f5f' }}
-                />
-
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openEditModal(service)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(service.id)}
-                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+          <DndContext
+            sensors={useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))}
+            collisionDetection={closestCenter}
+            onDragEnd={async (event: DragEndEvent) => {
+              const { active, over } = event;
+              if (over && active.id !== over.id) {
+                const oldIndex = services.findIndex(s => s.id === active.id);
+                const newIndex = services.findIndex(s => s.id === over.id);
+                const reordered = arrayMove(services, oldIndex, newIndex);
+                setServices(reordered);
+                await reorderServices(reordered.map(s => s.id));
+              }
+            }}
+          >
+            <SortableContext items={services.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              <div className="divide-y divide-gray-100">
+                {services.map((service) => (
+                  <SortableServiceItem
+                    key={service.id}
+                    service={service}
+                    onEdit={() => openEditModal(service)}
+                    onDelete={() => setDeleteConfirm(service.id)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
