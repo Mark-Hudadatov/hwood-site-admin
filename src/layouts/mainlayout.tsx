@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
 import { getNavigationData } from '../services/data/dataService';
+import { supabase } from '../services/supabase';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
@@ -190,8 +191,27 @@ const Header: React.FC = () => {
 
 // Footer Component
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isHe = i18n.language?.startsWith('he');
+  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
+  
+  useEffect(() => {
+    supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
+      .then(({ data }) => {
+        if (data) setSocialLinks(data.filter((l: any) => l.url).map((l: any) => ({ platform: l.platform, url: l.url })));
+      });
+  }, []);
+
+  const platformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook': return Facebook;
+      case 'instagram': return Instagram;
+      case 'linkedin': return Linkedin;
+      case 'youtube': return Youtube;
+      default: return null;
+    }
+  };
   
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -205,27 +225,39 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="flex gap-4">
-          {[Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-              <Icon className="w-5 h-5" />
-            </a>
-          ))}
+          {socialLinks.length > 0 ? (
+            socialLinks.map((link) => {
+              const Icon = platformIcon(link.platform);
+              if (!Icon) return null;
+              return (
+                <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                  <Icon className="w-5 h-5" />
+                </a>
+              );
+            })
+          ) : (
+            [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
+              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                <Icon className="w-5 h-5" />
+              </a>
+            ))
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-20 xl:gap-24 mb-10 md:mb-16">
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Updates</h3>
+          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'עדכונים' : 'Updates'}</h3>
           <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Technical updates, production insights, and system changes.</p>
-          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'עדכונים טכניים, תובנות ייצור ושינויים במערכת.' : 'Technical updates, production insights, and system changes.'}</p>
+          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">{isHe ? 'הרשמה' : 'Subscribe'}</button>
         </div>
 
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Technical Support</h3>
+          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'תמיכה טכנית' : 'Technical Support'}</h3>
           <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Post-delivery support for production systems, components, and CNC workflows.</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'תמיכה לאחר אספקה עבור מערכות ייצור, רכיבים ותהליכי CNC.' : 'Post-delivery support for production systems, components, and CNC workflows.'}</p>
+          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
         </div>
       </div>
 
@@ -237,7 +269,7 @@ const Footer: React.FC = () => {
           aria-label="Back to top"
         >
           <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
-          <span className="text-sm font-medium">Back to top</span>
+          <span className="text-sm font-medium">{isHe ? 'חזרה למעלה' : 'Back to top'}</span>
         </button>
       </div>
 
