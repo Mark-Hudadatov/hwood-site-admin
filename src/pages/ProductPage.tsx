@@ -34,14 +34,14 @@ const PRODUCT_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="h
 
 const LoadingSkeleton: React.FC = () => (
   <div className="min-h-screen w-full bg-white animate-pulse">
-    <div className="max-w-[1600px] mx-auto px-16 py-8">
-      <div className="h-4 w-96 bg-neutral-200 rounded mb-8" />
-      <div className="flex gap-16">
-        <div className="w-3/5">
-          <div className="h-10 w-64 bg-neutral-200 rounded mb-8" />
-          <div className="aspect-[4/3] bg-neutral-200 rounded-2xl" />
+    <div className="max-w-[1600px] mx-auto px-4 md:px-16 py-4 md:py-8">
+      <div className="h-3 md:h-4 w-48 md:w-96 bg-neutral-200 rounded mb-4 md:mb-8" />
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-16">
+        <div className="w-full lg:w-3/5">
+          <div className="h-6 md:h-10 w-40 md:w-64 bg-neutral-200 rounded mb-4 md:mb-8" />
+          <div className="aspect-[3/4] md:aspect-[4/3] bg-neutral-200 rounded-2xl" />
         </div>
-        <div className="w-2/5">
+        <div className="w-full lg:w-2/5">
           <div className="h-6 w-32 bg-neutral-200 rounded mb-4" />
           <div className="h-24 w-full bg-neutral-200 rounded mb-10" />
           <div className="space-y-8">
@@ -290,10 +290,10 @@ export const ProductPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <div className="max-w-[1600px] mx-auto px-8 md:px-16 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-16 py-3 md:py-8">
         
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-meta text-neutral-500 mb-8">
+        {/* Breadcrumb - smaller on mobile */}
+        <nav className="flex items-center gap-1 md:gap-2 text-[10px] md:text-meta text-neutral-500 mb-3 md:mb-8 flex-wrap">
           <Link to={ROUTES.HOME} className="hover:text-brand">Home</Link>
           <span>/</span>
           <Link to={ROUTES.SERVICE(service.slug)} className="hover:text-brand">{service.title}</Link>
@@ -303,30 +303,30 @@ export const ProductPage: React.FC = () => {
           <span className="text-neutral-900">{product.title}</span>
         </nav>
 
-        {/* Back */}
+        {/* Back - smaller on mobile */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-neutral-500 hover:text-brand mb-6 transition-colors"
+          className="flex items-center gap-1.5 md:gap-2 text-xs md:text-base text-neutral-500 hover:text-brand mb-3 md:mb-6 transition-colors"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
           Back
         </button>
 
         {/* Main content grid */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-12 xl:gap-16">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 xl:gap-16">
           
           {/* ========================================================== */}
           {/* LEFT: 3D Hero with overlay thumbnails                       */}
           {/* ========================================================== */}
           <div className="w-full lg:w-3/5">
             <div className="lg:sticky lg:top-4">
-            <h1 className="text-display-sm font-medium text-neutral-900 mb-2">{product.title}</h1>
+            <h1 className="text-lg md:text-display-sm font-medium text-neutral-900 mb-1 md:mb-2">{product.title}</h1>
             {product.subtitle && (
-              <p className="text-body-lg text-neutral-500 mb-6">{product.subtitle}</p>
+              <p className="text-sm md:text-body-lg text-neutral-500 mb-3 md:mb-6">{product.subtitle}</p>
             )}
 
-            {/* Hero viewer area — aspect ratio on mobile, capped height on desktop to fit viewport */}
-            <div className="relative aspect-[4/3] lg:aspect-auto lg:h-[calc(100vh-12rem)] rounded-2xl overflow-hidden bg-neutral-50 border border-neutral-200">
+            {/* Hero viewer area — tall portrait on mobile for better interaction, capped on desktop */}
+            <div className="relative aspect-[3/4] md:aspect-[4/3] lg:aspect-auto lg:h-[calc(100vh-12rem)] rounded-2xl overflow-hidden bg-neutral-50 border border-neutral-200">
               
               {/* 3D Viewer */}
               {activeView === '3d' && has3D && (
