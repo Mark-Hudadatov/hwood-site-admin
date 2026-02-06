@@ -87,6 +87,7 @@ const SortableProductItem: React.FC<{
 
 export const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [subservices, setSubservices] = useState<AdminSubservice[]>([]);
   const [services, setServices] = useState<AdminService[]>([]);
@@ -378,7 +379,7 @@ export const AdminProducts: React.FC = () => {
           </div>
         ) : (
           <DndContext
-            sensors={useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))}
+            sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={async (event: DragEndEvent) => {
               const { active, over } = event;
