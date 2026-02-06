@@ -648,11 +648,23 @@ export const HomePage: React.FC = () => {
           settingsData.forEach((row: { section: string; settings: any }) => {
             if (row.section in newSettings) {
               if (row.section === 'partners_section' && row.settings?.boxes) {
-                // Deep merge boxes to preserve all bilingual fields
-                const mergedBoxes = DEFAULT_SETTINGS.partners_section.boxes.map((defaultBox: any, i: number) => ({
-                  ...defaultBox,
-                  ...(row.settings.boxes[i] || {})
-                }));
+                // Deep merge boxes - don't let empty strings from DB override Hebrew defaults
+                const defaultBoxesHe = [
+                  { title_he: 'יצרני מטבחים וארונות', subtitle_he: 'ייצור סדרתי ופרויקטאלי', description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.' },
+                  { title_he: 'נגרות מקצועית', subtitle_he: 'ייצור פנים מותאם אישית', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.' },
+                  { title_he: 'קבלני פנים והתאמות', subtitle_he: 'אספקה למגורים ומסחר', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.' },
+                ];
+                const mergedBoxes = DEFAULT_SETTINGS.partners_section.boxes.map((defaultBox: any, i: number) => {
+                  const dbBox = row.settings.boxes[i] || {};
+                  return {
+                    ...defaultBox,
+                    ...dbBox,
+                    // If DB has empty Hebrew, use hardcoded defaults
+                    title_he: dbBox.title_he || defaultBoxesHe[i]?.title_he || defaultBox.title_he || '',
+                    subtitle_he: dbBox.subtitle_he || defaultBoxesHe[i]?.subtitle_he || defaultBox.subtitle_he || '',
+                    description_he: dbBox.description_he || defaultBoxesHe[i]?.description_he || defaultBox.description_he || '',
+                  };
+                });
                 (newSettings as any)[row.section] = { ...DEFAULT_SETTINGS.partners_section, ...row.settings, boxes: mergedBoxes };
               } else {
                 (newSettings as any)[row.section] = { ...(DEFAULT_SETTINGS as any)[row.section], ...row.settings };
