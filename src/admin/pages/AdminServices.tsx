@@ -79,6 +79,7 @@ const SortableServiceItem: React.FC<{
 export const AdminServices: React.FC = () => {
   const [services, setServices] = useState<AdminService[]>([]);
   const [loading, setLoading] = useState(true);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [editingService, setEditingService] = useState<AdminService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -252,7 +253,7 @@ const [formData, setFormData] = useState<{
           </div>
         ) : (
           <DndContext
-            sensors={useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))}
+            sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={async (event: DragEndEvent) => {
               const { active, over } = event;
