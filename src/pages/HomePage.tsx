@@ -256,6 +256,7 @@ const ServiceCard: React.FC<{
         <img 
           src={imgSrc} 
           alt={service.title} 
+          loading="eager"
           className={`w-full h-full object-cover ${isComingSoon ? 'grayscale' : ''}`}
           onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK.service; }}
         />
@@ -379,7 +380,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   const leftImg = settings.left_image_url || FALLBACK.hero;
   
   // Bilingual content for right panel
-  const buttonText = lang === 'he' ? 'לצפות במערכות הייצור' : 'Review Production Systems';
+  const buttonText = lang === 'he' ? 'צפה בקטלוג המודולים' : 'View Module Catalog';
   const tagText = lang === 'he' ? 'זרימת עבודה מדויקת' : 'Precision Workflow';
 
   useEffect(() => { setTimeout(() => setIsVisible(true), 100); }, []);
@@ -395,8 +396,8 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   return (
     <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
       <div className="absolute inset-0 flex flex-col md:flex-row">
-        {/* Left Panel - 70% with Video */}
-        <div className="relative w-full md:w-[70%] h-1/2 md:h-full overflow-hidden border-r border-white/5">
+        {/* Left Panel - full width on mobile, 70% on desktop */}
+        <div className="relative w-full md:w-[70%] h-full overflow-hidden border-r border-white/5">
           {settings.left_video_url ? (
             <video ref={videoRef} autoPlay loop muted playsInline preload="auto" className="absolute inset-0 w-full h-full object-cover">
               <source src={settings.left_video_url} type="video/mp4" />
@@ -406,8 +407,8 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
           
-          <div className={`absolute inset-0 flex flex-col justify-end p-8 md:p-16 lg:p-20 pb-20 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-            <h1 className={`text-white font-bold mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}>
+          <div className={`absolute inset-0 flex flex-col justify-end p-6 md:p-16 lg:p-20 pb-28 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+            <h1 className={`text-white font-bold mb-4 md:mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}>
               {leftTitle}
             </h1>
             {leftSubtitle && (
@@ -415,6 +416,19 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                 {leftSubtitle}
               </p>
             )}
+            
+            {/* Button - visible on mobile inside left panel */}
+            <div className={`md:hidden mt-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
+              <Link 
+                to={settings.right_link || '/services'} 
+                className={`inline-flex items-center gap-3 bg-white text-black px-6 py-3.5 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all text-sm ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+              >
+                {buttonText}
+                <span className="bg-black text-white rounded-full p-1">
+                  <ArrowRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+                </span>
+              </Link>
+            </div>
           </div>
           
           {settings.left_video_url && (
@@ -424,8 +438,8 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           )}
         </div>
 
-        {/* Right Panel - 30% Black with Button */}
-        <div className={`relative w-full md:w-[30%] h-1/2 md:h-full flex items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+        {/* Right Panel - hidden on mobile, 30% on desktop */}
+        <div className={`hidden md:flex relative w-[30%] h-full items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
           <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
             <Link 
               to={settings.right_link || '/services'} 
@@ -633,7 +647,16 @@ export const HomePage: React.FC = () => {
           const newSettings = { ...DEFAULT_SETTINGS };
           settingsData.forEach((row: { section: string; settings: any }) => {
             if (row.section in newSettings) {
-              (newSettings as any)[row.section] = { ...(DEFAULT_SETTINGS as any)[row.section], ...row.settings };
+              if (row.section === 'partners_section' && row.settings?.boxes) {
+                // Deep merge boxes to preserve all bilingual fields
+                const mergedBoxes = DEFAULT_SETTINGS.partners_section.boxes.map((defaultBox: any, i: number) => ({
+                  ...defaultBox,
+                  ...(row.settings.boxes[i] || {})
+                }));
+                (newSettings as any)[row.section] = { ...DEFAULT_SETTINGS.partners_section, ...row.settings, boxes: mergedBoxes };
+              } else {
+                (newSettings as any)[row.section] = { ...(DEFAULT_SETTINGS as any)[row.section], ...row.settings };
+              }
             }
           });
           setSettings(newSettings);
