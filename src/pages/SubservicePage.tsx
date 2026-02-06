@@ -8,8 +8,9 @@
  * ✅ Better loading states
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Service, Subservice, ProductCategory, Product } from '../domain/types';
 import { getSubservicePageData } from '../services/data/dataService';
@@ -85,14 +86,29 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language?.startsWith('he');
 
-  const checkScroll = () => {
+  // Drag scroll state
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollStart, setScrollStart] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
+  const checkScroll = useCallback(() => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeftArrow(scrollLeft > 10);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+      const absScroll = Math.abs(scrollLeft);
+      const maxScroll = scrollWidth - clientWidth;
+      if (isRTL) {
+        setShowRightArrow(absScroll > 10);
+        setShowLeftArrow(absScroll < maxScroll - 10);
+      } else {
+        setShowLeftArrow(absScroll > 10);
+        setShowRightArrow(absScroll < maxScroll - 10);
+      }
     }
-  };
+  }, [isRTL]);
 
   useEffect(() => {
     checkScroll();
@@ -105,13 +121,62 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
       if (el) el.removeEventListener('scroll', checkScroll);
       window.removeEventListener('resize', checkScroll);
     };
-  }, [categories]);
+  }, [categories, checkScroll]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const amount = direction === 'right' ? 300 : -300;
-      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      const rtlAmount = isRTL ? -amount : amount;
+      scrollRef.current.scrollBy({ left: rtlAmount, behavior: 'smooth' });
     }
+  };
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX);
+    setScrollStart(scrollRef.current.scrollLeft);
+    scrollRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const dx = e.pageX - startX;
+    scrollRef.current.scrollLeft = scrollStart - dx;
+    if (Math.abs(dx) > 5) setHasDragged(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  };
+
+  // Touch drag support
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.touches[0].pageX);
+    setScrollStart(scrollRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    const dx = e.touches[0].pageX - startX;
+    scrollRef.current.scrollLeft = scrollStart - dx;
+    if (Math.abs(dx) > 5) setHasDragged(true);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
   };
 
   if (categories.length === 0) return null;
@@ -122,7 +187,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
       {showLeftArrow && (
         <button
           onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+          className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all ${isRTL ? 'right-0' : 'left-0'}`}
         >
           <ChevronLeft className="w-6 h-6 text-neutral-700" />
         </button>
@@ -132,21 +197,30 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
       {showRightArrow && (
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+          className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all ${isRTL ? 'left-0' : 'right-0'}`}
         >
           <ChevronRight className="w-6 h-6 text-neutral-700" />
         </button>
       )}
 
-      {/* Tabs Container */}
+      {/* Tabs Container with drag scroll */}
       <div 
         ref={scrollRef}
-        className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth px-12"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth px-12 cursor-grab active:cursor-grabbing select-none"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        dir={isRTL ? 'rtl' : 'ltr'}
       >
         {categories.map((category) => (
           <button
             key={category.id}
-            onClick={() => setActiveTab(category.id)}
+            onClick={() => { if (!hasDragged) setActiveTab(category.id); }}
             className={`
               group text-left px-5 md:px-8 py-4 md:py-6 rounded-t-2xl min-w-[180px] md:min-w-[260px] flex-shrink-0 transition-all duration-200 relative
               ${activeTab === category.id 
