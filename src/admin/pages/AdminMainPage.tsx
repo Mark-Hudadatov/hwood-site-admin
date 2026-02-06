@@ -69,7 +69,26 @@ interface LayoutSettings {
   border_radius: string;
 }
 
-type TabType = 'hero' | 'services' | 'stories' | 'about' | 'layout';
+interface WhoWeWorkWithBox {
+  title_en: string;
+  title_he: string;
+  subtitle_en: string;
+  subtitle_he: string;
+  description_en: string;
+  description_he: string;
+  image_url: string;
+  overlay_opacity: number; // 0-100
+}
+
+interface WhoWeWorkWithSettings {
+  section_title_en: string;
+  section_title_he: string;
+  section_description_en: string;
+  section_description_he: string;
+  boxes: [WhoWeWorkWithBox, WhoWeWorkWithBox, WhoWeWorkWithBox];
+}
+
+type TabType = 'hero' | 'services' | 'stories' | 'about' | 'partners' | 'layout';
 
 export const AdminMainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('hero');
@@ -132,6 +151,23 @@ export const AdminMainPage: React.FC = () => {
     border_radius: '2xl',
   });
 
+  const defaultBox: WhoWeWorkWithBox = {
+    title_en: '', title_he: '', subtitle_en: '', subtitle_he: '',
+    description_en: '', description_he: '', image_url: '', overlay_opacity: 70,
+  };
+
+  const [partnersSection, setPartnersSection] = useState<WhoWeWorkWithSettings>({
+    section_title_en: 'Who We Work With',
+    section_title_he: 'עם מי אנחנו עובדים',
+    section_description_en: 'If you produce cabinets for real clients — not concepts — we speak the same language.',
+    section_description_he: 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.',
+    boxes: [
+      { ...defaultBox, title_en: 'Kitchen & Cabinet Manufacturers', subtitle_en: 'Series & Project-based Production', description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.', overlay_opacity: 70 },
+      { ...defaultBox, title_en: 'Professional Carpentry & Joinery', subtitle_en: 'Custom Interior Fabrication', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', overlay_opacity: 75 },
+      { ...defaultBox, title_en: 'Interior & Fit-Out Contractors', subtitle_en: 'Residential & Commercial Delivery', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', overlay_opacity: 80 },
+    ],
+  });
+
   // Load all settings
   const loadSettings = async () => {
     setLoading(true);
@@ -159,6 +195,9 @@ export const AdminMainPage: React.FC = () => {
               break;
             case 'layout':
               setLayoutSettings({ ...layoutSettings, ...row.settings });
+              break;
+            case 'partners_section':
+              setPartnersSection({ ...partnersSection, ...row.settings });
               break;
           }
         });
@@ -208,6 +247,7 @@ export const AdminMainPage: React.FC = () => {
     { id: 'services' as TabType, label: 'Services', icon: Layout },
     { id: 'stories' as TabType, label: 'Stories', icon: Type },
     { id: 'about' as TabType, label: 'About', icon: Type },
+    { id: 'partners' as TabType, label: 'Who We Work With', icon: Sliders },
     { id: 'layout' as TabType, label: 'Layout & Colors', icon: Palette },
   ];
 
@@ -661,6 +701,127 @@ export const AdminMainPage: React.FC = () => {
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save About Settings'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* WHO WE WORK WITH TAB */}
+          {activeTab === 'partners' && (
+            <div className="space-y-8">
+              {/* Section Header */}
+              <div className="p-6 bg-gray-50 rounded-xl space-y-4">
+                <h3 className="font-semibold text-lg text-gray-900">Section Header</h3>
+                <BilingualInput
+                  label="Section Title"
+                  nameEn="section_title_en"
+                  nameHe="section_title_he"
+                  valueEn={partnersSection.section_title_en}
+                  valueHe={partnersSection.section_title_he}
+                  onChangeEn={(v) => setPartnersSection({ ...partnersSection, section_title_en: v })}
+                  onChangeHe={(v) => setPartnersSection({ ...partnersSection, section_title_he: v })}
+                />
+                <BilingualInput
+                  label="Section Description"
+                  nameEn="section_description_en"
+                  nameHe="section_description_he"
+                  valueEn={partnersSection.section_description_en}
+                  valueHe={partnersSection.section_description_he}
+                  onChangeEn={(v) => setPartnersSection({ ...partnersSection, section_description_en: v })}
+                  onChangeHe={(v) => setPartnersSection({ ...partnersSection, section_description_he: v })}
+                  type="textarea"
+                />
+              </div>
+
+              {/* 3 Boxes */}
+              {partnersSection.boxes.map((box, idx) => {
+                const updateBox = (updates: Partial<WhoWeWorkWithBox>) => {
+                  const newBoxes = [...partnersSection.boxes] as [WhoWeWorkWithBox, WhoWeWorkWithBox, WhoWeWorkWithBox];
+                  newBoxes[idx] = { ...newBoxes[idx], ...updates };
+                  setPartnersSection({ ...partnersSection, boxes: newBoxes });
+                };
+                return (
+                  <div key={idx} className="p-6 bg-gray-50 rounded-xl space-y-4">
+                    <h3 className="font-semibold text-lg text-gray-900">Box {idx + 1}</h3>
+                    
+                    <ImageUpload
+                      label="Background Image"
+                      value={box.image_url}
+                      onChange={(v) => updateBox({ image_url: v })}
+                      folder="homepage"
+                    />
+
+                    {/* Preview */}
+                    {box.image_url && (
+                      <div className="relative h-40 rounded-lg overflow-hidden">
+                        <img src={box.image_url} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black" style={{ opacity: box.overlay_opacity / 100 }} />
+                        <div className="absolute bottom-3 left-3 text-white text-sm font-medium z-10">
+                          {box.title_en || 'Box title preview'}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Dark Overlay: {box.overlay_opacity}%
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={box.overlay_opacity}
+                        onChange={(e) => updateBox({ overlay_opacity: parseInt(e.target.value) })}
+                        className="w-full accent-[#005f5f]"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Transparent</span>
+                        <span>Fully dark</span>
+                      </div>
+                    </div>
+
+                    <BilingualInput
+                      label="Title"
+                      nameEn={`box_${idx}_title_en`}
+                      nameHe={`box_${idx}_title_he`}
+                      valueEn={box.title_en}
+                      valueHe={box.title_he}
+                      onChangeEn={(v) => updateBox({ title_en: v })}
+                      onChangeHe={(v) => updateBox({ title_he: v })}
+                    />
+
+                    <BilingualInput
+                      label="Subtitle"
+                      nameEn={`box_${idx}_subtitle_en`}
+                      nameHe={`box_${idx}_subtitle_he`}
+                      valueEn={box.subtitle_en}
+                      valueHe={box.subtitle_he}
+                      onChangeEn={(v) => updateBox({ subtitle_en: v })}
+                      onChangeHe={(v) => updateBox({ subtitle_he: v })}
+                    />
+
+                    <BilingualInput
+                      label="Description"
+                      nameEn={`box_${idx}_description_en`}
+                      nameHe={`box_${idx}_description_he`}
+                      valueEn={box.description_en}
+                      valueHe={box.description_he}
+                      onChangeEn={(v) => updateBox({ description_en: v })}
+                      onChangeHe={(v) => updateBox({ description_he: v })}
+                      type="textarea"
+                    />
+                  </div>
+                );
+              })}
+
+              <div className="flex justify-end pt-4 border-t">
+                <button
+                  onClick={() => saveSection('partners_section', partnersSection)}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                >
+                  <Save className="w-4 h-4" />
+                  {saving ? 'Saving...' : 'Save Who We Work With'}
                 </button>
               </div>
             </div>
