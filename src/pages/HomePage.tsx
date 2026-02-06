@@ -88,6 +88,22 @@ interface HomepageSettings {
     secondary_color: string;
     background_dark: string;
   };
+  partners_section: {
+    section_title_en: string;
+    section_title_he: string;
+    section_description_en: string;
+    section_description_he: string;
+    boxes: Array<{
+      title_en: string;
+      title_he: string;
+      subtitle_en: string;
+      subtitle_he: string;
+      description_en: string;
+      description_he: string;
+      image_url: string;
+      overlay_opacity: number;
+    }>;
+  };
 }
 
 const DEFAULT_SETTINGS: HomepageSettings = {
@@ -108,6 +124,17 @@ const DEFAULT_SETTINGS: HomepageSettings = {
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
   about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
   layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
+  partners_section: {
+    section_title_en: 'Who We Work With',
+    section_title_he: 'עם מי אנחנו עובדים',
+    section_description_en: 'If you produce cabinets for real clients — not concepts — we speak the same language.',
+    section_description_he: 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.',
+    boxes: [
+      { title_en: 'Kitchen & Cabinet Manufacturers', title_he: 'יצרני מטבחים וארונות', subtitle_en: 'Series & Project-based Production', subtitle_he: 'ייצור סדרתי ופרויקטאלי', description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.', description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.', image_url: '', overlay_opacity: 70 },
+      { title_en: 'Professional Carpentry & Joinery', title_he: 'נגרות מקצועית', subtitle_en: 'Custom Interior Fabrication', subtitle_he: 'ייצור פנים מותאם אישית', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.', image_url: '', overlay_opacity: 75 },
+      { title_en: 'Interior & Fit-Out Contractors', title_he: 'קבלני פנים והתאמות', subtitle_en: 'Residential & Commercial Delivery', subtitle_he: 'אספקה למגורים ומסחר', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.', image_url: '', overlay_opacity: 80 },
+    ],
+  },
 };
 
 const getCurrentLang = (): 'en' | 'he' => {
@@ -758,62 +785,43 @@ export const HomePage: React.FC = () => {
         <div className="px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 mb-10 md:mb-16 lg:mb-20">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
-              {lang === 'he' ? 'עם מי אנחנו עובדים' : 'Who We Work With'}
+              {lang === 'he' && settings.partners_section.section_title_he ? settings.partners_section.section_title_he : settings.partners_section.section_title_en}
             </h2>
             <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
-              {lang === 'he' 
-                ? 'אם אתם מייצרים ארונות עבור לקוחות אמיתיים — לא קונספטים — אנחנו מדברים באותה שפה.'
-                : 'If you produce cabinets for real clients — not concepts — we speak the same language.'}
+              {lang === 'he' && settings.partners_section.section_description_he ? settings.partners_section.section_description_he : settings.partners_section.section_description_en}
             </p>
           </div>
         </div>
 
         {/* Partner Cards Grid - Full Width */}
         <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
-          {[
-            {
-              title_en: 'Kitchen & Cabinet Manufacturers',
-              title_he: 'יצרני מטבחים וארונות',
-              subtitle_en: 'Series & Project-based Production',
-              subtitle_he: 'ייצור סדרתי ופרויקטאלי',
-              description_en: 'Focused on repeatable manufacturing, dimensional consistency, and CNC-based workflows.',
-              description_he: 'התמקדות בייצור חוזר, עקביות מידות ותהליכי עבודה מבוססי CNC.',
-              bg: '#002b2b'
-            },
-            {
-              title_en: 'Professional Carpentry & Joinery',
-              title_he: 'נגרות מקצועית',
-              subtitle_en: 'Custom Interior Fabrication',
-              subtitle_he: 'ייצור פנים מותאם אישית',
-              description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.',
-              description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.',
-              bg: '#002222'
-            },
-            {
-              title_en: 'Interior & Fit-Out Contractors',
-              title_he: 'קבלני פנים והתאמות',
-              subtitle_en: 'Residential & Commercial Delivery',
-              subtitle_he: 'אספקה למגורים ומסחר',
-              description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.',
-              description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.',
-              bg: '#001a1a'
-            }
-          ].map((partner, index) => (
+          {settings.partners_section.boxes.map((partner, index) => (
             <div 
               key={index}
               className="relative h-[280px] md:h-[360px] lg:h-[420px] xl:h-[440px] 2xl:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
-              style={{ backgroundColor: partner.bg }}
+              style={{ backgroundColor: '#0a0a0a' }}
             >
+              {/* Background Image */}
+              {partner.image_url && (
+                <img
+                  src={partner.image_url}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
+              {/* Dark Overlay */}
+              <div className="absolute inset-0 bg-black" style={{ opacity: (partner.overlay_opacity ?? 70) / 100 }} />
+
               {/* Content */}
-              <div className="absolute inset-0 p-6 md:p-10 lg:p-10 xl:p-12 2xl:p-14 flex flex-col justify-end">
+              <div className="absolute inset-0 p-6 md:p-10 lg:p-10 xl:p-12 2xl:p-14 flex flex-col justify-end z-10">
                 {/* Subtitle */}
                 <span className="inline-block text-[10px] uppercase tracking-[0.25em] font-bold text-amber-500/80 mb-4">
-                  {lang === 'he' ? partner.subtitle_he : partner.subtitle_en}
+                  {lang === 'he' && partner.subtitle_he ? partner.subtitle_he : partner.subtitle_en}
                 </span>
                 
                 {/* Title */}
                 <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 tracking-tight leading-tight text-white">
-                  {lang === 'he' ? partner.title_he : partner.title_en}
+                  {lang === 'he' && partner.title_he ? partner.title_he : partner.title_en}
                 </h3>
                 
                 {/* Divider */}
@@ -821,17 +829,17 @@ export const HomePage: React.FC = () => {
                 
                 {/* Description */}
                 <p className="text-sm leading-relaxed font-light text-white/60 max-w-[90%] group-hover:text-white/90 transition-colors">
-                  {lang === 'he' ? partner.description_he : partner.description_en}
+                  {lang === 'he' && partner.description_he ? partner.description_he : partner.description_en}
                 </p>
               </div>
 
               {/* Top accent for first card */}
               {index === 0 && (
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-600/30" />
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-amber-600/30 z-10" />
               )}
               
               {/* Internal border */}
-              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5" />
+              <div className="absolute top-0 right-0 h-full w-[1px] bg-white/5 z-10" />
             </div>
           ))}
         </div>

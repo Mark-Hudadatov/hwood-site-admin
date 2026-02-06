@@ -628,8 +628,11 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 };
 
 // ============================================================================
-// SORTABLE LIST ITEM (for drag & drop)
+// SORTABLE LIST ITEM (for drag & drop with @dnd-kit)
 // ============================================================================
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface SortableItemProps {
   id: string;
@@ -637,9 +640,29 @@ interface SortableItemProps {
 }
 
 export const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : 'auto' as any,
+  };
+
   return (
-    <div className="flex items-center gap-3 bg-white p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-      <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+    <div ref={setNodeRef} style={style} className="flex items-center gap-3">
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
+      >
         <GripVertical className="w-5 h-5" />
       </div>
       <div className="flex-1">{children}</div>

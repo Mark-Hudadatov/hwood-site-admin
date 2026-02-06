@@ -363,6 +363,27 @@ export async function deleteCategory(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function reorderSubservices(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) => 
+    supabase.from('subservices').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderCategories(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) => 
+    supabase.from('product_categories').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderProducts(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) => 
+    supabase.from('products').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
 // ============================================================================
 // PRODUCTS
 // ============================================================================
