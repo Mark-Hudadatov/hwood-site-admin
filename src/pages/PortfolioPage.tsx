@@ -12,7 +12,7 @@ import { Calendar, ArrowRight, Filter, Clock } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop';
+const FALLBACK_IMAGE = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="#1a1a1a"/><g transform="translate(340, 240)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.3"><rect x="10" y="10" width="100" height="80" rx="4"/><circle cx="35" cy="35" r="10"/><polyline points="10,70 40,45 65,60 90,35 110,55"/></g><text x="400" y="340" fill="#ffffff" opacity="0.3" font-family="sans-serif" font-size="16" text-anchor="middle">HWOOD</text></svg>`)}`;
 
 interface StoryWithStatus {
   id: string;
