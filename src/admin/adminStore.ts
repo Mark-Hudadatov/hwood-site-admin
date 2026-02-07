@@ -643,8 +643,9 @@ export async function markQuoteRead(id: string): Promise<void> {
 // ============================================================================
 
 export async function uploadImage(file: File, folder: string = 'general'): Promise<string> {
-  // Compress and resize image before upload
-  const processedFile = await processImage(file);
+  // Compress and resize image before upload - hero gets full res, cards get mobile-optimized
+  const isHeroSize = folder === 'hero' || folder === 'homepage';
+  const processedFile = await processImage(file, isHeroSize);
   
   const fileExt = file.name.split('.').pop();
   const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -665,16 +666,18 @@ export async function uploadImage(file: File, folder: string = 'general'): Promi
   return publicUrl;
 }
 
-async function processImage(file: File): Promise<Blob> {
+async function processImage(file: File, isHeroSize: boolean = false): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
     img.onload = () => {
-      // Max dimensions
-      const maxWidth = 1920;
-      const maxHeight = 1080;
+      // Hero/homepage: full resolution for large displays
+      // Cards (services, products, etc.): optimized for mobile Safari memory budget
+      const maxWidth = isHeroSize ? 1920 : 1200;
+      const maxHeight = isHeroSize ? 1080 : 800;
+      const quality = isHeroSize ? 0.85 : 0.75;
       
       let { width, height } = img;
       
@@ -697,7 +700,7 @@ async function processImage(file: File): Promise<Blob> {
           else reject(new Error('Failed to process image'));
         },
         'image/jpeg',
-        0.85 // 85% quality
+        quality
       );
     };
 
