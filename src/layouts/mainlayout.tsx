@@ -12,9 +12,8 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
-import { Service, Subservice } from '../domain/types';
-import { getNavigationData } from '../services/data/dataService';
+import { ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
@@ -59,127 +58,143 @@ const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 
   );
 };
 
+// Order types — anchor to #services
+const ORDER_TYPES = [
+  { label: 'Catalog Order',  labelHe: 'הזמנה מקטלוג' },
+  { label: 'Project Order',  labelHe: 'הזמנת פרויקט'  },
+  { label: 'Custom Order',   labelHe: 'הזמנה מותאמת'  },
+];
+
 // Header Component
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const [navData, setNavData] = useState<{ services: (Service & { subservices: Subservice[] })[] }>({ services: [] });
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const location = useLocation();
+  const { i18n } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const lang = i18n.language?.startsWith('he') ? 'he' : 'en';
 
-  useEffect(() => {
-    getNavigationData().then(setNavData);
-  }, []);
-
-  const handleServiceClick = (slug: string) => {
-    navigate(`/services/${slug}`);
-    setActiveDropdown(null);
-    setMobileMenuOpen(false);
-  };
-
-  const handleSubserviceClick = (slug: string) => {
-    navigate(`/subservices/${slug}`);
-    setActiveDropdown(null);
+  const handleOrderTypeClick = () => {
+    if (location.pathname === '/') {
+      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/#services');
+    }
     setMobileMenuOpen(false);
   };
 
   return (
     <header className="flex flex-col w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
-      {/* Top Utility Bar - Desktop only */}
-      <div className="hidden md:flex justify-end items-center px-8 md:px-12 py-2 gap-6 text-meta-sm text-neutral-700 tracking-wide uppercase">
-        <Link to="/about" className="hover:text-brand transition-colors">Company</Link>
-        <Link to="/portfolio" className="hover:text-brand transition-colors">Projects</Link>
-        <Link to="/contact" className="hover:text-brand transition-colors">Contact</Link>
-      </div>
 
-      {/* Main Navbar */}
-      <nav className="w-full h-16 md:h-20 px-4 md:px-12 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
-          <img src="/logo.png" alt="HWOOD Logo" className="h-10 md:h-12 w-auto object-contain" style={{ maxWidth: '160px', minWidth: '100px' }} />
+      {/* ── ROW 1: Brand bar ── */}
+      <div className="w-full px-4 md:px-12 py-3 flex items-center justify-between border-b border-neutral-200/80">
+
+        {/* HWOOD logo */}
+        <div className="cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
+          <img
+            src="/logo.png"
+            alt="HWOOD"
+            className="h-10 md:h-12 w-auto object-contain"
+            style={{ maxWidth: '160px', minWidth: '90px' }}
+          />
         </div>
 
-        {/* Center Links - Desktop */}
-        <div className="hidden lg:flex items-center gap-2">
-          {navData.services.map((service) => (
-            <div key={service.id} className="relative" onMouseEnter={() => setActiveDropdown(service.id)} onMouseLeave={() => setActiveDropdown(null)}>
-              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-4 py-2 text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
-                {service.title}
-                {service.subservices && service.subservices.length > 0 && (
-                  <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
-                )}
-              </button>
-              
-              {/* Dropdown */}
-              {activeDropdown === service.id && service.subservices && service.subservices.length > 0 && (
-                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-neutral-100 py-2 min-w-[280px] z-50">
-                  <div className="px-4 py-2 border-b border-neutral-100">
-                    <span className="text-xs font-medium text-neutral-400 uppercase tracking-wide">{service.title}</span>
-                  </div>
-                  {service.subservices.map((sub) => (
-                    <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-3 hover:bg-neutral-50 transition-colors">
-                      <span className="font-medium text-neutral-900">{sub.title}</span>
-                      {sub.description && <p className="text-sm text-neutral-500 mt-0.5 line-clamp-1">{sub.description}</p>}
-                    </button>
-                  ))}
-                  <div className="px-4 py-2 border-t border-neutral-100 mt-1">
-                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-medium text-brand hover:underline">
-                      {t('viewAll')} {service.title} →
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Right: Skylum + Language + Mobile toggle */}
+        <div className="flex items-center gap-4 md:gap-5">
 
-        {/* Right Icons */}
-        <div className="flex items-center gap-2 md:gap-3">
-          <div className="hidden md:flex items-center gap-3">
-            <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
-              <MapPin className="w-5 h-5" />
-            </Link>
-            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
-              <Search className="w-5 h-5" />
-            </button>
-            <Link to="/login" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
-              <User className="w-5 h-5" />
-            </Link>
-          </div>
-          
+          {/* Skylum partner brand — desktop only */}
+          <a
+            href="https://skylum.co.il"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex flex-col items-end group"
+            title="Skylum — Building Cladding & Facades"
+          >
+            <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
+              Part of Skylum Group
+            </span>
+            <img
+              src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
+              alt="Skylum"
+              className="h-6 w-auto object-contain opacity-50 group-hover:opacity-90 transition-opacity duration-300"
+              style={{ maxWidth: '80px' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            />
+          </a>
+
+          {/* Divider */}
+          <div className="hidden md:block w-px h-8 bg-neutral-300" />
+
           <LanguageSwitcher variant="dark" />
 
-          <button className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {/* Mobile hamburger */}
+          <button
+            className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
+      </div>
+
+      {/* ── ROW 2: Navigation bar — desktop only ── */}
+      <nav className="hidden lg:flex w-full px-12 items-center justify-between bg-[#EAEAEA]">
+
+        {/* Left: Order types */}
+        <div className="flex items-center">
+          {ORDER_TYPES.map((type, idx) => (
+            <button
+              key={idx}
+              onClick={handleOrderTypeClick}
+              className="px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase border-r border-neutral-200 first:border-l"
+            >
+              {lang === 'he' ? type.labelHe : type.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Right: Secondary nav */}
+        <div className="flex items-center text-meta-sm font-medium text-neutral-700 tracking-wide uppercase">
+          <Link to="/portfolio" className="px-4 py-4 hover:text-brand transition-colors">Portfolio</Link>
+          <Link to="/about"     className="px-4 py-4 hover:text-brand transition-colors">About</Link>
+          <Link to="/contact"   className="px-4 py-4 hover:text-brand transition-colors">Contact</Link>
+        </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* ── Mobile Menu ── */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-t border-neutral-200 shadow-lg absolute top-full left-0 right-0 z-50">
-          <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
-            {navData.services.map((service) => (
-              <div key={service.id}>
-                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg">
-                  {service.title}
-                </button>
-                {service.subservices && service.subservices.length > 0 && (
-                  <div className="pl-4">
-                    {service.subservices.map((sub) => (
-                      <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 rounded-lg">
-                        {sub.title}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+          <div className="px-4 py-4 space-y-1">
+            <p className="px-4 pt-2 pb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-widest">How to order</p>
+            {ORDER_TYPES.map((type, idx) => (
+              <button
+                key={idx}
+                onClick={handleOrderTypeClick}
+                className="w-full text-left px-4 py-3 text-base font-medium text-brand hover:bg-teal-50 rounded-lg"
+              >
+                {lang === 'he' ? type.labelHe : type.label}
+              </button>
             ))}
-            <div className="border-t border-neutral-100 pt-4 mt-4 space-y-2">
-              <Link to="/about" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
-              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>News</Link>
-              <Link to="/contact" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-              <Link to="/login" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+            <div className="border-t border-neutral-100 pt-3 mt-3 space-y-1">
+              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Portfolio</Link>
+              <Link to="/about"     className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
+              <Link to="/contact"   className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+            </div>
+            {/* Skylum — mobile */}
+            <div className="border-t border-neutral-100 pt-3 mt-1">
+              <a
+                href="https://skylum.co.il"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-sky-50"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <img
+                  src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
+                  alt="Skylum"
+                  className="h-5 w-auto object-contain opacity-70"
+                />
+                <span className="text-meta-sm text-neutral-500 font-medium">Building Cladding & Facades ↗</span>
+              </a>
             </div>
           </div>
         </div>
@@ -190,42 +205,73 @@ const Header: React.FC = () => {
 
 // Footer Component
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isHe = i18n.language?.startsWith('he');
+  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
+  
+  useEffect(() => {
+    supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
+      .then(({ data }) => {
+        if (data) setSocialLinks(data.filter((l: any) => l.url).map((l: any) => ({ platform: l.platform, url: l.url })));
+      });
+  }, []);
+
+  const platformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook': return Facebook;
+      case 'instagram': return Instagram;
+      case 'linkedin': return Linkedin;
+      case 'youtube': return Youtube;
+      default: return null;
+    }
+  };
   
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
   return (
-    <footer className="w-full px-6 md:px-12 lg:px-24 xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
+    <footer className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6 md:gap-8">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
         </div>
 
         <div className="flex gap-4">
-          {[Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-            <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-              <Icon className="w-5 h-5" />
-            </a>
-          ))}
+          {socialLinks.length > 0 ? (
+            socialLinks.map((link) => {
+              const Icon = platformIcon(link.platform);
+              if (!Icon) return null;
+              return (
+                <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                  <Icon className="w-5 h-5" />
+                </a>
+              );
+            })
+          ) : (
+            [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
+              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                <Icon className="w-5 h-5" />
+              </a>
+            ))
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 mb-10 md:mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-20 xl:gap-24 mb-10 md:mb-16">
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Updates</h3>
+          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'עדכונים' : 'Updates'}</h3>
           <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Technical updates, production insights, and system changes.</p>
-          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">Subscribe</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'עדכונים טכניים, תובנות ייצור ושינויים במערכת.' : 'Technical updates, production insights, and system changes.'}</p>
+          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">{isHe ? 'הרשמה' : 'Subscribe'}</button>
         </div>
 
         <div>
-          <h3 className="text-body-lg font-medium mb-4">Technical Support</h3>
+          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'תמיכה טכנית' : 'Technical Support'}</h3>
           <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">Post-delivery support for production systems, components, and CNC workflows.</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">Request Support</button>
+          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'תמיכה לאחר אספקה עבור מערכות ייצור, רכיבים ותהליכי CNC.' : 'Post-delivery support for production systems, components, and CNC workflows.'}</p>
+          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
         </div>
       </div>
 
@@ -237,7 +283,7 @@ const Footer: React.FC = () => {
           aria-label="Back to top"
         >
           <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
-          <span className="text-sm font-medium">Back to top</span>
+          <span className="text-sm font-medium">{isHe ? 'חזרה למעלה' : 'Back to top'}</span>
         </button>
       </div>
 
@@ -284,7 +330,7 @@ export const MainLayout: React.FC = () => {
       {/* Loading Screen - shows on first visit only */}
       <LoadingScreen minDuration={1200} />
       
-      <div className="w-full min-h-screen font-sans flex flex-col">
+      <div className="w-full min-h-screen font-sans flex flex-col" style={{ overflowX: 'clip' }}>
         <ScrollToTop />
         <Header />
         <main className="flex-1 flex flex-col">
