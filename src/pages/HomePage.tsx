@@ -752,7 +752,7 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden select-none">
+      <section id="services" className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
         <div className="max-w-7xl mx-auto mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
