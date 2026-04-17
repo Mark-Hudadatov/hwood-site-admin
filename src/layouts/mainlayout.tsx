@@ -83,45 +83,63 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="flex flex-col w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
+    <header className="w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
 
-      {/* ── ROW 1: Brand bar ── */}
-      <div className="w-full px-4 md:px-12 py-3 flex items-center justify-between border-b border-neutral-200/80">
+      {/* ── Single row ── */}
+      <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
 
-        {/* HWOOD logo */}
-        <div className="cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
+        {/* LEFT: HWOOD logo */}
+        <div className="cursor-pointer flex-shrink-0 py-3" onClick={() => navigate('/')}>
           <img
             src="/logo.png"
             alt="HWOOD"
-            className="h-10 md:h-12 w-auto object-contain"
-            style={{ maxWidth: '160px', minWidth: '90px' }}
+            className="h-10 md:h-11 w-auto object-contain"
+            style={{ maxWidth: '150px', minWidth: '80px' }}
           />
         </div>
 
-        {/* Right: Skylum + Language + Mobile toggle */}
-        <div className="flex items-center gap-4 md:gap-5">
+        {/* CENTER: Order types + nav links — desktop */}
+        <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
+          {ORDER_TYPES.map((type, idx) => (
+            <button
+              key={idx}
+              onClick={handleOrderTypeClick}
+              className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase whitespace-nowrap"
+            >
+              {lang === 'he' ? type.labelHe : type.label}
+            </button>
+          ))}
+
+          <div className="w-px h-5 bg-neutral-300 mx-3" />
+
+          <Link to="/portfolio" className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Portfolio</Link>
+          <Link to="/about"     className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">About</Link>
+          <Link to="/contact"   className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Contact</Link>
+        </div>
+
+        {/* RIGHT: Skylum + Language + Mobile toggle */}
+        <div className="flex items-center gap-3 flex-shrink-0">
 
           {/* Skylum partner brand — desktop only */}
           <a
             href="https://skylum.co.il"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:flex flex-col items-end group"
+            className="hidden md:flex flex-col items-end group py-2"
             title="Skylum — Building Cladding & Facades"
           >
-            <span className="text-[9px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
+            <span className="text-[8px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
               Part of Skylum Group
             </span>
             <img
               src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
               alt="Skylum"
-              className="h-6 w-auto object-contain opacity-50 group-hover:opacity-90 transition-opacity duration-300"
-              style={{ maxWidth: '80px' }}
+              className="h-8 w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ maxWidth: '100px' }}
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           </a>
 
-          {/* Divider */}
           <div className="hidden md:block w-px h-8 bg-neutral-300" />
 
           <LanguageSwitcher variant="dark" />
@@ -133,30 +151,6 @@ const Header: React.FC = () => {
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
-        </div>
-      </div>
-
-      {/* ── ROW 2: Navigation bar — desktop only ── */}
-      <nav className="hidden lg:flex w-full px-12 items-center justify-between bg-[#EAEAEA]">
-
-        {/* Left: Order types */}
-        <div className="flex items-center">
-          {ORDER_TYPES.map((type, idx) => (
-            <button
-              key={idx}
-              onClick={handleOrderTypeClick}
-              className="px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase border-r border-neutral-200 first:border-l"
-            >
-              {lang === 'he' ? type.labelHe : type.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Right: Secondary nav */}
-        <div className="flex items-center text-meta-sm font-medium text-neutral-700 tracking-wide uppercase">
-          <Link to="/portfolio" className="px-4 py-4 hover:text-brand transition-colors">Portfolio</Link>
-          <Link to="/about"     className="px-4 py-4 hover:text-brand transition-colors">About</Link>
-          <Link to="/contact"   className="px-4 py-4 hover:text-brand transition-colors">Contact</Link>
         </div>
       </nav>
 
@@ -179,7 +173,6 @@ const Header: React.FC = () => {
               <Link to="/about"     className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
               <Link to="/contact"   className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
             </div>
-            {/* Skylum — mobile */}
             <div className="border-t border-neutral-100 pt-3 mt-1">
               <a
                 href="https://skylum.co.il"
