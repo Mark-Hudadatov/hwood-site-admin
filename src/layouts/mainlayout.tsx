@@ -12,7 +12,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
+import { MapPin, Search, User, ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
+import { Service, Subservice } from '../domain/types';
+import { getNavigationData } from '../services/data/dataService';
 import { supabase } from '../services/supabase';
 
 // Premium Components
@@ -58,136 +60,127 @@ const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 
   );
 };
 
-// Order types — anchor to #services
-const ORDER_TYPES = [
-  { label: 'Catalog Order',  labelHe: 'הזמנה מקטלוג' },
-  { label: 'Project Order',  labelHe: 'הזמנת פרויקט'  },
-  { label: 'Custom Order',   labelHe: 'הזמנה מותאמת'  },
-];
-
 // Header Component
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
+  const [navData, setNavData] = useState<{ services: (Service & { subservices: Subservice[] })[] }>({ services: [] });
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const lang = i18n.language?.startsWith('he') ? 'he' : 'en';
 
-  const handleOrderTypeClick = () => {
-    if (location.pathname === '/') {
-      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/#services');
-    }
+  useEffect(() => {
+    getNavigationData().then(setNavData);
+  }, []);
+
+  const handleServiceClick = (slug: string) => {
+    navigate(`/services/${slug}`);
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  };
+
+  const handleSubserviceClick = (slug: string) => {
+    navigate(`/subservices/${slug}`);
+    setActiveDropdown(null);
     setMobileMenuOpen(false);
   };
 
   return (
-    <header className="w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
+    <header className="flex flex-col w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
+      {/* Top Utility Bar - Desktop only */}
+      <div className="hidden md:flex justify-end items-center px-8 md:px-12 py-2 gap-6 text-meta-sm text-neutral-700 tracking-wide uppercase">
+        <Link to="/about" className="hover:text-brand transition-colors">Company</Link>
+        <Link to="/portfolio" className="hover:text-brand transition-colors">Projects</Link>
+        <Link to="/contact" className="hover:text-brand transition-colors">Contact</Link>
+      </div>
 
-      {/* ── Single row ── */}
-      <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
-
-        {/* LEFT: HWOOD logo */}
-        <div className="cursor-pointer flex-shrink-0 py-3" onClick={() => navigate('/')}>
-          <img
-            src="/logo.png"
-            alt="HWOOD"
-            className="h-10 md:h-11 w-auto object-contain"
-            style={{ maxWidth: '150px', minWidth: '80px' }}
-          />
+      {/* Main Navbar */}
+      <nav className="w-full h-16 md:h-20 px-4 md:px-12 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
+          <img src="/logo.png" alt="HWOOD Logo" className="h-10 md:h-12 w-auto object-contain" style={{ maxWidth: '160px', minWidth: '100px' }} />
         </div>
 
-        {/* CENTER: Order types + nav links — desktop */}
-        <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
-          {ORDER_TYPES.map((type, idx) => (
-            <button
-              key={idx}
-              onClick={handleOrderTypeClick}
-              className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase whitespace-nowrap"
-            >
-              {lang === 'he' ? type.labelHe : type.label}
-            </button>
+        {/* Center Links - Desktop */}
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          {navData.services.map((service) => (
+            <div key={service.id} className="relative" onMouseEnter={() => setActiveDropdown(service.id)} onMouseLeave={() => setActiveDropdown(null)}>
+              <button onClick={() => handleServiceClick(service.slug)} className="flex items-center gap-1 px-3 xl:px-4 py-2 text-sm xl:text-base font-medium text-black hover:text-teal-700 transition-colors rounded-lg hover:bg-white/50">
+                {service.title}
+                {service.subservices && service.subservices.length > 0 && (
+                  <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === service.id ? 'rotate-180' : ''}`} />
+                )}
+              </button>
+              
+              {/* Dropdown */}
+              {activeDropdown === service.id && service.subservices && service.subservices.length > 0 && (
+                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-neutral-100 py-2 min-w-[280px] z-50">
+                  <div className="px-4 py-2 border-b border-neutral-100">
+                    <span className="text-xs font-medium text-neutral-400 uppercase tracking-wide">{service.title}</span>
+                  </div>
+                  {service.subservices.map((sub) => (
+                    <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-3 hover:bg-neutral-50 transition-colors">
+                      <span className="font-medium text-neutral-900">{sub.title}</span>
+                      {sub.description && <p className="text-sm text-neutral-500 mt-0.5 line-clamp-1">{sub.description}</p>}
+                    </button>
+                  ))}
+                  <div className="px-4 py-2 border-t border-neutral-100 mt-1">
+                    <button onClick={() => handleServiceClick(service.slug)} className="text-sm font-medium text-brand hover:underline">
+                      {t('viewAll')} {service.title} →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
-
-          <div className="w-px h-5 bg-neutral-300 mx-3" />
-
-          <Link to="/portfolio" className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Portfolio</Link>
-          <Link to="/about"     className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">About</Link>
-          <Link to="/contact"   className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Contact</Link>
         </div>
 
-        {/* RIGHT: Skylum + Language + Mobile toggle */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-
-          {/* Skylum partner brand — desktop only */}
-          <a
-            href="https://skylum.co.il"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:flex flex-col items-end group py-2"
-            title="Skylum — Building Cladding & Facades"
-          >
-            <span className="text-[8px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
-              Part of Skylum Group
-            </span>
-            <img
-              src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-              alt="Skylum"
-              className="h-8 w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ maxWidth: '100px' }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          </a>
-
-          <div className="hidden md:block w-px h-8 bg-neutral-300" />
-
+        {/* Right Icons */}
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/contact" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
+              <MapPin className="w-5 h-5" />
+            </Link>
+            <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
+              <Search className="w-5 h-5" />
+            </button>
+            <Link to="/login" className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black hover:bg-neutral-100 transition-colors shadow-sm">
+              <User className="w-5 h-5" />
+            </Link>
+          </div>
+          
           <LanguageSwitcher variant="dark" />
 
-          {/* Mobile hamburger */}
-          <button
-            className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+          <button className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </nav>
 
-      {/* ── Mobile Menu ── */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white border-t border-neutral-200 shadow-lg absolute top-full left-0 right-0 z-50">
-          <div className="px-4 py-4 space-y-1">
-            <p className="px-4 pt-2 pb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-widest">How to order</p>
-            {ORDER_TYPES.map((type, idx) => (
-              <button
-                key={idx}
-                onClick={handleOrderTypeClick}
-                className="w-full text-left px-4 py-3 text-base font-medium text-brand hover:bg-teal-50 rounded-lg"
-              >
-                {lang === 'he' ? type.labelHe : type.label}
-              </button>
+          <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
+            {navData.services.map((service) => (
+              <div key={service.id}>
+                <button onClick={() => handleServiceClick(service.slug)} className="w-full text-left px-4 py-3 text-base font-medium text-neutral-900 hover:bg-neutral-50 rounded-lg">
+                  {service.title}
+                </button>
+                {service.subservices && service.subservices.length > 0 && (
+                  <div className="pl-4">
+                    {service.subservices.map((sub) => (
+                      <button key={sub.id} onClick={() => handleSubserviceClick(sub.slug)} className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 rounded-lg">
+                        {sub.title}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
-            <div className="border-t border-neutral-100 pt-3 mt-3 space-y-1">
-              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Portfolio</Link>
-              <Link to="/about"     className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
-              <Link to="/contact"   className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-            </div>
-            <div className="border-t border-neutral-100 pt-3 mt-1">
-              <a
-                href="https://skylum.co.il"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-sky-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <img
-                  src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-                  alt="Skylum"
-                  className="h-5 w-auto object-contain opacity-70"
-                />
-                <span className="text-meta-sm text-neutral-500 font-medium">Building Cladding & Facades ↗</span>
-              </a>
+            <div className="border-t border-neutral-100 pt-4 mt-4 space-y-2">
+              <Link to="/about" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
+              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>News</Link>
+              <Link to="/contact" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+              <Link to="/login" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Login</Link>
             </div>
           </div>
         </div>
