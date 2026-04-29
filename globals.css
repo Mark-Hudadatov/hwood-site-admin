@@ -12,6 +12,60 @@
 @tailwind utilities;
 
 /* =============================================================================
+   INTER DISPLAY — optical 24pt static family
+   Used for h1, h2, .display — tighter letterforms at large sizes.
+   Files live in public/fonts/ (same Inter family, different optical size).
+   ============================================================================= */
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Inter Display';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/Inter_24pt-SemiBoldItalic.ttf') format('truetype');
+}
+
+/* =============================================================================
    BASE STYLES
    ============================================================================= */
 
@@ -379,6 +433,22 @@ img:not([loading="lazy"]) {
 }
 
 .card-hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* =============================================================================
+   CARD INDUSTRIAL (signature border hover — service cards)
+   4px transparent border → 4px black on hover
+   ============================================================================= */
+
+.card-industrial {
+  border: 4px solid transparent;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-industrial:hover {
+  border-color: #171717;
   transform: translateY(-8px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
