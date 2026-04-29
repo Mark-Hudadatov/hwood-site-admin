@@ -1,7 +1,9 @@
 /**
  * ADMIN STORE - Supabase Operations
  * ==================================
- * All admin CRUD operations against Supabase
+ * v2.1 — April 2026
+ * Added: brand, order_type to AdminService
+ *        Updated QuoteSubmission with v2.0 fields
  */
 
 import { supabase } from '../services/supabase';
@@ -28,6 +30,9 @@ export interface AdminService {
   accent_color?: string;
   visibility_status: VisibilityStatus;
   sort_order: number;
+  // v2.0 fields — exist in Supabase
+  brand?: 'hwood' | 'skylum';
+  order_type?: 'browse-and-order' | 'send-file-and-process' | 'describe-and-request' | 'informational';
   created_at?: string;
   updated_at?: string;
 }
@@ -75,6 +80,7 @@ export interface AdminProduct {
   features_he?: string[];
   specifications?: { label: string; value: string; unit?: string }[];
   has_3d_view?: boolean;
+  model_url?: string;
   visibility_status: VisibilityStatus;
   is_featured?: boolean;
   sort_order: number;
@@ -147,9 +153,20 @@ export interface ContactSubmission {
 export interface QuoteSubmission {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   company?: string;
+  // v2.0 structured fields
+  order_type?: string;
+  service_slug?: string;
+  subservice_slug?: string;
+  client_role?: string;
+  object_type?: string;
+  material?: string;
+  volume?: string;
+  deadline?: string;
+  file_url?: string;
+  // legacy fields
   project_type?: string;
   budget_range?: string;
   timeline?: string;
@@ -171,7 +188,6 @@ export interface StoryType {
 // ============================================================================
 
 export async function adminLogin(email: string, password: string): Promise<boolean> {
-  // Simple auth check against admin_users table
   const { data, error } = await supabase
     .from('admin_users')
     .select('*')
@@ -179,17 +195,13 @@ export async function adminLogin(email: string, password: string): Promise<boole
     .eq('password_hash', password)
     .single();
 
-  if (error || !data) {
-    return false;
-  }
+  if (error || !data) return false;
 
-  // Update last login
   await supabase
     .from('admin_users')
     .update({ last_login: new Date().toISOString() })
     .eq('id', data.id);
 
-  // Store session in localStorage
   localStorage.setItem('admin_session', JSON.stringify({
     email: data.email,
     name: data.name,
@@ -203,10 +215,8 @@ export async function adminLogin(email: string, password: string): Promise<boole
 export function isAdminLoggedIn(): boolean {
   const session = localStorage.getItem('admin_session');
   if (!session) return false;
-  
   try {
     const parsed = JSON.parse(session);
-    // Session valid for 7 days
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
     return parsed.loggedIn && (Date.now() - parsed.timestamp) < sevenDays;
   } catch {
@@ -238,7 +248,6 @@ export async function getAdminServices(): Promise<AdminService[]> {
     .from('services')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -249,7 +258,6 @@ export async function createService(service: Partial<AdminService>): Promise<Adm
     .insert([service])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -261,7 +269,6 @@ export async function updateService(id: string, updates: Partial<AdminService>):
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -272,7 +279,7 @@ export async function deleteService(id: string): Promise<void> {
 }
 
 export async function reorderServices(ids: string[]): Promise<void> {
-  const updates = ids.map((id, index) => 
+  const updates = ids.map((id, index) =>
     supabase.from('services').update({ sort_order: index }).eq('id', id)
   );
   await Promise.all(updates);
@@ -287,7 +294,6 @@ export async function getAdminSubservices(): Promise<AdminSubservice[]> {
     .from('subservices')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -298,7 +304,6 @@ export async function createSubservice(subservice: Partial<AdminSubservice>): Pr
     .insert([subservice])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -310,7 +315,6 @@ export async function updateSubservice(id: string, updates: Partial<AdminSubserv
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -329,7 +333,6 @@ export async function getAdminCategories(): Promise<AdminCategory[]> {
     .from('product_categories')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -340,7 +343,6 @@ export async function createCategory(category: Partial<AdminCategory>): Promise<
     .insert([category])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -352,7 +354,6 @@ export async function updateCategory(id: string, updates: Partial<AdminCategory>
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -360,6 +361,27 @@ export async function updateCategory(id: string, updates: Partial<AdminCategory>
 export async function deleteCategory(id: string): Promise<void> {
   const { error } = await supabase.from('product_categories').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function reorderSubservices(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('subservices').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderCategories(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('product_categories').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderProducts(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('products').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
 }
 
 // ============================================================================
@@ -371,7 +393,6 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
     .from('products')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -382,7 +403,6 @@ export async function createProduct(product: Partial<AdminProduct>): Promise<Adm
     .insert([product])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -394,7 +414,6 @@ export async function updateProduct(id: string, updates: Partial<AdminProduct>):
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -410,12 +429,10 @@ export async function duplicateProduct(id: string): Promise<AdminProduct> {
     .select('*')
     .eq('id', id)
     .single();
-  
   if (fetchError || !original) throw fetchError;
 
   const newProduct = {
     ...original,
-    id: undefined,
     slug: `${original.slug}-copy-${Date.now()}`,
     title_en: `${original.title_en} (Copy)`,
     title_he: original.title_he ? `${original.title_he} (העתק)` : undefined,
@@ -436,7 +453,6 @@ export async function getAdminStories(): Promise<AdminStory[]> {
     .from('stories')
     .select('*')
     .order('date', { ascending: false });
-  
   if (error) throw error;
   return data || [];
 }
@@ -447,7 +463,6 @@ export async function createStory(story: Partial<AdminStory>): Promise<AdminStor
     .insert([story])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -459,7 +474,6 @@ export async function updateStory(id: string, updates: Partial<AdminStory>): Pro
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -469,13 +483,11 @@ export async function deleteStory(id: string): Promise<void> {
   if (error) throw error;
 }
 
-// Story Types
 export async function getStoryTypes(): Promise<StoryType[]> {
   const { data, error } = await supabase
     .from('story_types')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -485,7 +497,6 @@ export async function updateStoryType(id: string, name: string): Promise<void> {
     .from('story_types')
     .update({ name })
     .eq('id', id);
-  
   if (error) throw error;
 }
 
@@ -498,7 +509,6 @@ export async function getAdminHeroSlides(): Promise<AdminHeroSlide[]> {
     .from('hero_slides')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -509,7 +519,6 @@ export async function createHeroSlide(slide: Partial<AdminHeroSlide>): Promise<A
     .insert([slide])
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -521,7 +530,6 @@ export async function updateHeroSlide(id: string, updates: Partial<AdminHeroSlid
     .eq('id', id)
     .select()
     .single();
-  
   if (error) throw error;
   return data;
 }
@@ -541,7 +549,6 @@ export async function getAdminCompanyInfo(): Promise<AdminCompanyInfo | null> {
     .select('*')
     .eq('id', 1)
     .single();
-  
   if (error) return null;
   return data;
 }
@@ -551,7 +558,6 @@ export async function updateCompanyInfo(updates: Partial<AdminCompanyInfo>): Pro
     .from('company_info')
     .update(updates)
     .eq('id', 1);
-  
   if (error) throw error;
 }
 
@@ -560,7 +566,6 @@ export async function getSocialLinks(): Promise<AdminSocialLink[]> {
     .from('social_links')
     .select('*')
     .order('sort_order', { ascending: true });
-  
   if (error) throw error;
   return data || [];
 }
@@ -570,7 +575,6 @@ export async function updateSocialLink(id: string, updates: Partial<AdminSocialL
     .from('social_links')
     .update(updates)
     .eq('id', id);
-  
   if (error) throw error;
 }
 
@@ -583,7 +587,6 @@ export async function getContactSubmissions(): Promise<ContactSubmission[]> {
     .from('contact_submissions')
     .select('*')
     .order('created_at', { ascending: false });
-  
   if (error) throw error;
   return data || [];
 }
@@ -593,7 +596,6 @@ export async function markContactRead(id: string): Promise<void> {
     .from('contact_submissions')
     .update({ is_read: true })
     .eq('id', id);
-  
   if (error) throw error;
 }
 
@@ -602,7 +604,6 @@ export async function getQuoteSubmissions(): Promise<QuoteSubmission[]> {
     .from('quote_submissions')
     .select('*')
     .order('created_at', { ascending: false });
-  
   if (error) throw error;
   return data || [];
 }
@@ -612,7 +613,6 @@ export async function markQuoteRead(id: string): Promise<void> {
     .from('quote_submissions')
     .update({ is_read: true })
     .eq('id', id);
-  
   if (error) throw error;
 }
 
@@ -621,18 +621,13 @@ export async function markQuoteRead(id: string): Promise<void> {
 // ============================================================================
 
 export async function uploadImage(file: File, folder: string = 'general'): Promise<string> {
-  // Compress and resize image before upload
   const processedFile = await processImage(file);
-  
   const fileExt = file.name.split('.').pop();
   const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-  
+
   const { error } = await supabase.storage
     .from('images')
-    .upload(fileName, processedFile, {
-      cacheControl: '3600',
-      upsert: false
-    });
+    .upload(fileName, processedFile, { cacheControl: '3600', upsert: false });
 
   if (error) throw error;
 
@@ -650,13 +645,10 @@ async function processImage(file: File): Promise<Blob> {
     const ctx = canvas.getContext('2d');
 
     img.onload = () => {
-      // Max dimensions
       const maxWidth = 1920;
       const maxHeight = 1080;
-      
       let { width, height } = img;
-      
-      // Calculate new dimensions
+
       if (width > maxWidth || height > maxHeight) {
         const ratio = Math.min(maxWidth / width, maxHeight / height);
         width = Math.round(width * ratio);
@@ -665,17 +657,12 @@ async function processImage(file: File): Promise<Blob> {
 
       canvas.width = width;
       canvas.height = height;
-      
-      // Draw and compress
       ctx?.drawImage(img, 0, 0, width, height);
-      
+
       canvas.toBlob(
-        (blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error('Failed to process image'));
-        },
+        (blob) => { if (blob) resolve(blob); else reject(new Error('Failed to process image')); },
         'image/jpeg',
-        0.85 // 85% quality
+        0.85
       );
     };
 
@@ -685,10 +672,8 @@ async function processImage(file: File): Promise<Blob> {
 }
 
 export async function deleteImage(url: string): Promise<void> {
-  // Extract path from URL
   const path = url.split('/images/')[1];
   if (!path) return;
-
   const { error } = await supabase.storage.from('images').remove([path]);
   if (error) throw error;
 }
