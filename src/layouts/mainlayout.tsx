@@ -83,7 +83,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
+    <header className="w-full bg-neutral-200 relative z-20 shadow-sm font-sans">
 
       {/* ── Single row ── */}
       <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
@@ -264,7 +264,7 @@ const Footer: React.FC = () => {
           <h3 className="text-body-lg font-medium mb-4">{isHe ? 'תמיכה טכנית' : 'Technical Support'}</h3>
           <div className="w-full h-px bg-brand mb-6" />
           <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'תמיכה לאחר אספקה עבור מערכות ייצור, רכיבים ותהליכי CNC.' : 'Post-delivery support for production systems, components, and CNC workflows.'}</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
+          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-brand-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
         </div>
       </div>
 
@@ -293,7 +293,7 @@ const Footer: React.FC = () => {
 
 // Footer Wrapper - simplified to blend with dark sections
 const FooterWrapper: React.FC = () => (
-  <div className="relative w-full bg-[#002828] overflow-hidden">
+  <div className="relative w-full bg-surface-dark overflow-hidden">
     <Footer />
   </div>
 );
