@@ -1,38 +1,62 @@
 /**
  * ADMIN SERVICES PAGE
  * ====================
+ * v2.1 — April 2026
+ * Added: brand selector (HWOOD / Skylum)
+ *        order_type dropdown
+ *        brand/order_type badges in list
  */
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { Plus, Edit, Trash2, Save, GripVertical } from 'lucide-react';
+import {
+  DndContext, closestCenter, PointerSensor,
+  useSensor, useSensors, DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove, SortableContext,
+  verticalListSortingStrategy, useSortable,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  AdminService,
-  VisibilityStatus,
-  getAdminServices,
-  createService,
-  updateService,
-  deleteService,
-  reorderServices,
+  AdminService, VisibilityStatus,
+  getAdminServices, createService,
+  updateService, deleteService, reorderServices,
 } from '../adminStore';
 import {
-  BilingualInput,
-  VisibilitySelect,
-  ImageUpload,
-  Modal,
-  ConfirmDialog,
+  BilingualInput, VisibilitySelect,
+  ImageUpload, Modal, ConfirmDialog,
 } from '../components';
 
-// Sortable row component for drag-and-drop
+// ── Sortable row ─────────────────────────────────────────────
+
+const BRAND_COLORS = {
+  hwood:  { bg: 'bg-teal-100',  text: 'text-teal-700',  label: 'HWOOD' },
+  skylum: { bg: 'bg-sky-100',   text: 'text-sky-700',   label: 'Skylum' },
+};
+
+const ORDER_TYPE_LABELS: Record<string, string> = {
+  'browse-and-order':      'Browse',
+  'send-file-and-process': 'Send File',
+  'describe-and-request':  'Describe',
+  'informational':         'Info',
+};
+
 const SortableServiceItem: React.FC<{
   service: AdminService;
   onEdit: () => void;
   onDelete: () => void;
 }> = ({ service, onEdit, onDelete }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: service.id });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: service.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const brand = service.brand || 'hwood';
+  const brandConfig = BRAND_COLORS[brand] || BRAND_COLORS.hwood;
 
   return (
     <div
@@ -42,39 +66,78 @@ const SortableServiceItem: React.FC<{
         service.visibility_status !== 'visible' ? 'opacity-60' : ''
       }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
+      >
         <GripVertical className="w-5 h-5" />
       </div>
-      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+
+      {/* Thumbnail */}
+      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
         {service.image_url ? (
           <img src={service.image_url} alt={service.title_en} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">No img</div>
+          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+            No img
+          </div>
         )}
       </div>
+
+      {/* Info */}
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-gray-900 truncate">{service.title_en}</h3>
-        <p className="text-sm text-gray-500 truncate">/{service.slug}</p>
+        <p className="text-xs text-gray-500 truncate">/{service.slug}</p>
       </div>
-      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-        service.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
-        service.visibility_status === 'coming_soon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
-      }`}>
-        {service.visibility_status === 'visible' ? 'Visible' :
-         service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
+
+      {/* Badges */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${brandConfig.bg} ${brandConfig.text}`}>
+          {brandConfig.label}
+        </span>
+        <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600 whitespace-nowrap">
+          {ORDER_TYPE_LABELS[service.order_type || ''] || '—'}
+        </span>
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          service.visibility_status === 'visible'
+            ? 'bg-green-100 text-green-700'
+            : service.visibility_status === 'coming_soon'
+              ? 'bg-blue-100 text-blue-700'
+              : 'bg-gray-100 text-gray-700'
+        }`}>
+          {service.visibility_status === 'visible'
+            ? 'Visible'
+            : service.visibility_status === 'coming_soon'
+              ? 'Coming Soon'
+              : 'Hidden'}
+        </span>
+        <div
+          className="w-5 h-5 rounded-full border-2 border-white shadow flex-shrink-0"
+          style={{ backgroundColor: service.accent_color || '#005f5f' }}
+        />
       </div>
-      <div className="w-6 h-6 rounded-full border-2 border-white shadow" style={{ backgroundColor: service.accent_color || '#005f5f' }} />
-      <div className="flex items-center gap-2">
-        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+
+      {/* Actions */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onEdit}
+          className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+        >
           <Edit className="w-4 h-4" />
         </button>
-        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+        <button
+          onClick={onDelete}
+          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+        >
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>
   );
 };
+
+// ── Main component ────────────────────────────────────────────
 
 export const AdminServices: React.FC = () => {
   const [services, setServices] = useState<AdminService[]>([]);
@@ -85,22 +148,7 @@ export const AdminServices: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Form state
-const [formData, setFormData] = useState<{
-    slug: string;
-    title_en: string;
-    title_he: string;
-    subtitle_en: string;
-    subtitle_he: string;
-    description_en: string;
-    description_he: string;
-    cta_text_en: string;
-    cta_text_he: string;
-    image_url: string;
-    hero_image_url: string;
-    accent_color: string;
-    visibility_status: VisibilityStatus;
-  }>({
+  const emptyForm = {
     slug: '',
     title_en: '',
     title_he: '',
@@ -113,8 +161,12 @@ const [formData, setFormData] = useState<{
     image_url: '',
     hero_image_url: '',
     accent_color: '#005f5f',
-    visibility_status: 'visible',
-  });
+    visibility_status: 'visible' as VisibilityStatus,
+    brand: 'hwood' as 'hwood' | 'skylum',
+    order_type: 'browse-and-order' as AdminService['order_type'],
+  };
+
+  const [formData, setFormData] = useState(emptyForm);
 
   const loadServices = async () => {
     try {
@@ -127,46 +179,32 @@ const [formData, setFormData] = useState<{
     }
   };
 
-  useEffect(() => {
-    loadServices();
-  }, []);
+  useEffect(() => { loadServices(); }, []);
 
   const openNewModal = () => {
     setEditingService(null);
-    setFormData({
-      slug: '',
-      title_en: '',
-      title_he: '',
-      subtitle_en: '',
-      subtitle_he: '',
-      description_en: '',
-      description_he: '',
-      cta_text_en: 'Learn more',
-      cta_text_he: 'לפרטים נוספים',
-      image_url: '',
-      hero_image_url: '',
-      accent_color: '#005f5f',
-      visibility_status: 'visible',
-    });
+    setFormData(emptyForm);
     setIsModalOpen(true);
   };
 
   const openEditModal = (service: AdminService) => {
     setEditingService(service);
     setFormData({
-      slug: service.slug,
-      title_en: service.title_en,
-      title_he: service.title_he || '',
-      subtitle_en: service.subtitle_en || '',
-      subtitle_he: service.subtitle_he || '',
-      description_en: service.description_en || '',
-      description_he: service.description_he || '',
-      cta_text_en: service.cta_text_en || 'Learn more',
-      cta_text_he: service.cta_text_he || 'לפרטים נוספים',
-      image_url: service.image_url || '',
-      hero_image_url: service.hero_image_url || '',
-      accent_color: service.accent_color || '#005f5f',
+      slug:             service.slug,
+      title_en:         service.title_en,
+      title_he:         service.title_he || '',
+      subtitle_en:      service.subtitle_en || '',
+      subtitle_he:      service.subtitle_he || '',
+      description_en:   service.description_en || '',
+      description_he:   service.description_he || '',
+      cta_text_en:      service.cta_text_en || 'Learn more',
+      cta_text_he:      service.cta_text_he || 'לפרטים נוספים',
+      image_url:        service.image_url || '',
+      hero_image_url:   service.hero_image_url || '',
+      accent_color:     service.accent_color || '#005f5f',
       visibility_status: service.visibility_status,
+      brand:            service.brand || 'hwood',
+      order_type:       service.order_type || 'browse-and-order',
     });
     setIsModalOpen(true);
   };
@@ -176,16 +214,12 @@ const [formData, setFormData] = useState<{
       alert('Title (EN) and Slug are required');
       return;
     }
-
     setSaving(true);
     try {
       if (editingService) {
         await updateService(editingService.id, formData);
       } else {
-        await createService({
-          ...formData,
-          sort_order: services.length,
-        });
+        await createService({ ...formData, sort_order: services.length });
       }
       await loadServices();
       setIsModalOpen(false);
@@ -207,12 +241,8 @@ const [formData, setFormData] = useState<{
     }
   };
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-  };
+  const generateSlug = (title: string) =>
+    title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   if (loading) {
     return (
@@ -228,7 +258,7 @@ const [formData, setFormData] = useState<{
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Services</h2>
-          <p className="text-gray-500">Manage your top-level service categories</p>
+          <p className="text-gray-500">Manage top-level services. Brand and order type are set per service.</p>
         </div>
         <button
           onClick={openNewModal}
@@ -239,15 +269,12 @@ const [formData, setFormData] = useState<{
         </button>
       </div>
 
-      {/* Services List */}
+      {/* List */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {services.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-500 mb-4">No services yet</p>
-            <button
-              onClick={openNewModal}
-              className="text-[#005f5f] hover:underline"
-            >
+            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
               Create your first service
             </button>
           </div>
@@ -258,15 +285,18 @@ const [formData, setFormData] = useState<{
             onDragEnd={async (event: DragEndEvent) => {
               const { active, over } = event;
               if (over && active.id !== over.id) {
-                const oldIndex = services.findIndex(s => s.id === active.id);
-                const newIndex = services.findIndex(s => s.id === over.id);
+                const oldIndex = services.findIndex((s) => s.id === active.id);
+                const newIndex = services.findIndex((s) => s.id === over.id);
                 const reordered = arrayMove(services, oldIndex, newIndex);
                 setServices(reordered);
-                await reorderServices(reordered.map(s => s.id));
+                await reorderServices(reordered.map((s) => s.id));
               }
             }}
           >
-            <SortableContext items={services.map(s => s.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              items={services.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
               <div className="divide-y divide-gray-100">
                 {services.map((service) => (
                   <SortableServiceItem
@@ -282,7 +312,7 @@ const [formData, setFormData] = useState<{
         )}
       </div>
 
-      {/* Edit Modal */}
+      {/* Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -290,6 +320,51 @@ const [formData, setFormData] = useState<{
         size="lg"
       >
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+
+          {/* Brand + Order Type — top of form, most important */}
+          <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-xl">
+            {/* Brand */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Brand</label>
+              <div className="flex gap-3">
+                {(['hwood', 'skylum'] as const).map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, brand: b })}
+                    className={`flex-1 py-2 rounded-lg border font-semibold text-sm uppercase tracking-wide transition-all ${
+                      formData.brand === b
+                        ? b === 'hwood'
+                          ? 'border-[#005f5f] bg-[#005f5f] text-white'
+                          : 'border-sky-600 bg-sky-600 text-white'
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    {b === 'hwood' ? 'HWOOD' : 'Skylum'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Order Type */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Order Type</label>
+              <select
+                value={formData.order_type || 'browse-and-order'}
+                onChange={(e) => setFormData({ ...formData, order_type: e.target.value as any })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] outline-none text-sm"
+              >
+                <option value="browse-and-order">Browse & Order — каталог</option>
+                <option value="send-file-and-process">Send File & Process — CNC</option>
+                <option value="describe-and-request">Describe & Request — проект</option>
+                <option value="informational">Informational — только информация</option>
+              </select>
+              <p className="text-xs text-gray-400">
+                Наследуется всеми подсервисами и продуктами.
+              </p>
+            </div>
+          </div>
+
           {/* Slug */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -314,81 +389,63 @@ const [formData, setFormData] = useState<{
             <p className="text-xs text-gray-500 mt-1">URL: /services/{formData.slug || 'slug'}</p>
           </div>
 
-          {/* Title */}
           <BilingualInput
             label="Title"
-            nameEn="title_en"
-            nameHe="title_he"
-            valueEn={formData.title_en}
-            valueHe={formData.title_he}
+            nameEn="title_en" nameHe="title_he"
+            valueEn={formData.title_en} valueHe={formData.title_he}
             onChangeEn={(v) => setFormData({ ...formData, title_en: v })}
             onChangeHe={(v) => setFormData({ ...formData, title_he: v })}
             required
-            placeholder="Service title"
           />
 
-          {/* Subtitle / Technical Label */}
           <BilingualInput
-            label="Subtitle (Technical Label)"
-            nameEn="subtitle_en"
-            nameHe="subtitle_he"
-            valueEn={formData.subtitle_en}
-            valueHe={formData.subtitle_he}
+            label="Subtitle (order type descriptor)"
+            nameEn="subtitle_en" nameHe="subtitle_he"
+            valueEn={formData.subtitle_en} valueHe={formData.subtitle_he}
             onChangeEn={(v) => setFormData({ ...formData, subtitle_en: v })}
             onChangeHe={(v) => setFormData({ ...formData, subtitle_he: v })}
-            placeholder="e.g., Cabinet Systems, CNC Machining"
-            helpText="Short technical descriptor shown above the title"
+            placeholder="e.g., Browse & Order"
+            helpText="Short descriptor shown on service card"
           />
 
-          {/* Description */}
           <BilingualInput
             label="Description"
-            nameEn="description_en"
-            nameHe="description_he"
-            valueEn={formData.description_en}
-            valueHe={formData.description_he}
+            nameEn="description_en" nameHe="description_he"
+            valueEn={formData.description_en} valueHe={formData.description_he}
             onChangeEn={(v) => setFormData({ ...formData, description_en: v })}
             onChangeHe={(v) => setFormData({ ...formData, description_he: v })}
             type="textarea"
-            placeholder="Brief description of the service"
           />
 
-          {/* CTA Text */}
           <BilingualInput
-            label="Button Text (CTA)"
-            nameEn="cta_text_en"
-            nameHe="cta_text_he"
-            valueEn={formData.cta_text_en}
-            valueHe={formData.cta_text_he}
+            label="CTA Button Text"
+            nameEn="cta_text_en" nameHe="cta_text_he"
+            valueEn={formData.cta_text_en} valueHe={formData.cta_text_he}
             onChangeEn={(v) => setFormData({ ...formData, cta_text_en: v })}
             onChangeHe={(v) => setFormData({ ...formData, cta_text_he: v })}
-            placeholder="e.g., Learn more, View catalog"
-            helpText="Text shown on the service card button"
+            placeholder="e.g., Browse Catalog"
           />
 
-          {/* Images */}
           <div className="grid grid-cols-2 gap-6">
             <ImageUpload
               label="Card Image"
               value={formData.image_url}
               onChange={(url) => setFormData({ ...formData, image_url: url })}
               folder="services"
-              helpText="Shown on service cards (800×600 recommended)"
+              helpText="800×600 recommended"
             />
             <ImageUpload
               label="Hero Image"
               value={formData.hero_image_url}
               onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
               folder="services"
-              helpText="Full-width banner (1920×600 recommended)"
+              helpText="1920×600 recommended"
             />
           </div>
 
           {/* Accent Color */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Accent Color
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
             <div className="flex items-center gap-4">
               <input
                 type="color"
@@ -406,13 +463,11 @@ const [formData, setFormData] = useState<{
             </div>
           </div>
 
-          {/* Visibility */}
           <VisibilitySelect
             value={formData.visibility_status}
             onChange={(v) => setFormData({ ...formData, visibility_status: v as any })}
           />
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
@@ -433,13 +488,12 @@ const [formData, setFormData] = useState<{
         </form>
       </Modal>
 
-      {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
         title="Delete Service"
-        message="Are you sure you want to delete this service? This will also delete all subservices, categories, and products under it. This action cannot be undone."
+        message="This will also delete all subservices, categories, and products under it. This action cannot be undone."
         confirmText="Delete"
         danger
       />
