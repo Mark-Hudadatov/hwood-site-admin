@@ -1,98 +1,149 @@
 /**
  * DOMAIN TYPES - Canonical Data Model
  * ====================================
- * This file defines the stable interfaces for the entire application.
- * All data (mock or real) must conform to these types.
- * 
- * HIERARCHY:
- * Service → Subservice → ProductCategory → Product
- * 
- * EXAMPLE CHAIN:
- * "Modular bodies and cabinets" → "Kitchen modules" → "Upper" → "N1"
+ * v2.1 — April 2026
+ * Added: ServiceBrand, ServiceOrderType, updated Service interface,
+ *        BrowseOrderSubmission, SendFileSubmission, DescribeRequestSubmission
  */
+
+// =============================================================================
+// BRAND & ORDER TYPE
+// =============================================================================
+
+export type ServiceBrand = 'hwood' | 'skylum';
+
+export type ServiceOrderType =
+  | 'browse-and-order'
+  | 'send-file-and-process'
+  | 'describe-and-request'
+  | 'informational';
 
 // =============================================================================
 // CORE DOMAIN ENTITIES
 // =============================================================================
 
-/**
- * Service - Top-level offering
- * Examples: "Modular bodies and cabinets", "CNC processing of panels", "Furniture fronts production"
- */
 export interface Service {
   id: string;
-  slug: string;                    // URL-friendly: "modular-bodies-and-cabinets"
-  title: string;                   // Display: "Modular bodies and cabinets"
+  slug: string;
+  title: string;
   description: string;
   imageUrl: string;
-  heroImageUrl?: string;           // Optional larger hero image for service page
-  accentColor?: string;            // Optional brand color (e.g., "#D48F28")
+  heroImageUrl?: string;
+  accentColor?: string;
+  subtitle?: string;
+  ctaText?: string;
+  visibilityStatus?: string;
+  // v2.0 fields — stored in Supabase, populated via dataService
+  // Optional for backward compatibility with components that don't map these yet
+  brand?: ServiceBrand;
+  orderType?: ServiceOrderType;
 }
 
-/**
- * Subservice - Specific process within a Service
- * Examples: "Kitchen modules", "Bathrooms and niches", "Wardrobes and closets"
- */
 export interface Subservice {
   id: string;
-  slug: string;                    // URL-friendly: "kitchen-modules"
-  serviceId: string;               // FK to parent Service
+  slug: string;
+  serviceId: string;
   title: string;
   description: string;
   imageUrl: string;
   heroImageUrl?: string;
 }
 
-/**
- * ProductCategory - Grouping of products within a Subservice
- * Examples: "Upper", "Lower", "Base", "Islands"
- */
 export interface ProductCategory {
   id: string;
-  slug: string;                    // URL-friendly: "upper"
-  subserviceId: string;            // FK to parent Subservice
+  slug: string;
+  subserviceId: string;
   title: string;
   description: string;
-  sortOrder?: number;              // For tab ordering
+  sortOrder?: number;
 }
 
-/**
- * Product - Actual item/SKU
- * Examples: "N1", "N2", "N3" (kitchen modules)
- */
 export interface Product {
   id: string;
-  slug: string;                    // URL-friendly: "n1-upper-module"
-  categoryId: string;              // FK to parent ProductCategory
+  slug: string;
+  categoryId: string;
   title: string;
-  subtitle?: string;               // Short tagline
+  subtitle?: string;
   description: string;
   imageUrl: string;
-  galleryImages?: string[];        // Additional product images
-  videoUrl?: string;               // Product video (360° spin, etc.)
-  features?: string[];             // Key features list
+  galleryImages?: string[];
+  videoUrl?: string;
+  features?: string[];
   specifications?: ProductSpecification[];
   has3DView?: boolean;             // Whether 360° view is available
   modelUrl?: string;               // URL to GLB/glTF 3D model file
+  has3DView?: boolean;
+  modelUrl?: string;
   visibilityStatus?: string;
 }
 
-/**
- * Product Specification - Key-value pairs for product details
- */
 export interface ProductSpecification {
-  label: string;                   // e.g., "Working Field Size"
-  value: string;                   // e.g., "3000mm"
-  unit?: string;                   // e.g., "mm"
+  label: string;
+  value: string;
+  unit?: string;
 }
 
 // =============================================================================
-// SUPPORTING ENTITIES (for other sections of the site)
+// ORDER SUBMISSION TYPES (v2.0)
 // =============================================================================
 
-/**
- * Story - News/Events items for "What's Next" section
- */
+export interface OrderContact {
+  name: string;
+  phone: string;
+  company?: string;
+}
+
+/** Browse & Order — каталожная заявка (Cabinet Modules, Interior Fronts) */
+export interface BrowseOrderSubmission extends OrderContact {
+  orderType: 'browse-and-order';
+  serviceSlug: string;
+  productId?: string;
+  productTitle?: string;
+  selectedConfiguration?: Record<string, string>;
+  quantity?: string;
+  comment?: string;
+}
+
+/** Send File & Process — CNC заявка (CNC Services for Professionals) */
+export interface SendFileSubmission extends OrderContact {
+  orderType: 'send-file-and-process';
+  serviceSlug: string;
+  subserviceSlug?: string;
+  operationType?: string;
+  material?: string;
+  thickness?: string;
+  volume?: string;
+  deadline?: string;
+  description?: string;
+  fileUrl?: string;
+}
+
+/** Describe & Request — проектная заявка (Custom Kitchen, Facade Systems) */
+export interface DescribeRequestSubmission extends OrderContact {
+  orderType: 'describe-and-request';
+  serviceSlug: string;
+  clientRole: 'designer' | 'contractor' | 'developer' | 'private';
+  objectType?: string;
+  material?: string;
+  approximateVolume?: string;
+  description: string;
+  fileUrl?: string;
+}
+
+export type OrderSubmission =
+  | BrowseOrderSubmission
+  | SendFileSubmission
+  | DescribeRequestSubmission;
+
+export interface QuoteSubmissionResult {
+  success: boolean;
+  error?: string;
+}
+
+// =============================================================================
+// SUPPORTING ENTITIES
+// =============================================================================
+
 export type StoryType = 'EVENTS' | 'CUSTOMER STORY';
 
 export interface Story {
@@ -107,28 +158,20 @@ export interface Story {
   isGenerated?: boolean;
 }
 
-/**
- * Quote Request - Form submission data
- */
 export interface QuoteRequest {
   id?: string;
   productId: string;
   productTitle: string;
-  // Customer info
   companyName: string;
   contactName: string;
   email: string;
   phone?: string;
   country: string;
-  // Configuration
   selectedOptions?: Record<string, string>;
   message?: string;
-  // Metadata
   submittedAt?: string;
 }
-/**
- * Company Info - Basic company details
- */
+
 export interface CompanyInfo {
   name: string;
   tagline?: string;
@@ -138,9 +181,6 @@ export interface CompanyInfo {
   address: string;
 }
 
-/**
- * Hero Slide - Homepage hero carousel items
- */
 export interface HeroSlide {
   id: string;
   title: string;
@@ -151,21 +191,11 @@ export interface HeroSlide {
   ctaLink?: string;
 }
 
-// =============================================================================
-// UTILITY TYPES
-// =============================================================================
-
-/**
- * Navigation breadcrumb item
- */
 export interface BreadcrumbItem {
   label: string;
-  href?: string;                   // If undefined, rendered as current page (no link)
+  href?: string;
 }
 
-/**
- * API response wrapper (for future real API)
- */
 export interface ApiResponse<T> {
   data: T;
   success: boolean;
@@ -176,9 +206,6 @@ export interface ApiResponse<T> {
 // PRODUCT CONFIGURATION TYPES
 // =============================================================================
 
-/**
- * Configuration Option Type - e.g., "Width", "Color", "Drawer System"
- */
 export interface ConfigOptionType {
   id: string;
   slug: string;
@@ -192,9 +219,6 @@ export interface ConfigOptionType {
   values: ConfigOptionValue[];
 }
 
-/**
- * Configuration Option Value - e.g., "60cm", "White", "Soft Close"
- */
 export interface ConfigOptionValue {
   id: string;
   slug: string;
@@ -205,29 +229,20 @@ export interface ConfigOptionValue {
   imageUrl?: string;
   sortOrder: number;
   isActive: boolean;
-  isDisabled?: boolean;  // For product-level overrides
+  isDisabled?: boolean;
 }
 
-/**
- * Product Configuration - Complete config for a product
- */
 export interface ProductConfiguration {
   productId: string;
   subserviceId: string;
   options: ConfigOptionType[];
-  defaults: Record<string, string>;  // optionSlug -> valueSlug
+  defaults: Record<string, string>;
 }
 
-/**
- * Selected Configuration - User's selections
- */
 export interface SelectedConfiguration {
-  [optionSlug: string]: string;  // optionSlug -> valueSlug
+  [optionSlug: string]: string;
 }
 
-/**
- * Feature - Product feature from library
- */
 export interface Feature {
   id: string;
   slug: string;

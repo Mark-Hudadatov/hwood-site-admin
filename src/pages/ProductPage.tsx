@@ -1,12 +1,14 @@
 /**
  * PRODUCT PAGE
  * ============
+ * v2.1 — April 2026
  * Displays a single product with:
  * - 3D model as hero (left), with gallery thumbnails overlaying bottom
  * - Right column: Configurations → Description → Buttons → Features
  * - Dynamic configurator options (loaded from database)
  * - Quote request CTA
- * 
+ *
+ * Added: guard — redirects to ServicePage if service.orderType !== 'browse-and-order'
  * Route: /products/:productSlug
  */
 
@@ -230,6 +232,13 @@ export const ProductPage: React.FC = () => {
         }
 
         const { service, subservice, category, product } = breadcrumbData;
+        // ── GUARD: ProductPage only for browse-and-order ──────
+        if (service.orderType && service.orderType !== 'browse-and-order') {
+          navigate(ROUTES.SERVICE(service.slug), { replace: true });
+          return;
+        }
+        // ─────────────────────────────────────────────────────
+
         setService(service);
         setSubservice(subservice);
         setCategory(category);
@@ -256,7 +265,7 @@ export const ProductPage: React.FC = () => {
     };
 
     loadData();
-  }, [productSlug]);
+  }, [productSlug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectionChange = (optionSlug: string, valueSlug: string) => {
     setSelections(prev => ({ ...prev, [optionSlug]: valueSlug }));
@@ -264,6 +273,7 @@ export const ProductPage: React.FC = () => {
 
   const getQuoteUrl = () => {
     const params = new URLSearchParams();
+    if (service)  params.set('service', service.slug);
     params.set('product', product?.slug || '');
     params.set('productTitle', product?.title || '');
     Object.entries(selections).forEach(([optionSlug, valueSlug]) => {
