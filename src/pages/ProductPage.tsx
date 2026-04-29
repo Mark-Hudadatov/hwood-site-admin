@@ -265,7 +265,7 @@ export const ProductPage: React.FC = () => {
     };
 
     loadData();
-  }, [productSlug, navigate]);
+  }, [productSlug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectionChange = (optionSlug: string, valueSlug: string) => {
     setSelections(prev => ({ ...prev, [optionSlug]: valueSlug }));
