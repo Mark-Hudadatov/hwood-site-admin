@@ -1,502 +1,721 @@
 /**
- * ADMIN SERVICES PAGE
- * ====================
+ * ADMIN STORE - Supabase Operations
+ * ==================================
  * v2.1 — April 2026
- * Added: brand selector (HWOOD / Skylum)
- *        order_type dropdown
- *        brand/order_type badges in list
+ * Added: brand, order_type to AdminService
+ *        Updated QuoteSubmission with v2.0 fields
  */
 
-import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Save, GripVertical } from 'lucide-react';
-import {
-  DndContext, closestCenter, PointerSensor,
-  useSensor, useSensors, DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove, SortableContext,
-  verticalListSortingStrategy, useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import {
-  AdminService, VisibilityStatus,
-  getAdminServices, createService,
-  updateService, deleteService, reorderServices,
-} from '../adminStore';
-import {
-  BilingualInput, VisibilitySelect,
-  ImageUpload, Modal, ConfirmDialog,
-} from '../components';
+import { supabase } from '../services/supabase';
 
-// ── Sortable row ─────────────────────────────────────────────
+// ============================================================================
+// TYPES
+// ============================================================================
 
-const BRAND_COLORS = {
-  hwood:  { bg: 'bg-teal-100',  text: 'text-teal-700',  label: 'HWOOD' },
-  skylum: { bg: 'bg-sky-100',   text: 'text-sky-700',   label: 'Skylum' },
-};
+export type VisibilityStatus = 'visible' | 'hidden' | 'coming_soon' | 'not_in_stock';
 
-const ORDER_TYPE_LABELS: Record<string, string> = {
-  'browse-and-order':      'Browse',
-  'send-file-and-process': 'Send File',
-  'describe-and-request':  'Describe',
-  'informational':         'Info',
-};
+export interface AdminService {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_he?: string;
+  subtitle_en?: string;
+  subtitle_he?: string;
+  description_en?: string;
+  description_he?: string;
+  cta_text_en?: string;
+  cta_text_he?: string;
+  image_url?: string;
+  hero_image_url?: string;
+  accent_color?: string;
+  visibility_status: VisibilityStatus;
+  sort_order: number;
+  // v2.0 fields — exist in Supabase
+  brand?: 'hwood' | 'skylum';
+  order_type?: 'browse-and-order' | 'send-file-and-process' | 'describe-and-request' | 'informational';
+  created_at?: string;
+  updated_at?: string;
+}
 
-const SortableServiceItem: React.FC<{
-  service: AdminService;
-  onEdit: () => void;
-  onDelete: () => void;
-}> = ({ service, onEdit, onDelete }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: service.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+export interface AdminSubservice {
+  id: string;
+  service_id: string;
+  slug: string;
+  title_en: string;
+  title_he?: string;
+  description_en?: string;
+  description_he?: string;
+  image_url?: string;
+  hero_image_url?: string;
+  visibility_status: VisibilityStatus;
+  sort_order: number;
+}
 
-  const brand = service.brand || 'hwood';
-  const brandConfig = BRAND_COLORS[brand] || BRAND_COLORS.hwood;
+export interface AdminCategory {
+  id: string;
+  subservice_id: string;
+  slug: string;
+  title_en: string;
+  title_he?: string;
+  description_en?: string;
+  description_he?: string;
+  visibility_status: VisibilityStatus;
+  sort_order: number;
+}
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
-        service.visibility_status !== 'visible' ? 'opacity-60' : ''
-      }`}
-    >
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none"
-      >
-        <GripVertical className="w-5 h-5" />
-      </div>
+export interface AdminProduct {
+  id: string;
+  category_id: string;
+  slug: string;
+  title_en: string;
+  title_he?: string;
+  subtitle_en?: string;
+  subtitle_he?: string;
+  description_en?: string;
+  description_he?: string;
+  image_url?: string;
+  gallery_images?: string[];
+  video_url?: string;
+  features_en?: string[];
+  features_he?: string[];
+  specifications?: { label: string; value: string; unit?: string }[];
+  has_3d_view?: boolean;
+  model_url?: string;
+  visibility_status: VisibilityStatus;
+  is_featured?: boolean;
+  sort_order: number;
+}
 
-      {/* Thumbnail */}
-      <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-        {service.image_url ? (
-          <img src={service.image_url} alt={service.title_en} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-            No img
-          </div>
-        )}
-      </div>
+export interface AdminStory {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_he?: string;
+  date: string;
+  type: string;
+  type_id?: string;
+  image_url?: string;
+  excerpt_en?: string;
+  excerpt_he?: string;
+  content_en?: string;
+  content_he?: string;
+  is_visible: boolean;
+}
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-gray-900 truncate">{service.title_en}</h3>
-        <p className="text-xs text-gray-500 truncate">/{service.slug}</p>
-      </div>
+export interface AdminHeroSlide {
+  id: string;
+  title_en: string;
+  title_he?: string;
+  subtitle_en?: string;
+  subtitle_he?: string;
+  image_url?: string;
+  video_url?: string;
+  cta_text_en?: string;
+  cta_text_he?: string;
+  cta_link?: string;
+  is_visible: boolean;
+  sort_order: number;
+}
 
-      {/* Badges */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${brandConfig.bg} ${brandConfig.text}`}>
-          {brandConfig.label}
-        </span>
-        <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600 whitespace-nowrap">
-          {ORDER_TYPE_LABELS[service.order_type || ''] || '—'}
-        </span>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-          service.visibility_status === 'visible'
-            ? 'bg-green-100 text-green-700'
-            : service.visibility_status === 'coming_soon'
-              ? 'bg-blue-100 text-blue-700'
-              : 'bg-gray-100 text-gray-700'
-        }`}>
-          {service.visibility_status === 'visible'
-            ? 'Visible'
-            : service.visibility_status === 'coming_soon'
-              ? 'Coming Soon'
-              : 'Hidden'}
-        </span>
-        <div
-          className="w-5 h-5 rounded-full border-2 border-white shadow flex-shrink-0"
-          style={{ backgroundColor: service.accent_color || '#005f5f' }}
-        />
-      </div>
+export interface AdminCompanyInfo {
+  id: number;
+  name_en: string;
+  name_he?: string;
+  tagline_en?: string;
+  tagline_he?: string;
+  description_en?: string;
+  description_he?: string;
+  phone?: string;
+  email?: string;
+  address_en?: string;
+  address_he?: string;
+}
 
-      {/* Actions */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={onEdit}
-          className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
-        >
-          <Edit className="w-4 h-4" />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
+export interface AdminSocialLink {
+  id: string;
+  platform: string;
+  url?: string;
+  is_visible: boolean;
+  sort_order: number;
+}
 
-// ── Main component ────────────────────────────────────────────
+export interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
 
-export const AdminServices: React.FC = () => {
-  const [services, setServices] = useState<AdminService[]>([]);
-  const [loading, setLoading] = useState(true);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-  const [editingService, setEditingService] = useState<AdminService | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+export interface QuoteSubmission {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  company?: string;
+  // v2.0 structured fields
+  order_type?: string;
+  service_slug?: string;
+  subservice_slug?: string;
+  client_role?: string;
+  object_type?: string;
+  material?: string;
+  volume?: string;
+  deadline?: string;
+  file_url?: string;
+  // legacy fields
+  project_type?: string;
+  budget_range?: string;
+  timeline?: string;
+  message?: string;
+  product_interest?: string[];
+  is_read: boolean;
+  created_at: string;
+}
 
-  const emptyForm = {
-    slug: '',
-    title_en: '',
-    title_he: '',
-    subtitle_en: '',
-    subtitle_he: '',
-    description_en: '',
-    description_he: '',
-    cta_text_en: 'Learn more',
-    cta_text_he: 'לפרטים נוספים',
-    image_url: '',
-    hero_image_url: '',
-    accent_color: '#005f5f',
-    visibility_status: 'visible' as VisibilityStatus,
-    brand: 'hwood' as 'hwood' | 'skylum',
-    order_type: 'browse-and-order' as AdminService['order_type'],
-  };
+export interface StoryType {
+  id: string;
+  name: string;
+  slug: string;
+  sort_order: number;
+}
 
-  const [formData, setFormData] = useState(emptyForm);
+// ============================================================================
+// AUTH
+// ============================================================================
 
-  const loadServices = async () => {
-    try {
-      const data = await getAdminServices();
-      setServices(data);
-    } catch (error) {
-      console.error('Failed to load services:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+export async function adminLogin(email: string, password: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('admin_users')
+    .select('*')
+    .eq('email', email)
+    .eq('password_hash', password)
+    .single();
 
-  useEffect(() => { loadServices(); }, []);
+  if (error || !data) return false;
 
-  const openNewModal = () => {
-    setEditingService(null);
-    setFormData(emptyForm);
-    setIsModalOpen(true);
-  };
+  await supabase
+    .from('admin_users')
+    .update({ last_login: new Date().toISOString() })
+    .eq('id', data.id);
 
-  const openEditModal = (service: AdminService) => {
-    setEditingService(service);
-    setFormData({
-      slug:             service.slug,
-      title_en:         service.title_en,
-      title_he:         service.title_he || '',
-      subtitle_en:      service.subtitle_en || '',
-      subtitle_he:      service.subtitle_he || '',
-      description_en:   service.description_en || '',
-      description_he:   service.description_he || '',
-      cta_text_en:      service.cta_text_en || 'Learn more',
-      cta_text_he:      service.cta_text_he || 'לפרטים נוספים',
-      image_url:        service.image_url || '',
-      hero_image_url:   service.hero_image_url || '',
-      accent_color:     service.accent_color || '#005f5f',
-      visibility_status: service.visibility_status,
-      brand:            service.brand || 'hwood',
-      order_type:       service.order_type || 'browse-and-order',
-    });
-    setIsModalOpen(true);
-  };
+  localStorage.setItem('admin_session', JSON.stringify({
+    email: data.email,
+    name: data.name,
+    loggedIn: true,
+    timestamp: Date.now()
+  }));
 
-  const handleSave = async () => {
-    if (!formData.title_en || !formData.slug) {
-      alert('Title (EN) and Slug are required');
-      return;
-    }
-    setSaving(true);
-    try {
-      if (editingService) {
-        await updateService(editingService.id, formData);
-      } else {
-        await createService({ ...formData, sort_order: services.length });
-      }
-      await loadServices();
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Failed to save service:', error);
-      alert('Failed to save service');
-    } finally {
-      setSaving(false);
-    }
-  };
+  return true;
+}
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteService(id);
-      await loadServices();
-    } catch (error) {
-      console.error('Failed to delete service:', error);
-      alert('Failed to delete service. It may have subservices.');
-    }
-  };
-
-  const generateSlug = (title: string) =>
-    title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
-      </div>
-    );
+export function isAdminLoggedIn(): boolean {
+  const session = localStorage.getItem('admin_session');
+  if (!session) return false;
+  try {
+    const parsed = JSON.parse(session);
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    return parsed.loggedIn && (Date.now() - parsed.timestamp) < sevenDays;
+  } catch {
+    return false;
   }
+}
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Services</h2>
-          <p className="text-gray-500">Manage top-level services. Brand and order type are set per service.</p>
-        </div>
-        <button
-          onClick={openNewModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Add Service
-        </button>
-      </div>
+export function adminLogout(): void {
+  localStorage.removeItem('admin_session');
+}
 
-      {/* List */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        {services.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-gray-500 mb-4">No services yet</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
-              Create your first service
-            </button>
-          </div>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={async (event: DragEndEvent) => {
-              const { active, over } = event;
-              if (over && active.id !== over.id) {
-                const oldIndex = services.findIndex((s) => s.id === active.id);
-                const newIndex = services.findIndex((s) => s.id === over.id);
-                const reordered = arrayMove(services, oldIndex, newIndex);
-                setServices(reordered);
-                await reorderServices(reordered.map((s) => s.id));
-              }
-            }}
-          >
-            <SortableContext
-              items={services.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="divide-y divide-gray-100">
-                {services.map((service) => (
-                  <SortableServiceItem
-                    key={service.id}
-                    service={service}
-                    onEdit={() => openEditModal(service)}
-                    onDelete={() => setDeleteConfirm(service.id)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
+export function getAdminSession(): { email: string; name: string } | null {
+  const session = localStorage.getItem('admin_session');
+  if (!session) return null;
+  try {
+    const parsed = JSON.parse(session);
+    return { email: parsed.email, name: parsed.name };
+  } catch {
+    return null;
+  }
+}
 
-      {/* Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingService ? 'Edit Service' : 'New Service'}
-        size="lg"
-      >
-        <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-6">
+// ============================================================================
+// SERVICES
+// ============================================================================
 
-          {/* Brand + Order Type — top of form, most important */}
-          <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-xl">
-            {/* Brand */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Brand</label>
-              <div className="flex gap-3">
-                {(['hwood', 'skylum'] as const).map((b) => (
-                  <button
-                    key={b}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, brand: b })}
-                    className={`flex-1 py-2 rounded-lg border font-semibold text-sm uppercase tracking-wide transition-all ${
-                      formData.brand === b
-                        ? b === 'hwood'
-                          ? 'border-[#005f5f] bg-[#005f5f] text-white'
-                          : 'border-sky-600 bg-sky-600 text-white'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    {b === 'hwood' ? 'HWOOD' : 'Skylum'}
-                  </button>
-                ))}
-              </div>
-            </div>
+export async function getAdminServices(): Promise<AdminService[]> {
+  const { data, error } = await supabase
+    .from('services')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
 
-            {/* Order Type */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Order Type</label>
-              <select
-                value={formData.order_type || 'browse-and-order'}
-                onChange={(e) => setFormData({ ...formData, order_type: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] outline-none text-sm"
-              >
-                <option value="browse-and-order">Browse & Order — каталог</option>
-                <option value="send-file-and-process">Send File & Process — CNC</option>
-                <option value="describe-and-request">Describe & Request — проект</option>
-                <option value="informational">Informational — только информация</option>
-              </select>
-              <p className="text-xs text-gray-400">
-                Наследуется всеми подсервисами и продуктами.
-              </p>
-            </div>
-          </div>
+export async function createService(service: Partial<AdminService>): Promise<AdminService> {
+  const { data, error } = await supabase
+    .from('services')
+    .insert([service])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
 
-          {/* Slug */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Slug <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="service-slug"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
-                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
-              >
-                Generate
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">URL: /services/{formData.slug || 'slug'}</p>
-          </div>
+export async function updateService(id: string, updates: Partial<AdminService>): Promise<AdminService> {
+  const { data, error } = await supabase
+    .from('services')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
 
-          <BilingualInput
-            label="Title"
-            nameEn="title_en" nameHe="title_he"
-            valueEn={formData.title_en} valueHe={formData.title_he}
-            onChangeEn={(v) => setFormData({ ...formData, title_en: v })}
-            onChangeHe={(v) => setFormData({ ...formData, title_he: v })}
-            required
-          />
+export async function deleteService(id: string): Promise<void> {
+  const { error } = await supabase.from('services').delete().eq('id', id);
+  if (error) throw error;
+}
 
-          <BilingualInput
-            label="Subtitle (order type descriptor)"
-            nameEn="subtitle_en" nameHe="subtitle_he"
-            valueEn={formData.subtitle_en} valueHe={formData.subtitle_he}
-            onChangeEn={(v) => setFormData({ ...formData, subtitle_en: v })}
-            onChangeHe={(v) => setFormData({ ...formData, subtitle_he: v })}
-            placeholder="e.g., Browse & Order"
-            helpText="Short descriptor shown on service card"
-          />
-
-          <BilingualInput
-            label="Description"
-            nameEn="description_en" nameHe="description_he"
-            valueEn={formData.description_en} valueHe={formData.description_he}
-            onChangeEn={(v) => setFormData({ ...formData, description_en: v })}
-            onChangeHe={(v) => setFormData({ ...formData, description_he: v })}
-            type="textarea"
-          />
-
-          <BilingualInput
-            label="CTA Button Text"
-            nameEn="cta_text_en" nameHe="cta_text_he"
-            valueEn={formData.cta_text_en} valueHe={formData.cta_text_he}
-            onChangeEn={(v) => setFormData({ ...formData, cta_text_en: v })}
-            onChangeHe={(v) => setFormData({ ...formData, cta_text_he: v })}
-            placeholder="e.g., Browse Catalog"
-          />
-
-          <div className="grid grid-cols-2 gap-6">
-            <ImageUpload
-              label="Card Image"
-              value={formData.image_url}
-              onChange={(url) => setFormData({ ...formData, image_url: url })}
-              folder="services"
-              helpText="800×600 recommended"
-            />
-            <ImageUpload
-              label="Hero Image"
-              value={formData.hero_image_url}
-              onChange={(url) => setFormData({ ...formData, hero_image_url: url })}
-              folder="services"
-              helpText="1920×600 recommended"
-            />
-          </div>
-
-          {/* Accent Color */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="color"
-                value={formData.accent_color}
-                onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
-                className="w-12 h-12 rounded-lg cursor-pointer border-0"
-              />
-              <input
-                type="text"
-                value={formData.accent_color}
-                onChange={(e) => setFormData({ ...formData, accent_color: e.target.value })}
-                className="w-32 px-3 py-2 border border-gray-300 rounded-lg"
-                placeholder="#005f5f"
-              />
-            </div>
-          </div>
-
-          <VisibilitySelect
-            value={formData.visibility_status}
-            onChange={(v) => setFormData({ ...formData, visibility_status: v as any })}
-          />
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Service'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      <ConfirmDialog
-        isOpen={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
-        title="Delete Service"
-        message="This will also delete all subservices, categories, and products under it. This action cannot be undone."
-        confirmText="Delete"
-        danger
-      />
-    </div>
+export async function reorderServices(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('services').update({ sort_order: index }).eq('id', id)
   );
-};
+  await Promise.all(updates);
+}
+
+// ============================================================================
+// SUBSERVICES
+// ============================================================================
+
+export async function getAdminSubservices(): Promise<AdminSubservice[]> {
+  const { data, error } = await supabase
+    .from('subservices')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createSubservice(subservice: Partial<AdminSubservice>): Promise<AdminSubservice> {
+  const { data, error } = await supabase
+    .from('subservices')
+    .insert([subservice])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateSubservice(id: string, updates: Partial<AdminSubservice>): Promise<AdminSubservice> {
+  const { data, error } = await supabase
+    .from('subservices')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteSubservice(id: string): Promise<void> {
+  const { error } = await supabase.from('subservices').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// CATEGORIES
+// ============================================================================
+
+export async function getAdminCategories(): Promise<AdminCategory[]> {
+  const { data, error } = await supabase
+    .from('product_categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createCategory(category: Partial<AdminCategory>): Promise<AdminCategory> {
+  const { data, error } = await supabase
+    .from('product_categories')
+    .insert([category])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateCategory(id: string, updates: Partial<AdminCategory>): Promise<AdminCategory> {
+  const { data, error } = await supabase
+    .from('product_categories')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from('product_categories').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function reorderSubservices(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('subservices').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderCategories(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('product_categories').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+export async function reorderProducts(ids: string[]): Promise<void> {
+  const updates = ids.map((id, index) =>
+    supabase.from('products').update({ sort_order: index }).eq('id', id)
+  );
+  await Promise.all(updates);
+}
+
+// ============================================================================
+// PRODUCTS
+// ============================================================================
+
+export async function getAdminProducts(): Promise<AdminProduct[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createProduct(product: Partial<AdminProduct>): Promise<AdminProduct> {
+  const { data, error } = await supabase
+    .from('products')
+    .insert([product])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateProduct(id: string, updates: Partial<AdminProduct>): Promise<AdminProduct> {
+  const { data, error } = await supabase
+    .from('products')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  const { error } = await supabase.from('products').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function duplicateProduct(id: string): Promise<AdminProduct> {
+  const { data: original, error: fetchError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (fetchError || !original) throw fetchError;
+
+  const newProduct = {
+    ...original,
+    slug: `${original.slug}-copy-${Date.now()}`,
+    title_en: `${original.title_en} (Copy)`,
+    title_he: original.title_he ? `${original.title_he} (העתק)` : undefined,
+  };
+  delete newProduct.id;
+  delete newProduct.created_at;
+  delete newProduct.updated_at;
+
+  return createProduct(newProduct);
+}
+
+// ============================================================================
+// STORIES
+// ============================================================================
+
+export async function getAdminStories(): Promise<AdminStory[]> {
+  const { data, error } = await supabase
+    .from('stories')
+    .select('*')
+    .order('date', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createStory(story: Partial<AdminStory>): Promise<AdminStory> {
+  const { data, error } = await supabase
+    .from('stories')
+    .insert([story])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateStory(id: string, updates: Partial<AdminStory>): Promise<AdminStory> {
+  const { data, error } = await supabase
+    .from('stories')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteStory(id: string): Promise<void> {
+  const { error } = await supabase.from('stories').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function getStoryTypes(): Promise<StoryType[]> {
+  const { data, error } = await supabase
+    .from('story_types')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function updateStoryType(id: string, name: string): Promise<void> {
+  const { error } = await supabase
+    .from('story_types')
+    .update({ name })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// HERO SLIDES
+// ============================================================================
+
+export async function getAdminHeroSlides(): Promise<AdminHeroSlide[]> {
+  const { data, error } = await supabase
+    .from('hero_slides')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createHeroSlide(slide: Partial<AdminHeroSlide>): Promise<AdminHeroSlide> {
+  const { data, error } = await supabase
+    .from('hero_slides')
+    .insert([slide])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateHeroSlide(id: string, updates: Partial<AdminHeroSlide>): Promise<AdminHeroSlide> {
+  const { data, error } = await supabase
+    .from('hero_slides')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteHeroSlide(id: string): Promise<void> {
+  const { error } = await supabase.from('hero_slides').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// COMPANY INFO & SOCIAL
+// ============================================================================
+
+export async function getAdminCompanyInfo(): Promise<AdminCompanyInfo | null> {
+  const { data, error } = await supabase
+    .from('company_info')
+    .select('*')
+    .eq('id', 1)
+    .single();
+  if (error) return null;
+  return data;
+}
+
+export async function updateCompanyInfo(updates: Partial<AdminCompanyInfo>): Promise<void> {
+  const { error } = await supabase
+    .from('company_info')
+    .update(updates)
+    .eq('id', 1);
+  if (error) throw error;
+}
+
+export async function getSocialLinks(): Promise<AdminSocialLink[]> {
+  const { data, error } = await supabase
+    .from('social_links')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function updateSocialLink(id: string, updates: Partial<AdminSocialLink>): Promise<void> {
+  const { error } = await supabase
+    .from('social_links')
+    .update(updates)
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// SUBMISSIONS
+// ============================================================================
+
+export async function getContactSubmissions(): Promise<ContactSubmission[]> {
+  const { data, error } = await supabase
+    .from('contact_submissions')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function markContactRead(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('contact_submissions')
+    .update({ is_read: true })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function getQuoteSubmissions(): Promise<QuoteSubmission[]> {
+  const { data, error } = await supabase
+    .from('quote_submissions')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function markQuoteRead(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('quote_submissions')
+    .update({ is_read: true })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================================================
+// IMAGE UPLOAD
+// ============================================================================
+
+export async function uploadImage(file: File, folder: string = 'general'): Promise<string> {
+  const processedFile = await processImage(file);
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error } = await supabase.storage
+    .from('images')
+    .upload(fileName, processedFile, { cacheControl: '3600', upsert: false });
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('images')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+async function processImage(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    img.onload = () => {
+      const maxWidth = 1920;
+      const maxHeight = 1080;
+      let { width, height } = img;
+
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx?.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => { if (blob) resolve(blob); else reject(new Error('Failed to process image')); },
+        'image/jpeg',
+        0.85
+      );
+    };
+
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+export async function deleteImage(url: string): Promise<void> {
+  const path = url.split('/images/')[1];
+  if (!path) return;
+  const { error } = await supabase.storage.from('images').remove([path]);
+  if (error) throw error;
+}
+
+// ============================================================================
+// DASHBOARD STATS
+// ============================================================================
+
+export async function getDashboardStats(): Promise<{
+  services: number;
+  subservices: number;
+  categories: number;
+  products: number;
+  stories: number;
+  unreadContacts: number;
+  unreadQuotes: number;
+}> {
+  const [
+    { count: services },
+    { count: subservices },
+    { count: categories },
+    { count: products },
+    { count: stories },
+    { count: unreadContacts },
+    { count: unreadQuotes },
+  ] = await Promise.all([
+    supabase.from('services').select('*', { count: 'exact', head: true }),
+    supabase.from('subservices').select('*', { count: 'exact', head: true }),
+    supabase.from('product_categories').select('*', { count: 'exact', head: true }),
+    supabase.from('products').select('*', { count: 'exact', head: true }),
+    supabase.from('stories').select('*', { count: 'exact', head: true }),
+    supabase.from('contact_submissions').select('*', { count: 'exact', head: true }).eq('is_read', false),
+    supabase.from('quote_submissions').select('*', { count: 'exact', head: true }).eq('is_read', false),
+  ]);
+
+  return {
+    services: services || 0,
+    subservices: subservices || 0,
+    categories: categories || 0,
+    products: products || 0,
+    stories: stories || 0,
+    unreadContacts: unreadContacts || 0,
+    unreadQuotes: unreadQuotes || 0,
+  };
+}
