@@ -34,8 +34,9 @@ export interface Service {
   ctaText?: string;
   visibilityStatus?: string;
   // v2.0 fields — stored in Supabase, populated via dataService
-  brand: ServiceBrand;
-  orderType: ServiceOrderType;
+  // Optional for backward compatibility with components that don't map these yet
+  brand?: ServiceBrand;
+  orderType?: ServiceOrderType;
 }
 
 export interface Subservice {
