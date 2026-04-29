@@ -8,6 +8,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Plus, Edit, Trash2, Save, GripVertical } from 'lucide-react';
 import {
   DndContext, closestCenter, PointerSensor,
@@ -28,6 +32,7 @@ import {
   ImageUpload, Modal, ConfirmDialog,
 } from '../components';
 
+// Sortable row component for drag-and-drop
 // ── Sortable row ─────────────────────────────────────────────
 
 const BRAND_COLORS = {
@@ -47,6 +52,8 @@ const SortableServiceItem: React.FC<{
   onEdit: () => void;
   onDelete: () => void;
 }> = ({ service, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: service.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: service.id });
   const style = {
@@ -66,6 +73,33 @@ const SortableServiceItem: React.FC<{
         service.visibility_status !== 'visible' ? 'opacity-60' : ''
       }`}
     >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+        <GripVertical className="w-5 h-5" />
+      </div>
+      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        {service.image_url ? (
+          <img src={service.image_url} alt={service.title_en} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">No img</div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{service.title_en}</h3>
+        <p className="text-sm text-gray-500 truncate">/{service.slug}</p>
+      </div>
+      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        service.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
+        service.visibility_status === 'coming_soon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+      }`}>
+        {service.visibility_status === 'visible' ? 'Visible' :
+         service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
+      </div>
+      <div className="w-6 h-6 rounded-full border-2 border-white shadow" style={{ backgroundColor: service.accent_color || '#005f5f' }} />
+      <div className="flex items-center gap-2">
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
       <div
         {...attributes}
         {...listeners}
@@ -285,6 +319,15 @@ export const AdminServices: React.FC = () => {
             onDragEnd={async (event: DragEndEvent) => {
               const { active, over } = event;
               if (over && active.id !== over.id) {
+                const oldIndex = services.findIndex(s => s.id === active.id);
+                const newIndex = services.findIndex(s => s.id === over.id);
+                const reordered = arrayMove(services, oldIndex, newIndex);
+                setServices(reordered);
+                await reorderServices(reordered.map(s => s.id));
+              }
+            }}
+          >
+            <SortableContext items={services.map(s => s.id)} strategy={verticalListSortingStrategy}>
                 const oldIndex = services.findIndex((s) => s.id === active.id);
                 const newIndex = services.findIndex((s) => s.id === over.id);
                 const reordered = arrayMove(services, oldIndex, newIndex);

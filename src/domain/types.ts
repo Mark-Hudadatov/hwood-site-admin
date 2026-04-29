@@ -70,6 +70,8 @@ export interface Product {
   videoUrl?: string;
   features?: string[];
   specifications?: ProductSpecification[];
+  has3DView?: boolean;             // Whether 360° view is available
+  modelUrl?: string;               // URL to GLB/glTF 3D model file
   has3DView?: boolean;
   modelUrl?: string;
   visibilityStatus?: string;

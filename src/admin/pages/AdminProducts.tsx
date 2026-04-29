@@ -5,7 +5,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Save, Copy, Search, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Copy, Search, X, Image as ImageIcon, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AdminProduct,
   AdminCategory,
@@ -20,6 +23,7 @@ import {
   updateProduct,
   deleteProduct,
   duplicateProduct,
+  reorderProducts,
 } from '../adminStore';
 import {
   BilingualInput,
@@ -31,8 +35,59 @@ import {
   ConfirmDialog,
 } from '../components';
 
+// Sortable row for drag-and-drop
+const SortableProductItem: React.FC<{
+  item: AdminProduct;
+  breadcrumb: string;
+  onEdit: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+}> = ({ item, breadcrumb, onEdit, onDelete, onDuplicate }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${item.visibility_status !== 'visible' ? 'opacity-60' : ''}`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+        <GripVertical className="w-5 h-5" />
+      </div>
+      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+        {item.image_url ? (
+          <img src={item.image_url} alt={item.title_en} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon className="w-6 h-6" /></div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
+        <p className="text-sm text-gray-500 truncate">{breadcrumb}</p>
+      </div>
+      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        item.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
+        item.visibility_status === 'not_in_stock' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
+      }`}>
+        {item.visibility_status === 'visible' ? 'Visible' : item.visibility_status === 'not_in_stock' ? 'Out of Stock' : 'Hidden'}
+      </div>
+      <div className="flex items-center gap-1">
+        <button onClick={onDuplicate} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Duplicate">
+          <Copy className="w-4 h-4" />
+        </button>
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [subservices, setSubservices] = useState<AdminSubservice[]>([]);
   const [services, setServices] = useState<AdminService[]>([]);
@@ -60,6 +115,7 @@ export const AdminProducts: React.FC = () => {
     features_he: string[];
     specifications: { label: string; value: string; unit?: string }[];
     has_3d_view: boolean;
+    model_url: string;
     visibility_status: VisibilityStatus;
     is_featured: boolean;
   }>({
@@ -78,6 +134,7 @@ export const AdminProducts: React.FC = () => {
     features_he: [],
     specifications: [],
     has_3d_view: false,
+    model_url: '',
     visibility_status: 'visible',
     is_featured: false,
   });
@@ -123,6 +180,7 @@ export const AdminProducts: React.FC = () => {
       features_he: [],
       specifications: [],
       has_3d_view: false,
+    model_url: '',
       visibility_status: 'visible',
       is_featured: false,
     });
@@ -147,6 +205,7 @@ export const AdminProducts: React.FC = () => {
       features_he: item.features_he || [],
       specifications: item.specifications || [],
       has_3d_view: item.has_3d_view || false,
+      model_url: item.model_url || '',
       visibility_status: item.visibility_status,
       is_featured: item.is_featured || false,
     });
@@ -319,64 +378,35 @@ export const AdminProducts: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredProducts.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
-                  item.visibility_status !== 'visible' ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.title_en} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <ImageIcon className="w-6 h-6" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
-                  <p className="text-sm text-gray-500 truncate">{getBreadcrumb(item.category_id)}</p>
-                </div>
-
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  item.visibility_status === 'visible' 
-                    ? 'bg-green-100 text-green-700'
-                    : item.visibility_status === 'not_in_stock'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {item.visibility_status === 'visible' ? 'Visible' :
-                   item.visibility_status === 'not_in_stock' ? 'Out of Stock' : 'Hidden'}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleDuplicate(item.id)}
-                    className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Duplicate"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => openEditModal(item)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(item.id)}
-                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={async (event: DragEndEvent) => {
+              const { active, over } = event;
+              if (over && active.id !== over.id) {
+                const oldIndex = products.findIndex(p => p.id === active.id);
+                const newIndex = products.findIndex(p => p.id === over.id);
+                const reordered = arrayMove(products, oldIndex, newIndex);
+                setProducts(reordered);
+                await reorderProducts(reordered.map(p => p.id));
+              }
+            }}
+          >
+            <SortableContext items={filteredProducts.map(p => p.id)} strategy={verticalListSortingStrategy}>
+              <div className="divide-y divide-gray-100">
+                {filteredProducts.map((item) => (
+                  <SortableProductItem
+                    key={item.id}
+                    item={item}
+                    breadcrumb={getBreadcrumb(item.category_id)}
+                    onEdit={() => openEditModal(item)}
+                    onDelete={() => setDeleteConfirm(item.id)}
+                    onDuplicate={() => handleDuplicate(item.id)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
@@ -530,7 +560,20 @@ export const AdminProducts: React.FC = () => {
                 <p className="text-xs text-gray-500 mt-1">YouTube, Vimeo, or direct MP4 URL</p>
               </div>
 
-              {/* 3D View Placeholder */}
+              {/* 3D Model */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  3D Model URL (.glb)
+                </label>
+                <input
+                  type="url"
+                  value={formData.model_url}
+                  onChange={(e) => setFormData({ ...formData, model_url: e.target.value, has_3d_view: !!e.target.value })}
+                  placeholder="https://your-supabase.co/storage/v1/object/public/images/models/model.glb"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">GLB file URL from Supabase Storage. 3D badge auto-enables when URL is set.</p>
+              </div>
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
                 <input
                   type="checkbox"
@@ -540,7 +583,7 @@ export const AdminProducts: React.FC = () => {
                   className="w-4 h-4 text-[#005f5f] rounded"
                 />
                 <label htmlFor="has3d" className="text-sm text-gray-700">
-                  Has 3D View (Coming Soon - Sketchfab integration)
+                  Show 3D Viewer on product page
                 </label>
               </div>
             </div>

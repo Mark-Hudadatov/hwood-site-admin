@@ -12,6 +12,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ChevronLeft, ChevronRight, ArrowRight, Upload, MessageSquare, FileText } from 'lucide-react';
 import { Service, Subservice, ProductCategory, Product } from '../domain/types';
 import { getSubservicePageData } from '../services/data/dataService';
@@ -77,6 +78,25 @@ const CategoryTabs: React.FC<{
   setActiveTab: (id: string) => void;
 }> = ({ categories, activeTab, setActiveTab }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language?.startsWith('he') || document.documentElement.dir === 'rtl';
+
+  // Drag scroll state
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollStart, setScrollStart] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollWidth, clientWidth } = scrollRef.current;
+      const hasOverflow = scrollWidth > clientWidth + 10;
+      // Always show both arrows if there's overflow - RTL scroll detection is unreliable
+      setShowLeftArrow(hasOverflow);
+      setShowRightArrow(hasOverflow);
+    }
   const [showLeft, setShowLeft]   = useState(false);
   const [showRight, setShowRight] = useState(true);
   const { i18n } = useTranslation();
@@ -110,10 +130,93 @@ const CategoryTabs: React.FC<{
     scrollRef.current?.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
   };
 
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX);
+    setScrollStart(scrollRef.current.scrollLeft);
+    scrollRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const dx = e.pageX - startX;
+    scrollRef.current.scrollLeft = scrollStart - dx;
+    if (Math.abs(dx) > 5) setHasDragged(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  };
+
+  // Touch drag support
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.touches[0].pageX);
+    setScrollStart(scrollRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    const dx = e.touches[0].pageX - startX;
+    scrollRef.current.scrollLeft = scrollStart - dx;
+    if (Math.abs(dx) > 5) setHasDragged(true);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   if (categories.length === 0) return null;
+
+  // In RTL: left-side arrow scrolls left (shows next), right-side arrow scrolls right (shows previous)
+  // In LTR: left-side arrow scrolls left (shows previous), right-side arrow scrolls right (shows next)
+  const LeftSideIcon = isRTL ? ChevronRight : ChevronLeft;
+  const RightSideIcon = isRTL ? ChevronLeft : ChevronRight;
 
   return (
     <div className="relative">
+      {/* Left-side Arrow */}
+      {showLeftArrow && (
+        <button
+          onClick={() => scroll('left')}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+        >
+          <LeftSideIcon className="w-6 h-6 text-neutral-700" />
+        </button>
+      )}
+
+      {/* Right-side Arrow */}
+      {showRightArrow && (
+        <button
+          onClick={() => scroll('right')}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
+        >
+          <RightSideIcon className="w-6 h-6 text-neutral-700" />
+        </button>
+      )}
+
+      {/* Tabs Container with drag scroll */}
+      <div 
+        ref={scrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       {showLeft && (
         <button onClick={() => scroll('left')}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all">
@@ -137,6 +240,12 @@ const CategoryTabs: React.FC<{
       >
         {categories.map((cat) => (
           <button
+            key={category.id}
+            onClick={() => { if (!hasDragged) setActiveTab(category.id); }}
+            className={`
+              group text-left px-5 md:px-8 py-4 md:py-6 rounded-t-2xl min-w-[180px] md:min-w-[260px] flex-shrink-0 transition-all duration-200 relative
+              ${activeTab === category.id 
+                ? 'bg-[#F9FAFB] shadow-lg text-black z-10' 
             key={cat.id}
             onClick={() => { if (!hasDragged) setActiveTab(cat.id); }}
             className={`group text-left px-5 md:px-8 py-4 md:py-6 rounded-t-2xl min-w-[180px] md:min-w-[260px] flex-shrink-0 transition-all duration-200 relative ${
@@ -402,6 +511,40 @@ export const SubservicePage: React.FC = () => {
           <span>{subservice.title}</span>
         </div>
 
+  return (
+    <div className="w-full flex flex-col bg-white">
+      {/* Top Section with Accent Background */}
+      <div className="w-full pt-6 flex flex-col" style={{ backgroundColor: accentColor }}>
+        <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16">
+          
+          {/* Breadcrumbs */}
+          <div className="text-white text-[10px] md:text-xs font-medium tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
+            <Link to="/" className="cursor-pointer hover:opacity-80">Home</Link>
+            <span>/</span>
+            <span>Services</span>
+            <span>/</span>
+            <Link to={ROUTES.SERVICE(service.slug)} className="cursor-pointer hover:opacity-80">{service.title}</Link>
+            <span>/</span>
+            <span>{subservice.title}</span>
+          </div>
+
+          {/* Dark Hero Card */}
+          <ScrollReveal animation="fade-up" duration={800}>
+            <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
+              <div className="absolute inset-0">
+                <img 
+                  src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
+                  alt={subservice.title}
+                  className="w-full h-full object-cover object-center opacity-50"
+                  onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+              </div>
+
+              <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-4xl">
+                <h1 className="text-2xl md:text-5xl font-normal tracking-tight mb-2">{subservice.title}</h1>
+                <p className="text-neutral-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
+              </div>
         {/* Hero card */}
         <ScrollReveal animation="fade-up" duration={800}>
           <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">

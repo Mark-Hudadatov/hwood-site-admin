@@ -85,12 +85,18 @@ export const ContactPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
-              <div className="bg-neutral-100 rounded-xl h-64 flex items-center justify-center">
-                <div className="text-center text-neutral-400">
-                  <MapPin className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p className="text-meta">Map</p>
-                </div>
+              {/* Google Map */}
+              <div className="rounded-xl overflow-hidden h-64">
+                <iframe
+                  title="HWOOD Location"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent('המסגר 20, נתניה, ישראל')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
 

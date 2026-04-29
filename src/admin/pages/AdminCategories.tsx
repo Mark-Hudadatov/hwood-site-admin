@@ -5,6 +5,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Save, GripVertical } from 'lucide-react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AdminCategory,
   AdminSubservice,
@@ -16,6 +19,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  reorderCategories,
 } from '../adminStore';
 import {
   BilingualInput,
@@ -24,11 +28,47 @@ import {
   ConfirmDialog,
 } from '../components';
 
+// Sortable row for drag-and-drop
+const SortableCategoryItem: React.FC<{
+  item: AdminCategory;
+  breadcrumb: string;
+  onEdit: () => void;
+  onDelete: () => void;
+}> = ({ item, breadcrumb, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${item.visibility_status !== 'visible' ? 'opacity-60' : ''}`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
+        <GripVertical className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
+        <p className="text-sm text-gray-500">{breadcrumb}</p>
+      </div>
+      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        item.visibility_status === 'visible' ? 'bg-green-100 text-green-700' :
+        item.visibility_status === 'coming_soon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+      }`}>
+        {item.visibility_status === 'visible' ? 'Visible' : item.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+        <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+      </div>
+    </div>
+  );
+};
+
 export const AdminCategories: React.FC = () => {
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [subservices, setSubservices] = useState<AdminSubservice[]>([]);
   const [services, setServices] = useState<AdminService[]>([]);
   const [loading, setLoading] = useState(true);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [editingItem, setEditingItem] = useState<AdminCategory | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -217,53 +257,34 @@ export const AdminCategories: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredCategories.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${
-                  item.visibility_status !== 'visible' ? 'opacity-60' : ''
-                }`}
-              >
-                <div className="cursor-grab text-gray-400">
-                  <GripVertical className="w-5 h-5" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">{item.title_en}</h3>
-                  <p className="text-sm text-gray-500">
-                    {getServiceNameForSubservice(item.subservice_id)} → {getSubserviceName(item.subservice_id)} → /{item.slug}
-                  </p>
-                </div>
-
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  item.visibility_status === 'visible' 
-                    ? 'bg-green-100 text-green-700'
-                    : item.visibility_status === 'coming_soon'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
-                  {item.visibility_status === 'visible' ? 'Visible' :
-                   item.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openEditModal(item)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(item.id)}
-                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={async (event: DragEndEvent) => {
+              const { active, over } = event;
+              if (over && active.id !== over.id) {
+                const oldIndex = categories.findIndex(c => c.id === active.id);
+                const newIndex = categories.findIndex(c => c.id === over.id);
+                const reordered = arrayMove(categories, oldIndex, newIndex);
+                setCategories(reordered);
+                await reorderCategories(reordered.map(c => c.id));
+              }
+            }}
+          >
+            <SortableContext items={filteredCategories.map(c => c.id)} strategy={verticalListSortingStrategy}>
+              <div className="divide-y divide-gray-100">
+                {filteredCategories.map((item) => (
+                  <SortableCategoryItem
+                    key={item.id}
+                    item={item}
+                    breadcrumb={`${getServiceNameForSubservice(item.subservice_id)} → ${getSubserviceName(item.subservice_id)} → /${item.slug}`}
+                    onEdit={() => openEditModal(item)}
+                    onDelete={() => setDeleteConfirm(item.id)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
