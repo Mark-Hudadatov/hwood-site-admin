@@ -9,8 +9,27 @@ export default {
       // COLOR AUTHORITY MODEL
       // Brand = identity elements | Accent = primary CTA only | Neutral = everything else
       colors: {
-        brand: '#005f5f',
+        brand: {
+          DEFAULT: '#005f5f',
+          600: '#004d4d',   // hover
+          700: '#003d3d',   // press
+          tint: 'rgba(0, 95, 95, 0.08)',
+          ring: 'rgba(0, 95, 95, 0.40)',
+        },
         accent: '#005f5f',
+        // Skylum brand — facade/ACP services only, never mix with HWOOD teal
+        skylum: {
+          DEFAULT: '#0091DB',   // sky blue — wordmark, accents
+          600: '#0070C0',       // hover / mid
+          700: '#1050A0',       // deep cerulean
+          ink: '#2030A0',       // deep indigo — gradient bottom, dark surfaces
+          900: '#141A5C',       // darkest hero background
+          tint: 'rgba(0, 145, 219, 0.10)',
+        },
+        // Dark industrial surfaces
+        surface: {
+          dark: '#002828',      // footer / dark section background
+        },
         neutral: {
           50: '#fafafa',
           100: '#f5f5f5',
@@ -23,9 +42,10 @@ export default {
           800: '#262626',
           900: '#171717',
         },
-        // Legacy support
+        // Legacy support + teal-50 for OrderTypeBadge backgrounds
         teal: {
           DEFAULT: '#005f5f',
+          50: '#f0fdfa',
           500: '#005f5f',
           600: '#004d4d',
           700: '#003d3d',
@@ -49,6 +69,9 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        // Display tier — Inter 24pt optical static family
+        // Used for h1, h2, .display classes — tighter letterforms at large sizes
+        display: ['"Inter Display"', 'Inter', 'system-ui', 'sans-serif'],
       },
       // 8px-BASED SPACING SYSTEM
       spacing: {
