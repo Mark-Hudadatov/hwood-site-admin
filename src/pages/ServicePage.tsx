@@ -86,6 +86,45 @@ const resolveHeroTheme = (raw: string | null | undefined, brand: Brand, orderTyp
   return (raw && valid.includes(raw as HeroTheme)) ? raw as HeroTheme : DEFAULT_THEME[brand][orderType];
 };
 
+// Inline gradients — reliable regardless of CSS cascade timing
+// tokens.css handles badge colors; hero gradient is explicit here
+const HERO_GRADIENTS: Record<HeroTheme, { gradient: string; highlight: string }> = {
+  teal: {
+    gradient: [
+      'radial-gradient(120% 80% at 90% 10%, rgba(0,212,170,.28) 0%, transparent 55%)',
+      'radial-gradient(90% 100% at 15% 110%, rgba(0,95,95,.55) 0%, transparent 60%)',
+      'linear-gradient(135deg, #002828 0%, #003d3d 45%, #001a1a 100%)',
+    ].join(', '),
+    highlight: '#00d4aa',
+  },
+  indigo: {
+    gradient: [
+      'radial-gradient(120% 80% at 90% 10%, rgba(91,157,255,.28) 0%, transparent 55%)',
+      'radial-gradient(90% 100% at 15% 110%, rgba(26,58,95,.60) 0%, transparent 60%)',
+      'linear-gradient(135deg, #0a1a35 0%, #1a3a5f 45%, #050d1f 100%)',
+    ].join(', '),
+    highlight: '#5b9dff',
+  },
+  copper: {
+    gradient: [
+      'radial-gradient(120% 80% at 90% 10%, rgba(244,166,75,.22) 0%, transparent 55%)',
+      'radial-gradient(90% 100% at 15% 110%, rgba(74,40,23,.65) 0%, transparent 60%)',
+      'linear-gradient(135deg, #2a1810 0%, #4a2817 45%, #180a04 100%)',
+    ].join(', '),
+    highlight: '#F4A64B',
+  },
+  skylum: {
+    gradient: [
+      'radial-gradient(120% 80% at 85% 10%, rgba(0,145,219,.35) 0%, transparent 55%)',
+      'radial-gradient(90% 100% at 10% 110%, rgba(16,80,160,.65) 0%, transparent 60%)',
+      'linear-gradient(135deg, #141A5C 0%, #1050A0 45%, #0D1440 100%)',
+    ].join(', '),
+    highlight: '#7FC9FF',
+  },
+};
+
+
+
 // =============================================================================
 // HELPERS
 // =============================================================================
@@ -277,10 +316,9 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
   const [visible, setVisible] = useState(false);
   const isRTL = lang === 'he';
 
-  // If admin set a custom accent_color, inject it as inline override
-  const accentOverride = service.accentColor
-    ? { '--sv-hero-highlight': service.accentColor } as React.CSSProperties
-    : {};
+  const themeConfig = HERO_GRADIENTS[service.heroTheme];
+  // accent_color from admin overrides only the highlight color
+  const highlight = service.accentColor || themeConfig.highlight;
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 60);
@@ -298,13 +336,16 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
         </div>
       </div>
 
-      {/* Hero — gradient from CSS class, theme from data attribute on page root */}
+      {/* Hero — inline gradient (reliable, no CSS cascade dependency) */}
       <section
-        className="sv-hero-gradient relative w-full overflow-hidden"
-        style={{ minHeight: '360px', ...accentOverride }}
+        className="relative w-full overflow-hidden"
+        style={{ background: themeConfig.gradient, minHeight: '360px' }}
       >
         {/* Grid overlay */}
-        <div className="sv-hero-grid-overlay absolute inset-0 pointer-events-none" />
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+        }} />
 
         {/* Hero photo if set */}
         {service.heroImageUrl && (
@@ -331,7 +372,7 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
         {/* Glow dot — uses CSS variable */}
         <div
           className="absolute top-8 right-20 w-2 h-2 rounded-full pointer-events-none"
-          style={{ background: 'var(--sv-hero-highlight)', boxShadow: '0 0 24px color-mix(in oklab, var(--sv-hero-highlight) 90%, transparent)' }}
+          style={{ background: highlight, boxShadow: `0 0 24px ${highlight}cc` }}
         />
 
         {/* Content */}
@@ -351,9 +392,9 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
               className={`font-display font-semibold text-white tracking-tight leading-[1.08] mb-4 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               style={{ fontSize: 'clamp(2rem, 4.5vw, 2.75rem)' }}
             >
-              {service.title.split(' ').slice(0, -2).join(' ')}{' '}
-              <span style={{ color: 'var(--sv-hero-highlight)' }}>
-                {service.title.split(' ').slice(-2).join(' ')}
+              {service.title.split(' ').slice(0, -1).join(' ')}{' '}
+              <span style={{ color: highlight }}>
+                {service.title.split(' ').slice(-1)[0]}
               </span>
             </h1>
 
@@ -384,12 +425,10 @@ const SubserviceCard: React.FC<{
 }> = ({ subservice, onClick, lang }) => {
   const isComingSoon = subservice.visibilityStatus === 'coming_soon';
   const [imgSrc, setImgSrc] = useState(subservice.imageUrl || FALLBACK_IMAGE);
-  // Letter tag: first char of title, uppercase
-  const letterTag = subservice.title.charAt(0).toUpperCase();
 
   return (
     <article
-      className={`flex-shrink-0 relative w-[280px] md:w-[300px] h-[420px] rounded-3xl overflow-hidden group
+      className={`flex-shrink-0 relative w-[300px] h-[440px] rounded-3xl overflow-hidden group
         ${isComingSoon ? 'opacity-60 border-4 border-transparent cursor-default' : 'card-industrial cursor-pointer'}`}
       onClick={isComingSoon ? undefined : onClick}
     >
@@ -412,13 +451,10 @@ const SubserviceCard: React.FC<{
       )}
 
       <div className="relative h-full p-8 flex flex-col text-white z-10">
-        {/* Letter tag badge — DS pattern */}
+        {/* Card badge — DS pattern */}
         <div className="mb-4">
-          <span
-            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[13px] font-extrabold"
-            style={{ background: 'var(--sv-hero-highlight, #00d4aa)', color: '#0a0a0a' }}
-          >
-            {letterTag}
+          <span className="eyebrow bg-brand px-2.5 py-1.5 rounded-sm text-white text-[10px] tracking-[0.2em] font-bold uppercase">
+            MODULE
           </span>
         </div>
 
@@ -851,7 +887,7 @@ export const ServicePage: React.FC = () => {
 
   return (
     // data-service-theme switches CSS variable aliases in tokens.css
-    <div className="w-full flex flex-col bg-white" data-service-theme={service.heroTheme}>
+    <div className="w-full flex flex-col bg-white">
       <Block01Hero service={service} lang={lang} />
       <Block02Subservices subservices={subservices} lang={lang} onSubserviceClick={(s) => navigate(ROUTES.SUBSERVICE(s.slug))} />
       <Block03HowToOrder orderType={service.orderType} lang={lang} />
