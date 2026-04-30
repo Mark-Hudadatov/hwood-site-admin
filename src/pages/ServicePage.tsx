@@ -1,30 +1,30 @@
 /**
- * SERVICE PAGE — v2.1
+ * SERVICE PAGE — v3.0
  * ====================
- * Fix: hero gradient now uses inline style (reliable, no CSS-file dependency).
- * Fix: 4 distinct themes from Design System (teal/indigo/copper/skylum).
- * Fix: hero_theme field in Supabase drives the theme; fallback from order_type+brand.
+ * Changes from v2.1:
+ *  - Hero: switched from inline gradient to [data-service-theme] + .sv-hero-gradient CSS class
+ *  - OrderTypeBadge: colored pill with dot, matches badge-* tokens from tokens.css
+ *  - BrandBadge: tighter DS styling
+ *  - SubserviceCard: letter tag (first char of title) instead of first word
+ *  - WhatsApp: floating button + 3 intent-reply buttons (pre-filled messages)
+ *  - CTA Banner: diagonal stripes decorative layer from DS
  *
- * Hero theme resolution order:
- *   1. svc.hero_theme (set in admin panel, stored in services.hero_theme)
- *   2. Inferred from order_type + brand
- *   3. Default → 'teal'
+ * REQUIRES tokens.css imported BEFORE globals.css in main.tsx:
+ *   import './styles/tokens.css';
+ *   import './styles/globals.css';
  *
- * Admin control: Admin sets hero_theme in AdminServices (select dropdown).
- *   No code change needed when adding new services or swapping themes.
- *   accent_color overrides only the highlight/glow color within the active theme.
- *
- * 7-block structure:
- *   01 Hero · 02 Subservices · 03 How to Order · 04 Who Orders This
- *   05 About the Factory · 06 Portfolio · 07 CTA Banner
+ * hero_theme resolution:
+ *   1. svc.hero_theme from Supabase (set in AdminServices)
+ *   2. Inferred: order_type + brand
+ *   3. Default: 'teal'
  */
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, ChevronLeft, ChevronRight, Clock,
-  FileUp, Layers, UserCheck, Grid2X2, SlidersHorizontal, Send,
-  PenLine, Paperclip, Phone, Info, Building2,
+  FileUp, Layers, UserCheck, Grid2X2, SlidersHorizontal,
+  Send, PenLine, Paperclip, Phone, Info, Building2,
 } from 'lucide-react';
 
 import { Service, Subservice, Story } from '../domain/types';
@@ -41,122 +41,74 @@ import {
 } from '../services/data/serviceContextMap';
 
 // =============================================================================
-// HERO THEMES
-// Four presets from Design System v2.1.
-// theme key is stored in services.hero_theme (admin-controlled).
-// Fallback is inferred from order_type + brand.
+// CONSTANTS
+// =============================================================================
+
+const WA_NUMBER = '972549222804';
+
+const WA_INTENTS = (serviceTitle: string) => [
+  {
+    label_en: 'I want to leave my details',
+    label_he: 'אני רוצה להשאיר פרטים',
+    message_en: `Hi, I'd like to leave my details regarding "${serviceTitle}".`,
+    message_he: `שלום, אני רוצה להשאיר פרטים לגבי "${serviceTitle}".`,
+  },
+  {
+    label_en: 'I know what I need',
+    label_he: 'אני יודע מה אני צריך',
+    message_en: `Hi, I know exactly what I need from "${serviceTitle}" and want to discuss.`,
+    message_he: `שלום, אני יודע בדיוק מה אני צריך מ"${serviceTitle}" ורוצה לדון בכך.`,
+  },
+  {
+    label_en: 'I have questions',
+    label_he: 'יש לי שאלות',
+    message_en: `Hi, I have some questions about "${serviceTitle}".`,
+    message_he: `שלום, יש לי כמה שאלות לגבי "${serviceTitle}".`,
+  },
+];
+
+const waUrl = (message: string) =>
+  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
+
+// =============================================================================
+// HERO THEME
 // =============================================================================
 
 export type HeroTheme = 'teal' | 'indigo' | 'copper' | 'skylum';
 
-interface HeroThemeConfig {
-  /** CSS gradient string applied as inline style on the hero section */
-  gradient: string;
-  /** Decorative SVG element rendered on the right of the hero */
-  svgPattern: 'cnc' | 'catalog' | 'kitchen' | 'facade';
-  /** Highlight color — title accent span + glow dot */
-  highlight: string;
-  /** Glow box-shadow for the dot */
-  glowShadow: string;
-}
-
-const HERO_THEMES: Record<HeroTheme, HeroThemeConfig> = {
-  /** Factory Teal — send-file-and-process (CNC Services) */
-  teal: {
-    gradient: [
-      'radial-gradient(120% 80% at 90% 10%, rgba(0,212,170,.28) 0%, transparent 55%)',
-      'radial-gradient(90% 100% at 15% 110%, rgba(0,95,95,.55) 0%, transparent 60%)',
-      'linear-gradient(135deg, #002828 0%, #003d3d 45%, #001a1a 100%)',
-    ].join(', '),
-    svgPattern: 'cnc',
-    highlight: '#00d4aa',
-    glowShadow: '0 0 24px rgba(0,212,170,.9)',
-  },
-  /** Catalog Indigo — browse-and-order (Cabinet Modules, Fronts) */
-  indigo: {
-    gradient: [
-      'radial-gradient(120% 80% at 90% 10%, rgba(91,157,255,.28) 0%, transparent 55%)',
-      'radial-gradient(90% 100% at 15% 110%, rgba(26,58,95,.60) 0%, transparent 60%)',
-      'linear-gradient(135deg, #0a1a35 0%, #1a3a5f 45%, #050d1f 100%)',
-    ].join(', '),
-    svgPattern: 'catalog',
-    highlight: '#5b9dff',
-    glowShadow: '0 0 24px rgba(91,157,255,.9)',
-  },
-  /** Workshop Copper — describe-and-request (Custom Kitchen, Facade HWOOD) */
-  copper: {
-    gradient: [
-      'radial-gradient(120% 80% at 90% 10%, rgba(244,166,75,.22) 0%, transparent 55%)',
-      'radial-gradient(90% 100% at 15% 110%, rgba(74,40,23,.65) 0%, transparent 60%)',
-      'linear-gradient(135deg, #2a1810 0%, #4a2817 45%, #180a04 100%)',
-    ].join(', '),
-    svgPattern: 'kitchen',
-    highlight: '#F4A64B',
-    glowShadow: '0 0 24px rgba(244,166,75,.9)',
-  },
-  /** Skylum Facade — brand: skylum (Facade Systems & ACP) */
-  skylum: {
-    gradient: [
-      'radial-gradient(120% 80% at 85% 10%, rgba(0,145,219,.35) 0%, transparent 55%)',
-      'radial-gradient(90% 100% at 10% 110%, rgba(16,80,160,.65) 0%, transparent 60%)',
-      'linear-gradient(135deg, #141A5C 0%, #1050A0 45%, #0D1440 100%)',
-    ].join(', '),
-    svgPattern: 'facade',
-    highlight: '#7FC9FF',
-    glowShadow: '0 0 24px rgba(127,201,255,.9)',
-  },
-};
-
-/** Default theme per order_type + brand */
 const DEFAULT_THEME: Record<Brand, Record<OrderType, HeroTheme>> = {
-  hwood: {
-    'browse-and-order':      'indigo',
-    'send-file-and-process': 'teal',
-    'describe-and-request':  'copper',
-  },
-  skylum: {
-    'browse-and-order':      'skylum',
-    'send-file-and-process': 'skylum',
-    'describe-and-request':  'skylum',
-  },
+  hwood:  { 'browse-and-order': 'indigo', 'send-file-and-process': 'teal', 'describe-and-request': 'copper' },
+  skylum: { 'browse-and-order': 'skylum', 'send-file-and-process': 'skylum', 'describe-and-request': 'skylum' },
 };
 
-const resolveHeroTheme = (
-  heroThemeRaw: string | null | undefined,
-  brand: Brand,
-  orderType: OrderType,
-): HeroTheme => {
+const resolveHeroTheme = (raw: string | null | undefined, brand: Brand, orderType: OrderType): HeroTheme => {
   const valid: HeroTheme[] = ['teal', 'indigo', 'copper', 'skylum'];
-  if (heroThemeRaw && valid.includes(heroThemeRaw as HeroTheme)) {
-    return heroThemeRaw as HeroTheme;
-  }
-  return DEFAULT_THEME[brand][orderType];
+  return (raw && valid.includes(raw as HeroTheme)) ? raw as HeroTheme : DEFAULT_THEME[brand][orderType];
 };
 
 // =============================================================================
 // HELPERS
 // =============================================================================
 
-// TODO: extract to src/utils/lang.ts
+// TODO: move to src/utils/lang.ts
 const getCurrentLang = (): 'en' | 'he' => {
   if (typeof window === 'undefined') return 'en';
   return localStorage.getItem('i18nextLng')?.startsWith('he') ? 'he' : 'en';
 };
 
-const t = (en: string, he: string, lang: 'en' | 'he') => (lang === 'he' ? he : en);
+const t = (en: string, he: string, lang: 'en' | 'he') => lang === 'he' ? he : en;
 
 const STEP_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  FileUp, Layers, UserCheck, Grid2X2, SlidersHorizontal, Send, PenLine, Paperclip, Phone,
+  FileUp, Layers, UserCheck, Grid2X2, SlidersHorizontal,
+  Send, PenLine, Paperclip, Phone,
 };
 
 const FALLBACK_IMAGE = `data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">' +
   '<rect width="800" height="600" fill="#1a1a1a"/>' +
   '<g transform="translate(360,280)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.2">' +
-  '<rect x="0" y="0" width="80" height="50" rx="3"/>' +
-  '<rect x="8" y="12" width="20" height="28" rx="2"/>' +
-  '<rect x="33" y="12" width="20" height="28" rx="2"/>' +
-  '</g></svg>'
+  '<rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="28" rx="2"/>' +
+  '<rect x="33" y="12" width="20" height="28" rx="2"/></g></svg>'
 )}`;
 
 // =============================================================================
@@ -175,57 +127,43 @@ interface SubserviceWithStatus extends Subservice {
 }
 
 // =============================================================================
-// DECORATIVE SVG PATTERNS (theme-specific, right side of hero)
+// ORDER TYPE BADGE — colored pill with dot, uses badge-* tokens from tokens.css
 // =============================================================================
 
-const HeroSVGPattern: React.FC<{ pattern: HeroThemeConfig['svgPattern'] }> = ({ pattern }) => {
-  const base = 'absolute right-0 bottom-0 w-[520px] h-[300px] opacity-[0.2] text-white pointer-events-none';
-  if (pattern === 'cnc') return (
-    <svg className={base} viewBox="0 0 620 360" fill="none" stroke="currentColor" strokeWidth="1">
-      <rect x="40" y="40" width="540" height="280" rx="6" />
-      <path d="M70 70 H320 V150 H180 V230 H500 V120 H420" />
-      <circle cx="320" cy="150" r="5" /><circle cx="180" cy="230" r="5" />
-      <circle cx="500" cy="120" r="5" /><circle cx="420" cy="120" r="5" />
-    </svg>
-  );
-  if (pattern === 'catalog') return (
-    <svg className={base} viewBox="0 0 640 300" fill="none" stroke="currentColor" strokeWidth="1">
-      <rect x="40" y="30" width="120" height="110" rx="2" />
-      <rect x="170" y="30" width="160" height="110" rx="2" />
-      <rect x="340" y="30" width="100" height="110" rx="2" />
-      <rect x="450" y="30" width="140" height="110" rx="2" />
-      <rect x="40" y="150" width="200" height="110" rx="2" />
-      <rect x="250" y="150" width="80" height="110" rx="2" />
-      <rect x="340" y="150" width="140" height="110" rx="2" />
-      <rect x="490" y="150" width="100" height="110" rx="2" />
-      <line x1="170" y1="18" x2="330" y2="18" strokeDasharray="2 3" />
-    </svg>
-  );
-  if (pattern === 'kitchen') return (
-    <svg className={base} viewBox="0 0 660 300" fill="none" stroke="currentColor" strokeWidth="1">
-      <line x1="20" y1="248" x2="640" y2="248" />
-      <rect x="60" y="170" width="90" height="78" /><rect x="150" y="170" width="70" height="78" />
-      <rect x="220" y="170" width="110" height="78" /><rect x="236" y="186" width="78" height="46" />
-      <rect x="330" y="170" width="140" height="78" /><circle cx="400" cy="208" r="12" />
-      <rect x="470" y="170" width="110" height="78" />
-      <rect x="60" y="60" width="160" height="70" /><rect x="220" y="44" width="110" height="86" />
-      <rect x="470" y="60" width="110" height="70" />
-      <path d="M258 44 L258 28 L292 28 L292 44" />
-      <line x1="220" y1="16" x2="330" y2="16" strokeDasharray="2 3" />
-    </svg>
-  );
-  // facade
+const ORDER_TYPE_CONFIG: Record<OrderType, {
+  label_en: string; label_he: string;
+  icon: React.ComponentType<{ className?: string }>;
+  bgVar: string; fgVar: string; dotVar: string;
+}> = {
+  'browse-and-order': {
+    label_en: 'Browse & order', label_he: 'עיון והזמנה',
+    icon: Grid2X2,
+    bgVar: 'var(--badge-browse-bg)', fgVar: 'var(--badge-browse-fg)', dotVar: 'var(--badge-browse-dot)',
+  },
+  'send-file-and-process': {
+    label_en: 'Send file & process', label_he: 'שלח קובץ לעיבוד',
+    icon: FileUp,
+    bgVar: 'var(--badge-file-bg)', fgVar: 'var(--badge-file-fg)', dotVar: 'var(--badge-file-dot)',
+  },
+  'describe-and-request': {
+    label_en: 'Describe & request', label_he: 'תאר ובקש',
+    icon: PenLine,
+    bgVar: 'var(--badge-describe-bg)', fgVar: 'var(--badge-describe-fg)', dotVar: 'var(--badge-describe-dot)',
+  },
+};
+
+const OrderTypeBadge: React.FC<{ orderType: OrderType; lang: 'en' | 'he' }> = ({ orderType, lang }) => {
+  const cfg = ORDER_TYPE_CONFIG[orderType];
+  const Icon = cfg.icon;
   return (
-    <svg className={base} viewBox="0 0 660 300" fill="none" stroke="currentColor" strokeWidth="1">
-      <line x1="20" y1="264" x2="640" y2="264" />
-      <rect x="60" y="30" width="540" height="234" />
-      {[120,180,240,300,360,420,480,540].map(x => <line key={x} x1={x} y1="30" x2={x} y2="264" />)}
-      {[76,122,168,214].map(y => <line key={y} x1="60" y1={y} x2="600" y2={y} />)}
-      <rect x="180" y="76" width="60" height="46" fill="currentColor" fillOpacity="0.18" />
-      <rect x="360" y="122" width="60" height="46" fill="currentColor" fillOpacity="0.18" />
-      <rect x="480" y="76" width="60" height="46" fill="currentColor" fillOpacity="0.18" />
-      <line x1="180" y1="18" x2="240" y2="18" strokeDasharray="2 3" />
-    </svg>
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.18em]"
+      style={{ background: cfg.bgVar, color: cfg.fgVar }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dotVar }} />
+      <Icon className="w-3 h-3" />
+      {t(cfg.label_en, cfg.label_he, lang)}
+    </span>
   );
 };
 
@@ -236,7 +174,7 @@ const HeroSVGPattern: React.FC<{ pattern: HeroThemeConfig['svgPattern'] }> = ({ 
 const BrandBadge: React.FC<{ brand: Brand }> = ({ brand }) => (
   brand === 'skylum'
     ? <span className="inline-flex items-center gap-1.5 bg-slate-800 text-slate-200 border border-slate-600 rounded-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />SKYLUM
+        <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />SKYLUM
       </span>
     : <span className="inline-flex items-center gap-1.5 bg-white/12 backdrop-blur-sm text-white border border-white/25 rounded-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">
         <span className="w-1.5 h-1.5 rounded-full bg-white" />HWOOD
@@ -244,39 +182,105 @@ const BrandBadge: React.FC<{ brand: Brand }> = ({ brand }) => (
 );
 
 // =============================================================================
-// ORDER TYPE BADGE
+// WHATSAPP PANEL — floating button + 3 intent reply buttons
 // =============================================================================
 
-const ORDER_TYPE_META: Record<OrderType, { label_en: string; label_he: string; icon: React.ComponentType<{ className?: string }> }> = {
-  'browse-and-order':      { label_en: 'Browse & order',      label_he: 'עיון והזמנה',     icon: Grid2X2 },
-  'send-file-and-process': { label_en: 'Send file & process', label_he: 'שלח קובץ לעיבוד', icon: FileUp  },
-  'describe-and-request':  { label_en: 'Describe & request',  label_he: 'תאר ובקש',        icon: PenLine },
-};
+const WhatsAppPanel: React.FC<{ serviceTitle: string; lang: 'en' | 'he' }> = ({ serviceTitle, lang }) => {
+  const [open, setOpen] = useState(false);
+  const intents = WA_INTENTS(serviceTitle);
 
-const OrderTypeBadge: React.FC<{ orderType: OrderType; lang: 'en' | 'he' }> = ({ orderType, lang }) => {
-  const meta = ORDER_TYPE_META[orderType];
-  const Icon = meta.icon;
   return (
-    <span className="inline-flex items-center gap-1.5 bg-white text-blue-700 border border-blue-200 rounded-sm px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">
-      <Icon className="w-3 h-3" />
-      {t(meta.label_en, meta.label_he, lang)}
-    </span>
+    <div className={`fixed bottom-6 z-50 ${lang === 'he' ? 'left-6' : 'right-6'}`}>
+      {/* Intent panel — slides up when open */}
+      {open && (
+        <div className="mb-3 w-72 rounded-2xl overflow-hidden shadow-xl border border-neutral-200 animate-fade-in-up">
+          {/* WhatsApp chat header */}
+          <div className="flex items-center gap-3 px-4 py-3" style={{ background: '#075E54' }}>
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                <path d="M17.5 14.4c-.3-.15-1.76-.87-2-.97-.27-.1-.47-.15-.67.15s-.77.96-.94 1.16c-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.67-1.61-.92-2.2-.24-.59-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.27-.2-.57-.35"/>
+                <path d="M12.05 21.79H12a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26C2.12 6.45 6.55 2 12 2c2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.43 9.88-9.88 9.88z"/>
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-[13px] font-semibold leading-none">HWOOD</div>
+              <div className="text-white/70 text-[11px] mt-0.5">
+                {t('Usually replies in minutes', 'בדרך כלל עונה תוך דקות', lang)}
+              </div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-white/60 hover:text-white text-lg leading-none p-1"
+              aria-label="Close"
+            >×</button>
+          </div>
+
+          {/* Chat bubble */}
+          <div className="bg-[#ECE5DD] px-4 pt-3 pb-1">
+            <div className="bg-white rounded-lg rounded-tl-none px-3 py-2.5 shadow-sm max-w-[85%]">
+              <p className="text-[13px] text-neutral-800 leading-snug">
+                {t(
+                  `Hi! How can I help you with "${serviceTitle}"?`,
+                  `שלום! איך אוכל לעזור לך עם "${serviceTitle}"?`,
+                  lang
+                )}
+              </p>
+              <span className="text-[10px] text-neutral-400 mt-1 block text-right">
+                {new Date().toLocaleTimeString(lang === 'he' ? 'he-IL' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
+
+          {/* Intent reply buttons */}
+          <div className="bg-[#ECE5DD] px-4 pb-4 flex flex-col gap-2">
+            {intents.map((intent, i) => (
+              <a
+                key={i}
+                href={waUrl(t(intent.message_en, intent.message_he, lang))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white rounded-full px-4 py-2.5 text-[12.5px] font-medium text-[#128C7E] hover:bg-neutral-50 transition-colors shadow-sm border border-white/80"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 opacity-60">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+                {t(intent.label_en, intent.label_he, lang)}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Floating button */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95"
+        style={{ background: '#25D366' }}
+        aria-label="WhatsApp"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+          <path d="M17.5 14.4c-.3-.15-1.76-.87-2-.97-.27-.1-.47-.15-.67.15s-.77.96-.94 1.16c-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.67-1.61-.92-2.2-.24-.59-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.06 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.27-.2-.57-.35"/>
+          <path d="M12.05 21.79H12a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26C2.12 6.45 6.55 2 12 2c2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.43 9.88-9.88 9.88z"/>
+        </svg>
+      </button>
+    </div>
   );
 };
 
 // =============================================================================
 // BLOCK 01 — HERO
+// Uses .sv-hero-gradient class + [data-service-theme] attribute on page root.
+// accent_color from Supabase overrides --sv-hero-highlight for this instance.
 // =============================================================================
 
 const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ service, lang }) => {
   const [visible, setVisible] = useState(false);
   const isRTL = lang === 'he';
-  const theme = HERO_THEMES[service.heroTheme];
-  // accent_color can override the highlight color
-  const highlight = service.accentColor || theme.highlight;
-  const glowShadow = service.accentColor
-    ? `0 0 24px ${service.accentColor}99`
-    : theme.glowShadow;
+
+  // If admin set a custom accent_color, inject it as inline override
+  const accentOverride = service.accentColor
+    ? { '--sv-hero-highlight': service.accentColor } as React.CSSProperties
+    : {};
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 60);
@@ -294,22 +298,15 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
         </div>
       </div>
 
-      {/* Hero */}
+      {/* Hero — gradient from CSS class, theme from data attribute on page root */}
       <section
-        className="relative w-full overflow-hidden"
-        style={{ background: theme.gradient, minHeight: '360px' }}
+        className="sv-hero-gradient relative w-full overflow-hidden"
+        style={{ minHeight: '360px', ...accentOverride }}
       >
         {/* Grid overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              'linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
+        <div className="sv-hero-grid-overlay absolute inset-0 pointer-events-none" />
 
-        {/* Hero photo overlay (if set in admin) */}
+        {/* Hero photo if set */}
         {service.heroImageUrl && (
           <img
             src={service.heroImageUrl}
@@ -320,32 +317,42 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
           />
         )}
 
-        {/* Theme-specific decorative SVG */}
-        <HeroSVGPattern pattern={theme.svgPattern} />
+        {/* Decorative SVG (right side, theme-agnostic lines) */}
+        <svg
+          className="absolute right-0 bottom-0 w-[480px] h-[280px] text-white opacity-[0.14] pointer-events-none"
+          viewBox="0 0 480 280" fill="none" stroke="currentColor" strokeWidth="1"
+          aria-hidden="true"
+        >
+          <rect x="30" y="20" width="420" height="240" rx="4" />
+          <path d="M60 50 H250 V130 H140 V200 H400 V100 H330" />
+          <circle cx="250" cy="130" r="4" /><circle cx="140" cy="200" r="4" /><circle cx="400" cy="100" r="4" />
+        </svg>
 
-        {/* Glow dot */}
-        <div className="absolute top-8 right-20 w-2 h-2 rounded-full pointer-events-none"
-          style={{ background: highlight, boxShadow: glowShadow }} />
+        {/* Glow dot — uses CSS variable */}
+        <div
+          className="absolute top-8 right-20 w-2 h-2 rounded-full pointer-events-none"
+          style={{ background: 'var(--sv-hero-highlight)', boxShadow: '0 0 24px color-mix(in oklab, var(--sv-hero-highlight) 90%, transparent)' }}
+        />
 
         {/* Content */}
-        <div className={`relative z-10 max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-center ${isRTL ? 'text-right items-end' : ''}`}
-          style={{ minHeight: '360px', paddingTop: '3rem', paddingBottom: '3rem' }}>
+        <div
+          className={`relative z-10 max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-center ${isRTL ? 'text-right items-end' : ''}`}
+          style={{ minHeight: '360px', paddingTop: '3rem', paddingBottom: '3rem' }}
+        >
           <div className="max-w-[640px]">
-
             {/* Badges */}
             <div className={`flex items-center gap-2 mb-5 flex-wrap ${isRTL ? 'flex-row-reverse' : ''}`}>
               <BrandBadge brand={service.brand} />
               <OrderTypeBadge orderType={service.orderType} lang={lang} />
             </div>
 
-            {/* Title */}
+            {/* Title — last 2 words in highlight color via CSS variable */}
             <h1
-              className={`font-display font-semibold text-white mb-4 tracking-tight leading-[1.08] transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+              className={`font-display font-semibold text-white tracking-tight leading-[1.08] mb-4 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
               style={{ fontSize: 'clamp(2rem, 4.5vw, 2.75rem)' }}
             >
-              {/* Split last word for highlight — same pattern as Design System */}
               {service.title.split(' ').slice(0, -2).join(' ')}{' '}
-              <span style={{ color: highlight }}>
+              <span style={{ color: 'var(--sv-hero-highlight)' }}>
                 {service.title.split(' ').slice(-2).join(' ')}
               </span>
             </h1>
@@ -367,7 +374,7 @@ const Block01Hero: React.FC<{ service: ServiceFull; lang: 'en' | 'he' }> = ({ se
 };
 
 // =============================================================================
-// BLOCK 02 — SUBSERVICES
+// BLOCK 02 — SUBSERVICES CAROUSEL
 // =============================================================================
 
 const SubserviceCard: React.FC<{
@@ -377,6 +384,8 @@ const SubserviceCard: React.FC<{
 }> = ({ subservice, onClick, lang }) => {
   const isComingSoon = subservice.visibilityStatus === 'coming_soon';
   const [imgSrc, setImgSrc] = useState(subservice.imageUrl || FALLBACK_IMAGE);
+  // Letter tag: first char of title, uppercase
+  const letterTag = subservice.title.charAt(0).toUpperCase();
 
   return (
     <article
@@ -394,6 +403,7 @@ const SubserviceCard: React.FC<{
       <div className={`absolute inset-0 transition-all duration-300
         ${isComingSoon ? 'bg-black/40' : 'bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-brand/80 group-hover:via-brand/30'}`} />
 
+      {/* Coming soon overlay */}
       {isComingSoon && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
           <Clock className="w-10 h-10 text-white mb-3" />
@@ -402,11 +412,16 @@ const SubserviceCard: React.FC<{
       )}
 
       <div className="relative h-full p-8 flex flex-col text-white z-10">
+        {/* Letter tag badge — DS pattern */}
         <div className="mb-4">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-brand px-2.5 py-1.5 rounded-sm text-white">
-            {subservice.title.split(' ')[0]}
+          <span
+            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[13px] font-extrabold"
+            style={{ background: 'var(--sv-hero-highlight, #00d4aa)', color: '#0a0a0a' }}
+          >
+            {letterTag}
           </span>
         </div>
+
         <div className="mt-auto">
           <h3 className="text-xl font-bold mb-3 tracking-tight leading-tight">{subservice.title}</h3>
           {subservice.description && (
@@ -415,7 +430,7 @@ const SubserviceCard: React.FC<{
           {!isComingSoon && (
             <div className="pt-5 border-t border-white/10 flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-[0.3em] font-bold">{t('Explore', 'לחקור', lang)}</span>
-              <ArrowRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${lang === 'he' ? 'rotate-180 group-hover:-translate-x-1 group-hover:translate-x-0' : ''}`} />
+              <ArrowRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${lang === 'he' ? 'rotate-180' : ''}`} />
             </div>
           )}
         </div>
@@ -455,7 +470,7 @@ const Block02Subservices: React.FC<{
 
   return (
     <section className="bg-neutral-50 py-20 border-t border-neutral-200 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-12">
+      <div className="max-w-7xl mx-auto mb-12">
         <div className={`flex items-end justify-between gap-8 pb-8 border-b border-neutral-200 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
           <div className={lang === 'he' ? 'text-right' : ''}>
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-500 mb-3">
@@ -466,19 +481,25 @@ const Block02Subservices: React.FC<{
             </h2>
           </div>
           <div className={`flex gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-            {([['left', showLeft], ['right', showRight]] as const).map(([dir, enabled]) => (
-              <button key={dir} onClick={() => scroll(dir)} disabled={!enabled}
-                className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-200
-                  ${enabled ? 'border-neutral-300 text-neutral-400 hover:bg-neutral-900 hover:text-white hover:border-neutral-900' : 'border-neutral-200 text-neutral-300 cursor-not-allowed'}`}
-                aria-label={dir === 'left' ? t('Previous', 'הקודם', lang) : t('Next', 'הבא', lang)}>
-                {dir === 'left' ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-              </button>
-            ))}
+            {(['left', 'right'] as const).map((dir) => {
+              const enabled = dir === 'left' ? showLeft : showRight;
+              return (
+                <button key={dir} onClick={() => scroll(dir)} disabled={!enabled}
+                  className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-200
+                    ${enabled ? 'border-neutral-300 text-neutral-400 hover:bg-neutral-900 hover:text-white hover:border-neutral-900' : 'border-neutral-200 text-neutral-300 cursor-not-allowed'}`}
+                  aria-label={dir === 'left' ? t('Previous', 'הקודם', lang) : t('Next', 'הבא', lang)}>
+                  {dir === 'left' ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
-      <div ref={scrollRef}
-        className="scroll-x-bleed flex gap-6 pb-8">
+
+      <div
+        ref={scrollRef}
+        className="scroll-x-bleed flex gap-6 pb-8"
+      >
         {subservices.map((s) => (
           <SubserviceCard key={s.id} subservice={s} onClick={() => onSubserviceClick(s)} lang={lang} />
         ))}
@@ -504,7 +525,6 @@ const Block03HowToOrder: React.FC<{ orderType: OrderType; lang: 'en' | 'he' }> =
           <p className="text-base text-neutral-600 leading-relaxed">{t(data.subtitle_en, data.subtitle_he, lang)}</p>
         </div>
 
-        {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-6 items-stretch mb-10">
           {data.steps.map((step, idx) => {
             const Icon = STEP_ICONS[step.icon] || Info;
@@ -532,7 +552,6 @@ const Block03HowToOrder: React.FC<{ orderType: OrderType; lang: 'en' | 'he' }> =
           })}
         </div>
 
-        {/* File formats box — send-file only */}
         {data.fileFormatsBox.show && (
           <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-8 flex flex-col md:flex-row md:items-center gap-6 justify-between">
             <div className={`flex items-start gap-5 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
@@ -597,17 +616,21 @@ const Block05AboutFactory: React.FC<{ brand: Brand; lang: 'en' | 'he' }> = ({ br
   const isSkylum = brand === 'skylum';
   const body_en = isSkylum
     ? 'Skylum is the facade and HPL/ACP division of HWOOD Group. We supply and process aluminum systems, ACP panels, and HPL for contractors and facade companies across Israel.'
-    : 'HWOOD operates a multi-line CNC facility serving architects, contractors, and carpenters across Israel. Repeatable output, validated files, and materials sourced from Egger, Kronospan, and Rehau.';
+    : 'HWOOD operates a multi-line CNC facility serving architects, contractors, and carpenters across Israel. Repeatable output, validated files, materials from Egger, Kronospan, and Rehau.';
   const body_he = isSkylum
     ? 'סקיילום היא חטיבת החזיתות ו-HPL/ACP של קבוצת HWOOD. אנחנו מספקים ומעבדים מערכות אלומיניום, לוחות ACP וחומר HPL לקבלנים ברחבי ישראל.'
     : 'HWOOD מפעילה מתקן CNC רב-קווי המשרת אדריכלים, קבלנים ונגרים ברחבי ישראל. תפוקה חוזרת, קבצים מאומתים וחומרים ממקורות Egger, Kronospan ו-Rehau.';
 
   return (
     <section className="relative overflow-hidden text-white py-24 bg-surface-dark">
-      {/* Stripe accent */}
-      <div className="sv-stripe-band" />
+      {/* Diagonal stripes decoration from DS */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -left-20 -top-1/2 h-[200%] w-48 opacity-[0.15]" style={{ background: '#005f5f', transform: 'skewX(-18deg)' }} />
+        <div className="absolute left-40 -top-1/2 h-[200%] w-28 opacity-[0.08]" style={{ background: '#005f5f', transform: 'skewX(-18deg)' }} />
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${isRTL ? 'direction-rtl' : ''}`}>
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center`}>
           <div className={isRTL ? 'text-right' : ''}>
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/60 mb-4">{t('The facility', 'המתקן', lang)}</p>
             <h2 className="font-display text-[2.5rem] leading-[1.1] font-semibold tracking-tight mb-6">
@@ -624,19 +647,16 @@ const Block05AboutFactory: React.FC<{ brand: Brand; lang: 'en' | 'he' }> = ({ br
               ))}
             </div>
           </div>
+
           <div className="relative aspect-[5/4] rounded-3xl overflow-hidden border border-white/10">
             <div className="absolute inset-0 bg-neutral-900" />
             <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 500 400" preserveAspectRatio="none">
-              <defs><pattern id="gf" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00d4aa" strokeWidth=".6" /></pattern></defs>
-              <rect width="500" height="400" fill="url(#gf)" />
+              <defs><pattern id="gf2" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00d4aa" strokeWidth=".6" /></pattern></defs>
+              <rect width="500" height="400" fill="url(#gf2)" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40">
               <Building2 className="w-12 h-12 mb-3 opacity-60" />
               <span className="text-[10px] uppercase tracking-[0.15em] font-medium">{t('Facility photography', 'צילומי המתקן', lang)}</span>
-              <span className="text-[10px] uppercase tracking-[0.1em] text-white/25 mt-1">{t('Workshop · CNC line · Netanya', 'סדנה · קו CNC · נתניה', lang)}</span>
-            </div>
-            <div className={`absolute bottom-5 ${isRTL ? 'right-5' : 'left-5'} text-[10px] uppercase tracking-[0.15em] font-bold text-white/50`}>
-              {isSkylum ? 'SKYLUM' : 'HWOOD'} · {t('Netanya facility', 'מתקן נתניה', lang)}
             </div>
           </div>
         </div>
@@ -647,9 +667,8 @@ const Block05AboutFactory: React.FC<{ brand: Brand; lang: 'en' | 'he' }> = ({ br
 
 // =============================================================================
 // BLOCK 06 — PORTFOLIO
+// TODO: add .eq('service_slug', serviceSlug) once column exists on stories table
 // =============================================================================
-
-// TODO: Add .eq('service_slug', serviceSlug) once service_slug column exists on stories table.
 
 const Block06Portfolio: React.FC<{ stories: (Story & { visibilityStatus?: string })[]; lang: 'en' | 'he' }> = ({ stories, lang }) => {
   const isRTL = lang === 'he';
@@ -664,14 +683,14 @@ const Block06Portfolio: React.FC<{ stories: (Story & { visibilityStatus?: string
           </div>
           <Link to={ROUTES.PORTFOLIO}
             className={`hidden md:inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-900 border-b-2 border-neutral-900 pb-1 hover:text-brand hover:border-brand transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}>
-            {t('View all projects', 'כל הפרויקטים', lang)}
+            {t('View all', 'כל הפרויקטים', lang)}
             <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {stories.slice(0, 4).map((story) => (
             <Link key={story.id} to={ROUTES.STORY(story.slug || story.id)}
-              className={`group flex flex-col ${isRTL ? 'items-end' : 'items-start'}`}>
+              className={`group flex flex-col ${isRTL ? 'items-end' : ''}`}>
               <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-4 shadow-sm">
                 <img src={story.imageUrl || FALLBACK_IMAGE} alt={story.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -701,9 +720,10 @@ const Block07CTABanner: React.FC<{ orderType: OrderType; serviceSlug: string; la
   const isRTL = lang === 'he';
   return (
     <section className="relative bg-brand text-white overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.12]">
-        <div className="absolute -left-20 -top-40 h-[200%] w-40" style={{ background: '#00d4aa', transform: 'skewX(-20deg)' }} />
-        <div className="absolute left-24 -top-40 h-[200%] w-24" style={{ background: '#00d4aa', transform: 'skewX(-20deg)' }} />
+      {/* Diagonal stripes from DS */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -left-20 -top-1/2 h-[200%] w-40 opacity-[0.15]" style={{ background: '#00d4aa', transform: 'skewX(-18deg)' }} />
+        <div className="absolute left-28 -top-1/2 h-[200%] w-24 opacity-[0.08]" style={{ background: '#00d4aa', transform: 'skewX(-18deg)' }} />
       </div>
       <div className={`relative max-w-7xl mx-auto px-6 md:px-12 py-20 flex flex-col md:flex-row md:items-center md:justify-between gap-10 ${isRTL ? 'md:flex-row-reverse text-right' : ''}`}>
         <div className="max-w-xl">
@@ -722,7 +742,7 @@ const Block07CTABanner: React.FC<{ orderType: OrderType; serviceSlug: string; la
 };
 
 // =============================================================================
-// LOADING / NOT FOUND
+// SKELETON / NOT FOUND
 // =============================================================================
 
 const LoadingSkeleton: React.FC = () => (
@@ -741,7 +761,6 @@ const NotFound: React.FC = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
     <div className="text-center">
       <h1 className="font-display text-h1 font-medium text-neutral-900 mb-4">Service Not Found</h1>
-      <p className="text-body text-neutral-600 mb-8">The service you're looking for doesn't exist.</p>
       <Link to={ROUTES.HOME} className="px-6 py-3 bg-brand text-white rounded-md hover:bg-brand-600 transition-colors">Back to Home</Link>
     </div>
   </div>
@@ -749,6 +768,7 @@ const NotFound: React.FC = () => (
 
 // =============================================================================
 // MAIN SERVICE PAGE
+// data-service-theme on root div drives CSS variable switching via tokens.css
 // =============================================================================
 
 export const ServicePage: React.FC = () => {
@@ -770,7 +790,6 @@ export const ServicePage: React.FC = () => {
       try {
         const { data: svc } = await supabase
           .from('services').select('*').eq('slug', serviceSlug).single();
-
         if (!svc) { setIsLoading(false); return; }
 
         const brand = resolveBrand(svc.brand);
@@ -778,17 +797,14 @@ export const ServicePage: React.FC = () => {
         const heroTheme = resolveHeroTheme(svc.hero_theme, brand, orderType);
 
         setService({
-          id: svc.id,
-          slug: svc.slug,
+          id: svc.id, slug: svc.slug,
           title: lang === 'he' && svc.title_he ? svc.title_he : svc.title_en,
           description: lang === 'he' && svc.description_he ? svc.description_he : svc.description_en || '',
           imageUrl: svc.image_url || '',
           heroImageUrl: svc.hero_image_url || '',
-          accentColor: svc.accent_color || '',   // overrides highlight color if set
+          accentColor: svc.accent_color || '',
           visibilityStatus: svc.visibility_status,
-          brand,
-          orderType,
-          heroTheme,
+          brand, orderType, heroTheme,
         });
 
         const { data: subs } = await supabase
@@ -818,7 +834,6 @@ export const ServicePage: React.FC = () => {
             title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
             date: new Date(s.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
             type: s.type || 'EVENTS', imageUrl: s.image_url || '',
-            visibilityStatus: s.visibility_status,
           })));
         }
       } catch (err) {
@@ -835,7 +850,8 @@ export const ServicePage: React.FC = () => {
   if (!service) return <NotFound />;
 
   return (
-    <div className="w-full flex flex-col bg-white">
+    // data-service-theme switches CSS variable aliases in tokens.css
+    <div className="w-full flex flex-col bg-white" data-service-theme={service.heroTheme}>
       <Block01Hero service={service} lang={lang} />
       <Block02Subservices subservices={subservices} lang={lang} onSubserviceClick={(s) => navigate(ROUTES.SUBSERVICE(s.slug))} />
       <Block03HowToOrder orderType={service.orderType} lang={lang} />
@@ -843,6 +859,7 @@ export const ServicePage: React.FC = () => {
       <Block05AboutFactory brand={service.brand} lang={lang} />
       <Block06Portfolio stories={stories} lang={lang} />
       <Block07CTABanner orderType={service.orderType} serviceSlug={service.slug} lang={lang} />
+      <WhatsAppPanel serviceTitle={service.title} lang={lang} />
     </div>
   );
 };
