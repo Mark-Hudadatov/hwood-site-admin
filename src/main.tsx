@@ -14,6 +14,7 @@ import { router } from './router';
 import './i18n'; // Initialize i18n
 
 // Global styles (Tailwind)
+import './styles/tokens.css'; 
 import './styles/globals.css';
 
 const rootElement = document.getElementById('root');
