@@ -596,3 +596,305 @@ img:not([loading="lazy"]) {
     font-size: 15px;
   }
 }
+
+/* =============================================================================
+   SERVICE PAGE — HERO THEME SYSTEM
+   =============================================================================
+   Four themes driven by order_type (HWOOD) and brand (Skylum).
+   Apply data-service-theme="teal|indigo|copper|skylum" to the hero section.
+   All .sv-* classes consume --sv-hero-* aliases set by the theme selector.
+
+   Theme → use on:
+     teal   → send-file-and-process  (CNC Services)
+     indigo → browse-and-order       (Cabinet Modules, Interior Fronts)
+     copper → describe-and-request   (Custom Kitchen Projects)
+     skylum → brand: skylum          (Facade Systems & ACP)
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   Base token definitions (all four palettes)
+   ----------------------------------------------------------------------------- */
+
+:root {
+  /* Factory Teal — send-file-and-process */
+  --sv-teal-hero-0:        #002828;
+  --sv-teal-hero-1:        #003d3d;
+  --sv-teal-hero-2:        #001a1a;
+  --sv-teal-hero-glow-a:   rgba(0, 212, 170, 0.28);
+  --sv-teal-hero-glow-b:   rgba(0, 95, 95, 0.55);
+  --sv-teal-highlight:     #00d4aa;
+  --sv-teal-grid:          rgba(255, 255, 255, 0.05);
+  --sv-teal-stripe-a:      #005f5f;
+  --sv-teal-stripe-b:      #004d4d;
+
+  /* Catalog Indigo — browse-and-order */
+  --sv-indigo-hero-0:      #0a1a35;
+  --sv-indigo-hero-1:      #1a3a5f;
+  --sv-indigo-hero-2:      #050d1f;
+  --sv-indigo-hero-glow-a: rgba(91, 157, 255, 0.28);
+  --sv-indigo-hero-glow-b: rgba(32, 48, 160, 0.55);
+  --sv-indigo-highlight:   #5b9dff;
+  --sv-indigo-grid:        rgba(255, 255, 255, 0.05);
+  --sv-indigo-stripe-a:    #1a3a5f;
+  --sv-indigo-stripe-b:    #0a1a35;
+
+  /* Workshop Copper — describe-and-request */
+  --sv-copper-hero-0:      #2a1810;
+  --sv-copper-hero-1:      #4a2817;
+  --sv-copper-hero-2:      #180a04;
+  --sv-copper-hero-glow-a: rgba(244, 166, 75, 0.32);
+  --sv-copper-hero-glow-b: rgba(180, 83, 9, 0.50);
+  --sv-copper-highlight:   #F4A64B;
+  --sv-copper-grid:        rgba(255, 255, 255, 0.06);
+  --sv-copper-stripe-a:    #4a2817;
+  --sv-copper-stripe-b:    #2a1810;
+
+  /* Skylum Facade — brand: skylum */
+  --sv-skylum-hero-0:      #0091DB;
+  --sv-skylum-hero-1:      #1050A0;
+  --sv-skylum-hero-2:      #141A5C;
+  --sv-skylum-hero-glow-a: rgba(120, 180, 255, 0.28);
+  --sv-skylum-hero-glow-b: rgba(32, 48, 160, 0.55);
+  --sv-skylum-highlight:   #7FC9FF;
+  --sv-skylum-grid:        rgba(255, 255, 255, 0.10);
+  --sv-skylum-stripe-a:    #1050A0;
+  --sv-skylum-stripe-b:    #141A5C;
+
+  /* Active aliases — default to teal, overridden by [data-service-theme] */
+  --sv-hero-0:        var(--sv-teal-hero-0);
+  --sv-hero-1:        var(--sv-teal-hero-1);
+  --sv-hero-2:        var(--sv-teal-hero-2);
+  --sv-hero-glow-a:   var(--sv-teal-hero-glow-a);
+  --sv-hero-glow-b:   var(--sv-teal-hero-glow-b);
+  --sv-hero-highlight:var(--sv-teal-highlight);
+  --sv-hero-grid:     var(--sv-teal-grid);
+  --sv-stripe-a:      var(--sv-teal-stripe-a);
+  --sv-stripe-b:      var(--sv-teal-stripe-b);
+}
+
+/* -----------------------------------------------------------------------------
+   Theme selectors — switch aliases per service
+   ----------------------------------------------------------------------------- */
+
+[data-service-theme="teal"] {
+  --sv-hero-0:        var(--sv-teal-hero-0);
+  --sv-hero-1:        var(--sv-teal-hero-1);
+  --sv-hero-2:        var(--sv-teal-hero-2);
+  --sv-hero-glow-a:   var(--sv-teal-hero-glow-a);
+  --sv-hero-glow-b:   var(--sv-teal-hero-glow-b);
+  --sv-hero-highlight:var(--sv-teal-highlight);
+  --sv-hero-grid:     var(--sv-teal-grid);
+  --sv-stripe-a:      var(--sv-teal-stripe-a);
+  --sv-stripe-b:      var(--sv-teal-stripe-b);
+}
+
+[data-service-theme="indigo"] {
+  --sv-hero-0:        var(--sv-indigo-hero-0);
+  --sv-hero-1:        var(--sv-indigo-hero-1);
+  --sv-hero-2:        var(--sv-indigo-hero-2);
+  --sv-hero-glow-a:   var(--sv-indigo-hero-glow-a);
+  --sv-hero-glow-b:   var(--sv-indigo-hero-glow-b);
+  --sv-hero-highlight:var(--sv-indigo-highlight);
+  --sv-hero-grid:     var(--sv-indigo-grid);
+  --sv-stripe-a:      var(--sv-indigo-stripe-a);
+  --sv-stripe-b:      var(--sv-indigo-stripe-b);
+}
+
+[data-service-theme="copper"] {
+  --sv-hero-0:        var(--sv-copper-hero-0);
+  --sv-hero-1:        var(--sv-copper-hero-1);
+  --sv-hero-2:        var(--sv-copper-hero-2);
+  --sv-hero-glow-a:   var(--sv-copper-hero-glow-a);
+  --sv-hero-glow-b:   var(--sv-copper-hero-glow-b);
+  --sv-hero-highlight:var(--sv-copper-highlight);
+  --sv-hero-grid:     var(--sv-copper-grid);
+  --sv-stripe-a:      var(--sv-copper-stripe-a);
+  --sv-stripe-b:      var(--sv-copper-stripe-b);
+}
+
+[data-service-theme="skylum"] {
+  --sv-hero-0:        var(--sv-skylum-hero-0);
+  --sv-hero-1:        var(--sv-skylum-hero-1);
+  --sv-hero-2:        var(--sv-skylum-hero-2);
+  --sv-hero-glow-a:   var(--sv-skylum-hero-glow-a);
+  --sv-hero-glow-b:   var(--sv-skylum-hero-glow-b);
+  --sv-hero-highlight:var(--sv-skylum-highlight);
+  --sv-hero-grid:     var(--sv-skylum-grid);
+  --sv-stripe-a:      var(--sv-skylum-stripe-a);
+  --sv-stripe-b:      var(--sv-skylum-stripe-b);
+}
+
+/* -----------------------------------------------------------------------------
+   .sv-hero-gradient — full hero background
+   Apply to the hero section element (alongside data-service-theme)
+   ----------------------------------------------------------------------------- */
+
+.sv-hero-gradient {
+  background:
+    radial-gradient(120% 80% at 90% 10%, var(--sv-hero-glow-a) 0%, transparent 55%),
+    radial-gradient(90% 100% at 15% 110%, var(--sv-hero-glow-b) 0%, transparent 60%),
+    linear-gradient(135deg, var(--sv-hero-0) 0%, var(--sv-hero-1) 45%, var(--sv-hero-2) 100%);
+}
+
+/* -----------------------------------------------------------------------------
+   .sv-hero-grid-overlay — subtle engineering grid on hero
+   Apply to an absolute inset-0 div inside the hero
+   ----------------------------------------------------------------------------- */
+
+.sv-hero-grid-overlay {
+  background-image:
+    linear-gradient(to right, var(--sv-hero-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--sv-hero-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* -----------------------------------------------------------------------------
+   .sv-hero-highlight — H1 accent span + any highlighted text in hero
+   ----------------------------------------------------------------------------- */
+
+.sv-hero-highlight {
+  color: var(--sv-hero-highlight);
+}
+
+/* -----------------------------------------------------------------------------
+   .sv-hero-glow-dot — small decorative dot, top-right of hero
+   ----------------------------------------------------------------------------- */
+
+.sv-hero-glow-dot {
+  background: var(--sv-hero-highlight);
+  box-shadow: 0 0 24px color-mix(in oklab, var(--sv-hero-highlight) 90%, transparent);
+}
+
+/* -----------------------------------------------------------------------------
+   .sv-stripe-band — skewed teal/brand stripes on dark sections (Block 5)
+   Apply to an absolute inset-0 pointer-events-none div
+   ----------------------------------------------------------------------------- */
+
+.sv-stripe-band {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sv-stripe-band::before,
+.sv-stripe-band::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  height: 200%;
+  transform: skewX(-20deg);
+}
+
+.sv-stripe-band::before {
+  left: -80px;
+  width: 240px;
+  background: var(--sv-stripe-a);
+  opacity: 0.9;
+}
+
+.sv-stripe-band::after {
+  left: 200px;
+  width: 140px;
+  background: var(--sv-stripe-b);
+  opacity: 0.6;
+}
+
+/* =============================================================================
+   SERVICE PAGE — HERO GRADIENTS
+   Two brand variants. Applied via .sv-hero-hwood / .sv-hero-skylum on the
+   hero <section>. If a hero_image_url exists the image sits on top via
+   absolute positioning; if not, the pure gradient shows.
+   ============================================================================= */
+
+/* HWOOD — deep teal industrial gradient */
+.sv-hero-hwood {
+  background:
+    radial-gradient(120% 80% at 90% 10%, rgba(0, 212, 170, 0.28) 0%, transparent 55%),
+    radial-gradient(90% 100% at 15% 110%, rgba(0, 95, 95, 0.55) 0%, transparent 60%),
+    linear-gradient(135deg, #002828 0%, #003d3d 45%, #001a1a 100%);
+}
+
+/* Skylum — sky-blue → indigo gradient */
+.sv-hero-skylum {
+  background:
+    radial-gradient(120% 80% at 85% 10%, rgba(0, 145, 219, 0.35) 0%, transparent 55%),
+    radial-gradient(90% 100% at 10% 110%, rgba(32, 48, 160, 0.60) 0%, transparent 60%),
+    linear-gradient(135deg, #141A5C 0%, #1050A0 45%, #0D1440 100%);
+}
+
+/* Subtle grid overlay — sits above the gradient, below text content */
+.sv-hero-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* =============================================================================
+   SERVICE PAGE — FACTORY STRIPE BAND
+   Dark section (#002828) background accent. Absolute, pointer-events-none.
+   Usage: <div className="sv-stripe-band" />  inside a relative parent.
+   ============================================================================= */
+
+.sv-stripe-band {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sv-stripe-band::before,
+.sv-stripe-band::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  height: 200%;
+  transform: skewX(-20deg);
+}
+
+.sv-stripe-band::before {
+  left: -80px;
+  width: 240px;
+  background: #005f5f;
+  opacity: 0.9;
+}
+
+.sv-stripe-band::after {
+  left: 200px;
+  width: 140px;
+  background: #004d4d;
+  opacity: 0.6;
+}
+
+/* RTL mirror */
+[dir="rtl"] .sv-stripe-band::before {
+  left: auto;
+  right: -80px;
+  transform: skewX(20deg);
+}
+
+[dir="rtl"] .sv-stripe-band::after {
+  left: auto;
+  right: 200px;
+  transform: skewX(20deg);
+}
+
+/* =============================================================================
+   SERVICE PAGE — EYEBROW UTILITIES
+   Reused across all 7 blocks.
+   ============================================================================= */
+
+.sv-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.sv-eyebrow-wide {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
