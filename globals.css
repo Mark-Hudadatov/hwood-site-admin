@@ -898,3 +898,47 @@ img:not([loading="lazy"]) {
   text-transform: uppercase;
   font-weight: 700;
 }
+
+/* =============================================================================
+   PAGE GUTTER — CSS variable matching Tailwind px-6 md:px-12 lg:px-20 xl:px-32
+   Used by .scroll-x-bleed and any component that needs consistent page margins.
+   ============================================================================= */
+
+:root                        { --gutter: 1.5rem;  }  /* px-6   = 24px  */
+@media (min-width: 768px)    { :root { --gutter: 3rem;  } }  /* px-12  = 48px  */
+@media (min-width: 1024px)   { :root { --gutter: 5rem;  } }  /* px-20  = 80px  */
+@media (min-width: 1280px)   { :root { --gutter: 8rem;  } }  /* px-32  = 128px */
+@media (min-width: 1536px)   { :root { --gutter: 10rem; } }  /* px-40  = 160px */
+
+/* =============================================================================
+   SCROLL X BLEED
+   Horizontal scroll container that always bleeds to viewport edges.
+   Works regardless of parent padding — no negative-margin math needed.
+
+   Usage:  <div className="scroll-x-bleed flex gap-6 pb-8">
+             {cards}
+           </div>
+
+   Replaces the verbose pattern:
+     -mx-6 md:-mx-12 lg:-mx-20 xl:-mx-32 2xl:-mx-40
+     px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40
+   ============================================================================= */
+
+.scroll-x-bleed {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Pull to viewport edges regardless of parent offset */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  /* Restore gutter for first and last item */
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  box-sizing: border-box;
+}
+
+.scroll-x-bleed::-webkit-scrollbar {
+  display: none;
+}
