@@ -928,14 +928,13 @@ img:not([loading="lazy"]) {
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* Pull to viewport edges regardless of parent offset */
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  margin-left: -50vw;
-  /* Restore gutter for first and last item */
+  /* Negative margin bleed — requires parent section to have padding-inline: var(--gutter).
+     Works within overflow-x: clip containers (unlike the 100vw/left technique). */
+  margin-left: calc(-1 * var(--gutter));
+  margin-right: calc(-1 * var(--gutter));
   padding-left: var(--gutter);
   padding-right: var(--gutter);
+  width: calc(100% + 2 * var(--gutter));
   box-sizing: border-box;
 }
 
