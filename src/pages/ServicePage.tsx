@@ -454,7 +454,7 @@ const Block02Subservices: React.FC<{
     scrollRef.current?.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' });
 
   return (
-    <section className="bg-neutral-50 py-20 border-t border-neutral-200">
+    <section className="bg-neutral-50 py-20 border-t border-neutral-200 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
       <div className="max-w-7xl mx-auto px-6 md:px-12 mb-12">
         <div className={`flex items-end justify-between gap-8 pb-8 border-b border-neutral-200 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
           <div className={lang === 'he' ? 'text-right' : ''}>
@@ -478,8 +478,7 @@ const Block02Subservices: React.FC<{
         </div>
       </div>
       <div ref={scrollRef}
-        className="flex gap-6 overflow-x-auto no-scrollbar pb-8 -mx-6 md:-mx-12 lg:-mx-20 xl:-mx-32 px-6 md:px-12 lg:px-20 xl:px-32"
-        style={{ scrollbarWidth: 'none' }}>
+        className="scroll-x-bleed flex gap-6 pb-8">
         {subservices.map((s) => (
           <SubserviceCard key={s.id} subservice={s} onClick={() => onSubserviceClick(s)} lang={lang} />
         ))}
