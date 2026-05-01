@@ -1,339 +1,380 @@
 /**
- * MAIN LAYOUT - FIXED
- * ===================
- * FIXES:
- * ✅ WhatsApp button (bottom right, green)
- * ✅ One language button only
- * ✅ User icon → /login
- * ✅ ScrollToTop on route change
- * ✅ Language switch reloads page
+ * MAIN LAYOUT — HWOOD × SKYLUM
+ * ==============================
+ * Chrome: UtilityBar → Header (order-type nav + context strip) → <Outlet/> → Footer
+ * Header is order-type aware: shows accent strip when user is inside a journey.
  */
 
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, Link, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
-import { supabase } from '../services/supabase';
-
-// Premium Components
+import { Globe, Menu, X, ArrowRight, Search, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { LoadingScreen, PageTransition } from '../components/premium';
+import { getServiceBySlug } from '../services/data/dataService';
+import { Stripes } from '../components/journey/Stripes';
+import {
+  NAV_ORDER_TYPES,
+  getOrderTypeConfig,
+  BRAND_NEUTRAL,
+  SKYLUM_BLUE,
+  ServiceOrderType,
+} from '../lib/orderTypes';
+import { Service } from '../domain/types';
 
-// WhatsApp Icon
+// ── WhatsApp Icon ─────────────────────────────────────────────────────────────
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26C2.12 6.45 6.555 2 12.005 2c2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
-// ScrollToTop Component
+// ── Scroll-to-top on route change ─────────────────────────────────────────────
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [pathname]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [pathname]);
   return null;
 };
 
-// Language Switcher
+// ── Language switcher ─────────────────────────────────────────────────────────
 const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 'dark' }) => {
   const { i18n } = useTranslation();
   const currentLang = i18n.language?.startsWith('he') ? 'he' : 'en';
-  
-  const toggleLanguage = () => {
-    const newLang = currentLang === 'en' ? 'he' : 'en';
-    localStorage.setItem('i18nextLng', newLang);
-    i18n.changeLanguage(newLang).then(() => window.location.reload());
+  const toggle = () => {
+    const nl = currentLang === 'en' ? 'he' : 'en';
+    localStorage.setItem('i18nextLng', nl);
+    i18n.changeLanguage(nl).then(() => window.location.reload());
   };
-  
-  const baseClasses = "flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-medium text-[11px]";
-  const variantClasses = variant === 'light' 
-    ? "border-white/50 text-white hover:bg-white/20" 
-    : "border-neutral-400 text-neutral-800 hover:bg-white hover:border-transparent";
-  
+  const base = 'flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-medium text-[11px] cursor-pointer';
+  const cls = variant === 'light'
+    ? `${base} border-white/50 text-white hover:bg-white/20`
+    : `${base} border-neutral-300 text-neutral-700 hover:bg-neutral-100`;
   return (
-    <button onClick={toggleLanguage} className={`${baseClasses} ${variantClasses}`} aria-label="Switch language">
+    <button onClick={toggle} className={cls} aria-label="Switch language">
       <Globe className="w-3.5 h-3.5" />
       <span>{currentLang === 'en' ? 'עברית' : 'English'}</span>
     </button>
   );
 };
 
-// Order types — anchor to #services
-const ORDER_TYPES = [
-  { label: 'Catalog Order',  labelHe: 'הזמנה מקטלוג' },
-  { label: 'Project Order',  labelHe: 'הזמנת פרויקט'  },
-  { label: 'Custom Order',   labelHe: 'הזמנה מותאמת'  },
-];
+// ── Utility Bar ───────────────────────────────────────────────────────────────
+const UtilityBar: React.FC = () => (
+  <div style={{ background: '#002828', color: 'rgba(255,255,255,.75)', fontSize: 11, padding: '8px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', letterSpacing: '.05em' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ width: 6, height: 6, borderRadius: 99, background: '#00d4aa', boxShadow: '0 0 10px #00d4aa' }} />
+        Production active · Netanya facility · 9:00 — 18:00 IST
+      </span>
+      <span style={{ color: 'rgba(255,255,255,.5)' }}>Order desk: +972 9 890-0000</span>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+      <Link to="/services/facade-systems-acp" style={{ color: 'rgba(255,255,255,.85)', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', fontSize: 11 }}>
+        Visit{' '}
+        <span style={{ background: `linear-gradient(135deg, ${SKYLUM_BLUE}, #141A5C)`, color: '#fff', padding: '2px 7px', borderRadius: 4, fontSize: 9, fontWeight: 800, letterSpacing: '.15em' }}>SKYLUM</span>
+        facades →
+      </Link>
+      <span style={{ color: 'rgba(255,255,255,.4)' }}>|</span>
+      <LanguageSwitcher variant="light" />
+    </div>
+  </div>
+);
 
-// Header Component
+// ── Breadcrumb ────────────────────────────────────────────────────────────────
+interface BreadcrumbProps {
+  items: Array<{ label: string; href?: string }>;
+  orderType?: ServiceOrderType | string | null;
+}
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, orderType }) => {
+  const t = getOrderTypeConfig(orderType);
+  return (
+    <nav aria-label="breadcrumb" style={{ padding: '14px 32px', background: '#fafaf8', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11.5, letterSpacing: '.05em', color: '#737373', fontWeight: 500 }}>
+      {items.map((it, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span style={{ color: '#c4c4c4' }}>/</span>}
+          {it.href ? (
+            <Link to={it.href} style={{ color: '#737373', textDecoration: 'none' }}>{it.label}</Link>
+          ) : (
+            <span style={{ color: t?.tagFg || BRAND_NEUTRAL, fontWeight: 600 }}>{it.label}</span>
+          )}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+};
+
+// ── Header ────────────────────────────────────────────────────────────────────
+interface HeaderState {
+  activeOrderType: ServiceOrderType | null;
+  currentService: Service | null;
+  step?: number;
+  totalSteps?: number;
+}
+
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { i18n } = useTranslation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = i18n.language?.startsWith('he') ? 'he' : 'en';
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [contextState, setContextState] = useState<HeaderState>({ activeOrderType: null, currentService: null });
 
-  const handleOrderTypeClick = () => {
-    if (location.pathname === '/') {
-      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+  // Detect current order type from route
+  useEffect(() => {
+    const match = location.pathname.match(/\/(services|subservices|products|quote|thank-you)\/([^/]+)/);
+    if (!match) { setContextState({ activeOrderType: null, currentService: null }); return; }
+
+    const [, segment, slug] = match;
+    if (segment === 'services') {
+      getServiceBySlug(slug).then(s => {
+        if (s) setContextState({ activeOrderType: s.orderType || null, currentService: s });
+      });
     } else {
-      navigate('/#services');
+      // Try to infer from URL segments or localStorage
+      const cached = sessionStorage.getItem('hw_active_order_type') as ServiceOrderType | null;
+      if (cached) setContextState({ activeOrderType: cached, currentService: null });
     }
-    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  const currentType = contextState.activeOrderType;
+  const ct = currentType ? getOrderTypeConfig(currentType) : null;
+
+  const handleOrderTypeClick = (ot: ServiceOrderType) => {
+    // Navigate to the service page that matches this order type
+    const slugMap: Record<ServiceOrderType, string> = {
+      'browse-and-order':     'cabinet-storage-modules',
+      'send-file-and-process': 'cnc-services-for-professionals',
+      'describe-and-request': 'custom-kitchen-projects',
+      'informational':        'materials-panel-supply',
+    };
+    sessionStorage.setItem('hw_active_order_type', ot);
+    navigate(`/services/${slugMap[ot]}`);
   };
 
   return (
-    <header className="w-full bg-neutral-200 relative z-20 shadow-sm font-sans">
+    <header style={{ background: '#fff', borderBottom: '1px solid #e5e5e5', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
+      {/* Main nav row */}
+      <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', padding: '0 32px', height: 80 }}>
+        {/* Logo + Order type nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
+            <img src="/logo.png" alt="HWOOD" style={{ height: 38, width: 'auto', maxWidth: 150 }} />
+          </Link>
+          <span style={{ width: 1, height: 32, background: '#e5e5e5', flexShrink: 0 }} />
 
-      {/* ── Single row ── */}
-      <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
-
-        {/* LEFT: HWOOD logo */}
-        <div className="cursor-pointer flex-shrink-0 py-3" onClick={() => navigate('/')}>
-          <img
-            src="/logo.png"
-            alt="HWOOD"
-            className="h-10 md:h-11 w-auto object-contain"
-            style={{ maxWidth: '150px', minWidth: '80px' }}
-          />
+          {/* Order types — primary desktop nav */}
+          <nav style={{ display: 'flex', alignItems: 'stretch', height: 80, gap: 0 }} className="hidden md:flex">
+            {NAV_ORDER_TYPES.map((item) => {
+              const tt = getOrderTypeConfig(item.orderType);
+              const isActive = currentType === item.orderType;
+              return (
+                <button
+                  key={item.orderType}
+                  onClick={() => handleOrderTypeClick(item.orderType)}
+                  style={{
+                    display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                    padding: '0 18px', cursor: 'pointer', position: 'relative',
+                    background: 'transparent', border: 0,
+                    borderBottom: `3px solid ${isActive ? tt.accent : 'transparent'}`,
+                    marginBottom: -1, fontFamily: 'inherit',
+                  }}
+                >
+                  <span style={{ fontSize: 9, letterSpacing: '.22em', textTransform: 'uppercase', fontWeight: 700, color: isActive ? tt.tagFg : '#a3a3a3' }}>
+                    {lang === 'he' ? item.subHe : item.sub}
+                  </span>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: isActive ? '#0a0a0a' : '#262626', marginTop: 4, letterSpacing: '-.005em' }}>
+                    {lang === 'he' ? item.labelHe : item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* CENTER: Order types + nav links — desktop */}
-        <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
-          {ORDER_TYPES.map((type, idx) => (
-            <button
-              key={idx}
-              onClick={handleOrderTypeClick}
-              className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase whitespace-nowrap"
-            >
-              {lang === 'he' ? type.labelHe : type.label}
-            </button>
-          ))}
+        {/* Right utilities */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <nav style={{ display: 'flex', gap: 4, marginRight: 8 }} className="hidden md:flex">
+            {[
+              { label: lang === 'he' ? 'תיק עבודות' : 'Portfolio', href: '/portfolio' },
+              { label: lang === 'he' ? 'אודות' : 'About', href: '/about' },
+              { label: lang === 'he' ? 'צור קשר' : 'Contact', href: '/contact' },
+            ].map(l => (
+              <Link key={l.href} to={l.href} style={{ padding: '8px 12px', fontSize: 12.5, fontWeight: 500, color: '#525252', textDecoration: 'none', borderRadius: 6, transition: 'color .15s' }}>
+                {l.label}
+              </Link>
+            ))}
+          </nav>
 
-          <div className="w-px h-5 bg-neutral-300 mx-3" />
+          <button style={{ width: 36, height: 36, borderRadius: 99, background: 'transparent', border: '1px solid #e5e5e5', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#525252', cursor: 'pointer' }}>
+            <Search size={15} />
+          </button>
 
-          <Link to="/portfolio" className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Portfolio</Link>
-          <Link to="/about"     className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">About</Link>
-          <Link to="/contact"   className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Contact</Link>
-        </div>
-
-        {/* RIGHT: Skylum + Language + Mobile toggle */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-
-          {/* Skylum partner brand — desktop only */}
-          <a
-            href="https://skylum.co.il"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:flex flex-col items-end group py-2"
-            title="Skylum — Building Cladding & Facades"
+          <Link
+            to="/quote"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 999, background: BRAND_NEUTRAL, color: '#fff', fontSize: 12.5, fontWeight: 700, letterSpacing: '.04em', textDecoration: 'none', transition: 'background .15s' }}
           >
-            <span className="text-[8px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
-              Part of Skylum Group
-            </span>
-            <img
-              src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-              alt="Skylum"
-              className="h-8 w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ maxWidth: '100px' }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          </a>
+            {lang === 'he' ? 'קבל הצעת מחיר' : 'Get a quote'}
+          </Link>
 
-          <div className="hidden md:block w-px h-8 bg-neutral-300" />
-
-          <LanguageSwitcher variant="dark" />
-
-          {/* Mobile hamburger */}
-          <button
-            className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {/* Mobile menu toggle */}
+          <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #e5e5e5', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
-      </nav>
+      </div>
 
-      {/* ── Mobile Menu ── */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-neutral-200 shadow-lg absolute top-full left-0 right-0 z-50">
-          <div className="px-4 py-4 space-y-1">
-            <p className="px-4 pt-2 pb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-widest">How to order</p>
-            {ORDER_TYPES.map((type, idx) => (
-              <button
-                key={idx}
-                onClick={handleOrderTypeClick}
-                className="w-full text-left px-4 py-3 text-base font-medium text-brand hover:bg-teal-50 rounded-lg"
-              >
-                {lang === 'he' ? type.labelHe : type.label}
-              </button>
-            ))}
-            <div className="border-t border-neutral-100 pt-3 mt-3 space-y-1">
-              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Portfolio</Link>
-              <Link to="/about"     className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
-              <Link to="/contact"   className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-            </div>
-            <div className="border-t border-neutral-100 pt-3 mt-1">
-              <a
-                href="https://skylum.co.il"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-sky-50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <img
-                  src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-                  alt="Skylum"
-                  className="h-5 w-auto object-contain opacity-70"
-                />
-                <span className="text-meta-sm text-neutral-500 font-medium">Building Cladding & Facades ↗</span>
-              </a>
-            </div>
+      {/* Context strip — shown when inside an order-type journey */}
+      {ct && currentType && (
+        <div style={{ background: `linear-gradient(90deg, ${ct.heroFrom}, ${ct.heroTo})`, color: '#fff', padding: '8px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <span style={{ fontSize: 9, letterSpacing: '.22em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(255,255,255,.7)' }}>You are in</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{ct.label} · {ct.sub}</span>
           </div>
+          <button
+            onClick={() => { setContextState({ activeOrderType: null, currentService: null }); navigate('/'); }}
+            style={{ background: 'transparent', border: 0, color: 'rgba(255,255,255,.65)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '.05em' }}
+          >
+            ← Change order type
+          </button>
+        </div>
+      )}
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div style={{ background: '#fff', borderTop: '1px solid #e5e5e5', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 8 }} className="md:hidden">
+          {NAV_ORDER_TYPES.map(item => (
+            <button key={item.orderType} onClick={() => { handleOrderTypeClick(item.orderType); setMobileOpen(false); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', background: 'transparent', border: 0, borderBottom: '1px solid #f0f0f0', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#0a0a0a' }}>{lang === 'he' ? item.labelHe : item.label}</span>
+              <ArrowRight size={14} color="#a3a3a3" />
+            </button>
+          ))}
+          {[{ label: 'Portfolio', href: '/portfolio' }, { label: 'About', href: '/about' }, { label: 'Contact', href: '/contact' }].map(l => (
+            <Link key={l.href} to={l.href} onClick={() => setMobileOpen(false)} style={{ padding: '12px 0', fontSize: 14, color: '#525252', textDecoration: 'none', borderBottom: '1px solid #f0f0f0' }}>{l.label}</Link>
+          ))}
         </div>
       )}
     </header>
   );
 };
 
-// Footer Component
+// ── Footer ────────────────────────────────────────────────────────────────────
 const Footer: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
-  const isHe = i18n.language?.startsWith('he');
-  const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
-  
-  useEffect(() => {
-    supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
-      .then(({ data }) => {
-        if (data) setSocialLinks(data.filter((l: any) => l.url).map((l: any) => ({ platform: l.platform, url: l.url })));
-      });
-  }, []);
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.startsWith('he') ? 'he' : 'en';
 
-  const platformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'facebook': return Facebook;
-      case 'instagram': return Instagram;
-      case 'linkedin': return Linkedin;
-      case 'youtube': return Youtube;
-      default: return null;
-    }
-  };
-  
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
   return (
-    <footer className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6 md:gap-8">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
-        </div>
-
-        <div className="flex gap-4">
-          {socialLinks.length > 0 ? (
-            socialLinks.map((link) => {
-              const Icon = platformIcon(link.platform);
-              if (!Icon) return null;
-              return (
-                <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                  <Icon className="w-5 h-5" />
+    <footer style={{ background: '#0a1414', color: '#fff', padding: '80px 32px 24px', position: 'relative', overflow: 'hidden' }}>
+      <Stripes opacity={0.4} />
+      <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 2 }}>
+        {/* Main grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 48, paddingBottom: 48, borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+          {/* Brand column */}
+          <div>
+            <img src="/logo.png" alt="HWOOD" style={{ height: 38, width: 'auto', maxWidth: 150, filter: 'brightness(0) invert(1)' }} />
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,.6)', fontWeight: 300, lineHeight: 1.6, margin: '24px 0', maxWidth: 320 }}>
+              Industrial cabinetry, CNC services, and facade systems — manufactured in Netanya for the Israeli market.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,.45)', letterSpacing: '.15em', textTransform: 'uppercase', fontWeight: 600 }}>Part of</span>
+              <span style={{ background: `linear-gradient(135deg, ${SKYLUM_BLUE}, #141A5C)`, color: '#fff', padding: '4px 10px', borderRadius: 5, fontSize: 10, fontWeight: 800, letterSpacing: '.18em' }}>SKYLUM</span>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {[Facebook, Instagram, Linkedin, Youtube].map((Icon, i) => (
+                <a key={i} href="#" style={{ width: 36, height: 36, borderRadius: 99, border: '1px solid rgba(255,255,255,.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.7)', transition: 'all .2s' }}>
+                  <Icon size={15} />
                 </a>
-              );
-            })
-          ) : (
-            [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                <Icon className="w-5 h-5" />
-              </a>
-            ))
-          )}
+              ))}
+            </div>
+          </div>
+
+          {/* Link columns */}
+          {[
+            { h: lang === 'he' ? 'הזמנה' : 'Order', l: [
+              { label: lang === 'he' ? 'הזמנה מקטלוג' : 'Catalog Order', href: '/services/cabinet-storage-modules' },
+              { label: lang === 'he' ? 'הזמנת פרויקט' : 'Project Order', href: '/services/cnc-services-for-professionals' },
+              { label: lang === 'he' ? 'הזמנה מותאמת' : 'Custom Order', href: '/services/custom-kitchen-projects' },
+              { label: lang === 'he' ? 'הצעת מחיר' : 'Quote desk', href: '/quote' },
+            ]},
+            { h: lang === 'he' ? 'קהל יעד' : 'Audience', l: [
+              { label: lang === 'he' ? 'יצרני ארונות' : 'Cabinet manufacturers', href: '#' },
+              { label: lang === 'he' ? 'נגרות ופנים' : 'Joinery & carpentry', href: '#' },
+              { label: lang === 'he' ? 'אדריכלים' : 'Architects', href: '#' },
+              { label: lang === 'he' ? 'קבלנים' : 'Contractors', href: '#' },
+            ]},
+            { h: 'Skylum', l: [
+              { label: lang === 'he' ? 'מערכות חזית' : 'Facade systems', href: '/services/facade-systems-acp' },
+              { label: 'ACP panels', href: '#' },
+              { label: 'HPL supply', href: '#' },
+              { label: 'Visit Skylum →', href: '#' },
+            ]},
+            { h: lang === 'he' ? 'חברה' : 'Company', l: [
+              { label: lang === 'he' ? 'אודות' : 'About', href: '/about' },
+              { label: lang === 'he' ? 'תיק עבודות' : 'Projects', href: '/portfolio' },
+              { label: lang === 'he' ? 'צור קשר' : 'Contact', href: '/contact' },
+            ]},
+          ].map((col) => (
+            <div key={col.h}>
+              <span style={{ fontSize: 9, letterSpacing: '.22em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(255,255,255,.5)', display: 'block', marginBottom: 18 }}>{col.h}</span>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {col.l.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.href} style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', fontWeight: 300, textDecoration: 'none', transition: 'color .15s' }}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-20 xl:gap-24 mb-10 md:mb-16">
-        <div>
-          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'עדכונים' : 'Updates'}</h3>
-          <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'עדכונים טכניים, תובנות ייצור ושינויים במערכת.' : 'Technical updates, production insights, and system changes.'}</p>
-          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">{isHe ? 'הרשמה' : 'Subscribe'}</button>
-        </div>
-
-        <div>
-          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'תמיכה טכנית' : 'Technical Support'}</h3>
-          <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'תמיכה לאחר אספקה עבור מערכות ייצור, רכיבים ותהליכי CNC.' : 'Post-delivery support for production systems, components, and CNC workflows.'}</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-brand-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
-        </div>
-      </div>
-
-      {/* Back to Top Button - larger, above copyright */}
-      <div className="flex justify-center mb-8">
-        <button 
-          onClick={scrollToTop}
-          className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 text-white/70 hover:bg-white hover:text-neutral-900 transition-all group"
-          aria-label="Back to top"
-        >
-          <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
-          <span className="text-sm font-medium">{isHe ? 'חזרה למעלה' : 'Back to top'}</span>
-        </button>
-      </div>
-
-      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
-        <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex flex-wrap gap-6">
-          <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+        {/* Bottom bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 24, fontSize: 12, color: 'rgba(255,255,255,.5)', flexWrap: 'wrap', gap: 12 }}>
+          <span>© {new Date().getFullYear()} HWOOD · Netanya, Israel · All rights reserved</span>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <a href="/privacy" style={{ color: 'rgba(255,255,255,.5)', textDecoration: 'none' }}>Privacy</a>
+            <a href="/terms" style={{ color: 'rgba(255,255,255,.5)', textDecoration: 'none' }}>Terms</a>
+          </div>
         </div>
       </div>
     </footer>
   );
 };
 
-// Footer Wrapper - simplified to blend with dark sections
-const FooterWrapper: React.FC = () => (
-  <div className="relative w-full bg-surface-dark overflow-hidden">
-    <Footer />
-  </div>
+// ── WhatsApp FAB ──────────────────────────────────────────────────────────────
+const WhatsAppFab: React.FC = () => (
+  <a
+    href="https://wa.me/972501234567"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Chat on WhatsApp"
+    style={{ position: 'fixed', bottom: 24, right: 24, width: 56, height: 56, borderRadius: 99, background: '#25D366', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px -8px rgba(37,211,102,.6)', zIndex: 50, textDecoration: 'none', transition: 'transform .2s, box-shadow .2s' }}
+  >
+    <WhatsAppIcon className="w-7 h-7" />
+  </a>
 );
 
-// WhatsApp Button
-const WhatsAppButton: React.FC = () => {
-  // You can make this dynamic by loading from company_info table
-  const whatsappNumber = '972549222804';
-
-  return (
-    <a
-      href={`https://wa.me/${whatsappNumber}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-lg hover:bg-[#20BA5C] hover:scale-110 transition-all duration-300"
-      aria-label="Contact us on WhatsApp"
-    >
-      <WhatsAppIcon className="w-7 h-7" />
-    </a>
-  );
-};
-
-// Main Layout Export
+// ── Main Layout ───────────────────────────────────────────────────────────────
 export const MainLayout: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 600); return () => clearTimeout(t); }, []);
+
+  if (loading) return <LoadingScreen />;
+
   return (
-    <>
-      {/* Loading Screen - shows on first visit only */}
-      <LoadingScreen minDuration={1200} />
-      
-      <div className="w-full min-h-screen font-sans flex flex-col" style={{ overflowX: 'clip' }}>
-        <ScrollToTop />
-        <Header />
-        <main className="flex-1 flex flex-col">
-          <PageTransition>
-            <Outlet />
-          </PageTransition>
-        </main>
-        <FooterWrapper />
-        <WhatsAppButton />
-      </div>
-    </>
+    <div className="min-h-screen bg-white flex flex-col">
+      <ScrollToTop />
+      <UtilityBar />
+      <Header />
+      <main className="flex-1">
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
+      </main>
+      <Footer />
+      <WhatsAppFab />
+    </div>
   );
 };
+
+// Export Breadcrumb so pages can use it
+export { Breadcrumb };
