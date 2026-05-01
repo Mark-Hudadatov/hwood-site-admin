@@ -1,13 +1,14 @@
 /**
- * DOMAIN TYPES - Canonical Data Model
- * ====================================
- * v2.1 — April 2026
- * Added: ServiceBrand, ServiceOrderType, updated Service interface,
- *        BrowseOrderSubmission, SendFileSubmission, DescribeRequestSubmission
+ * DOMAIN TYPES - Canonical Data Model v2.1
+ * ==========================================
+ * CHANGES v2.1:
+ *   + Service.brand: 'hwood' | 'skylum'
+ *   + Service.orderType: ServiceOrderType
+ *   + Service.visibilityStatus
  */
 
 // =============================================================================
-// BRAND & ORDER TYPE
+// BRAND & ORDER TYPE (v2.1)
 // =============================================================================
 
 export type ServiceBrand = 'hwood' | 'skylum';
@@ -30,13 +31,10 @@ export interface Service {
   imageUrl: string;
   heroImageUrl?: string;
   accentColor?: string;
-  subtitle?: string;
-  ctaText?: string;
-  visibilityStatus?: string;
-  // v2.0 fields — stored in Supabase, populated via dataService
-  // Optional for backward compatibility with components that don't map these yet
+  // v2.1 fields
   brand?: ServiceBrand;
   orderType?: ServiceOrderType;
+  visibilityStatus?: string;
 }
 
 export interface Subservice {
@@ -47,6 +45,7 @@ export interface Subservice {
   description: string;
   imageUrl: string;
   heroImageUrl?: string;
+  visibilityStatus?: string;
 }
 
 export interface ProductCategory {
@@ -82,63 +81,6 @@ export interface ProductSpecification {
 }
 
 // =============================================================================
-// ORDER SUBMISSION TYPES (v2.0)
-// =============================================================================
-
-export interface OrderContact {
-  name: string;
-  phone: string;
-  company?: string;
-}
-
-/** Browse & Order — каталожная заявка (Cabinet Modules, Interior Fronts) */
-export interface BrowseOrderSubmission extends OrderContact {
-  orderType: 'browse-and-order';
-  serviceSlug: string;
-  productId?: string;
-  productTitle?: string;
-  selectedConfiguration?: Record<string, string>;
-  quantity?: string;
-  comment?: string;
-}
-
-/** Send File & Process — CNC заявка (CNC Services for Professionals) */
-export interface SendFileSubmission extends OrderContact {
-  orderType: 'send-file-and-process';
-  serviceSlug: string;
-  subserviceSlug?: string;
-  operationType?: string;
-  material?: string;
-  thickness?: string;
-  volume?: string;
-  deadline?: string;
-  description?: string;
-  fileUrl?: string;
-}
-
-/** Describe & Request — проектная заявка (Custom Kitchen, Facade Systems) */
-export interface DescribeRequestSubmission extends OrderContact {
-  orderType: 'describe-and-request';
-  serviceSlug: string;
-  clientRole: 'designer' | 'contractor' | 'developer' | 'private';
-  objectType?: string;
-  material?: string;
-  approximateVolume?: string;
-  description: string;
-  fileUrl?: string;
-}
-
-export type OrderSubmission =
-  | BrowseOrderSubmission
-  | SendFileSubmission
-  | DescribeRequestSubmission;
-
-export interface QuoteSubmissionResult {
-  success: boolean;
-  error?: string;
-}
-
-// =============================================================================
 // SUPPORTING ENTITIES
 // =============================================================================
 
@@ -148,35 +90,11 @@ export interface Story {
   id: string;
   slug: string;
   title: string;
-  date: string;
-  type: StoryType;
-  imageUrl: string;
-  excerpt?: string;
-  content?: string;
-  isGenerated?: boolean;
-}
-
-export interface QuoteRequest {
-  id?: string;
-  productId: string;
-  productTitle: string;
-  companyName: string;
-  contactName: string;
-  email: string;
-  phone?: string;
-  country: string;
-  selectedOptions?: Record<string, string>;
-  message?: string;
-  submittedAt?: string;
-}
-
-export interface CompanyInfo {
-  name: string;
-  tagline?: string;
   description: string;
-  phone: string;
-  email: string;
-  address: string;
+  imageUrl: string;
+  type: StoryType;
+  date?: string;
+  visibilityStatus?: string;
 }
 
 export interface HeroSlide {
@@ -188,6 +106,24 @@ export interface HeroSlide {
   ctaText?: string;
   ctaLink?: string;
 }
+
+export interface CompanyInfo {
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  address?: string;
+  openingHours?: string;
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
+  about?: string;
+  aboutHe?: string;
+}
+
+// =============================================================================
+// UTILITY TYPES
+// =============================================================================
 
 export interface BreadcrumbItem {
   label: string;
@@ -249,4 +185,24 @@ export interface Feature {
   description?: string;
   descriptionHe?: string;
   iconName?: string;
+}
+
+// =============================================================================
+// ORDER SUBMISSION (quote_submissions table)
+// =============================================================================
+
+export interface OrderSubmission {
+  name: string;
+  phone: string;
+  company?: string;
+  message?: string;
+  order_type?: ServiceOrderType;
+  service_slug?: string;
+  subservice_slug?: string;
+  client_role?: string;
+  material?: string;
+  volume?: string;
+  deadline?: string;
+  file_url?: string;
+  object_type?: string;
 }
