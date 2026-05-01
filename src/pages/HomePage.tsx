@@ -317,11 +317,10 @@ const ServicesSlider: React.FC<{ services: Service[] }> = ({ services }) => {
     ? services
     : services.filter(s => s.orderType === active);
 
-  const title = (s: Service) =>
-    lang === 'he' && s.titleHe ? s.titleHe : s.titleEn;
+  const title = (s: Service) => s.title;
 
   const description = (s: Service) => {
-    const d = lang === 'he' && s.descriptionHe ? s.descriptionHe : s.descriptionEn;
+    const d = s.description;
     return d ? d.slice(0, 90) + (d.length > 90 ? '…' : '') : '';
   };
 
@@ -495,19 +494,20 @@ const ServicesSlider: React.FC<{ services: Service[] }> = ({ services }) => {
 };
 
 // ── SECTION 7 — Stories slider ────────────────────────────────────────────────
-type StoryTab = 'all' | 'project' | 'news' | 'skylum';
+type StoryTab = 'all' | 'project' | 'news';
 const STORY_TABS: Array<{ key: StoryTab; label: string }> = [
   { key: 'all',     label: 'All' },
   { key: 'project', label: 'Projects' },
   { key: 'news',    label: 'News' },
-  { key: 'skylum',  label: 'Skylum' },
 ];
 
 const StoriesSlider: React.FC<{ stories: Story[] }> = ({ stories }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<StoryTab>('all');
 
-  const visible = tab === 'all' ? stories : stories.filter(s => s.type?.toLowerCase() === tab);
+  const visible = tab === 'all' ? stories : stories.filter(s =>
+    tab === 'project' ? s.type === 'CUSTOMER STORY' : s.type === 'EVENTS'
+  );
 
   const scroll = (dir: 'l' | 'r') => {
     if (!scrollRef.current) return;
@@ -556,7 +556,7 @@ const StoriesSlider: React.FC<{ stories: Story[] }> = ({ stories }) => {
 
       <div ref={scrollRef} className="no-scrollbar" style={{ display: 'flex', gap: 20, padding: '0 48px 24px', overflowX: 'auto' }}>
         {(visible.length ? visible : stories).map((s) => {
-          const accent = s.type?.toLowerCase() === 'skylum' ? SKYLUM_BLUE : BRAND_NEUTRAL;
+          const accent = s.type === 'CUSTOMER STORY' ? SKYLUM_BLUE : BRAND_NEUTRAL;
           return (
             <Link key={s.id} to={`/stories/${s.slug}`} style={{ flex: '0 0 290px', textDecoration: 'none' }}>
               <div style={{ position: 'relative', aspectRatio: '4/5', borderRadius: 18, overflow: 'hidden', marginBottom: 14, background: '#262626' }}>
