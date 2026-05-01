@@ -27,10 +27,12 @@ export interface Service {
   id: string;
   slug: string;
   title: string;
+  subtitle?: string;
   description: string;
   imageUrl: string;
   heroImageUrl?: string;
   accentColor?: string;
+  ctaText?: string;
   // v2.1 fields
   brand?: ServiceBrand;
   orderType?: ServiceOrderType;
@@ -94,6 +96,8 @@ export interface Story {
   imageUrl: string;
   type: StoryType;
   date?: string;
+  excerpt?: string;
+  content?: string;
   visibilityStatus?: string;
 }
 
