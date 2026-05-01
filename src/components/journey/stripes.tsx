@@ -40,3 +40,6 @@ export const Stripes: React.FC<StripesProps> = ({ opacity = 1 }) => (
     />
   </div>
 );
+
+// Re-export from stripes.tsx — fixes case-sensitive import on Linux/Vercel
+export { Stripes } from './stripes';
