@@ -88,7 +88,7 @@ const HOW_STEPS: Record<string, Array<{ t: string; b: string }>> = {
     { t: 'Pickup or delivery', b: 'Ready in 72h average. Pickup Netanya or shipped to you.' },
   ],
   'describe-and-request': [
-    { t: 'Describe your vision', b: 'Photos, sketch, words. We don't need CAD to start.' },
+    { t: 'Describe your vision', b: "Photos, sketch, words. We don't need CAD to start." },
     { t: 'Engineering brief', b: 'We translate your idea into a manufacturing spec.' },
     { t: 'Materials & quote', b: 'Pick finishes, get a costed proposal you can compare.' },
     { t: 'Build & install', b: 'Production at our facility, install at yours.' },
