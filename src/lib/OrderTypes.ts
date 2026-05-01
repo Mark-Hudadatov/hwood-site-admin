@@ -11,7 +11,8 @@
  *   informational         → neutral theme  (brand teal)
  */
 
-export type { ServiceBrand, ServiceOrderType } from '../domain/types';
+import type { ServiceBrand, ServiceOrderType } from '../domain/types';
+export type { ServiceBrand, ServiceOrderType };
 
 export interface OrderTypeConfig {
   key: string;
