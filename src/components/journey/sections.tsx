@@ -4,8 +4,8 @@
  */
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Stripes } from './Stripes';
-import { getOrderTypeConfig, getHeroColors, ServiceOrderType, ServiceBrand, BRAND_NEUTRAL } from '../../lib/orderTypes';
+import { Stripes } from './stripes';
+import { getOrderTypeConfig, getHeroColors, ServiceOrderType, ServiceBrand, BRAND_NEUTRAL } from '../../lib/OrderTypes';
 
 // ─── WHO WE WORK WITH ────────────────────────────────────────────────────────
 

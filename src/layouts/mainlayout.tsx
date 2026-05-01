@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
 import { Globe, Menu, X, ArrowRight, Search, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { LoadingScreen, PageTransition } from '../components/premium';
 import { getServiceBySlug } from '../services/data/dataService';
-import { Stripes } from '../components/journey/Stripes';
+import { Stripes } from '../components/journey/stripes';
 import {
   NAV_ORDER_TYPES,
   getOrderTypeConfig,
   BRAND_NEUTRAL,
   SKYLUM_BLUE,
   ServiceOrderType,
-} from '../lib/orderTypes';
+} from '../lib/OrderTypes';
 import { Service } from '../domain/types';
 
 // ── WhatsApp Icon ─────────────────────────────────────────────────────────────

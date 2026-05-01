@@ -1,5 +1,5 @@
 import React from 'react';
-import { ServiceBrand, BRAND_NEUTRAL, SKYLUM_BLUE, SKYLUM_DEEP } from '../../lib/orderTypes';
+import { ServiceBrand, BRAND_NEUTRAL, SKYLUM_BLUE, SKYLUM_DEEP } from '../../lib/OrderTypes';
 
 interface BrandBadgeProps {
   brand?: ServiceBrand | string | null;

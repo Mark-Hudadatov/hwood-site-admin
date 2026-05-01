@@ -16,11 +16,11 @@ import { ArrowRight, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { Service, Subservice } from '../domain/types';
 import { getServiceBySlug, getSubservicesByServiceSlug } from '../services/data/dataService';
 import { ROUTES } from '../router';
-import { Stripes } from '../components/journey/Stripes';
+import { Stripes } from '../components/journey/stripes';
 import { WhoWeWorkWith, HowItWorks, CTABanner } from '../components/journey/sections';
 import { OrderTypeTag } from '../components/ui/OrderTypeTag';
 import { BrandBadge } from '../components/ui/BrandBadge';
-import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/orderTypes';
+import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/OrderTypes';
 import { Breadcrumb } from '../layouts/mainlayout';
 
 // ── Subservice card ───────────────────────────────────────────────────────────

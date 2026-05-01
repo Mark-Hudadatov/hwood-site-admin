@@ -14,8 +14,8 @@ import { ArrowRight, Check, ArrowLeft } from 'lucide-react';
 import { Product, Service, CompanyInfo } from '../domain/types';
 import { getProductBySlug, getServices, getCompanyInfo, submitQuoteRequest } from '../services/data/dataService';
 import { ROUTES } from '../router';
-import { Stripes } from '../components/journey/Stripes';
-import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/orderTypes';
+import { Stripes } from '../components/journey/stripes';
+import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/OrderTypes';
 
 const HERO = getHeroColors('browse-and-order');
 const T = getOrderTypeConfig('browse-and-order');
@@ -69,7 +69,7 @@ export const QuotePage: React.FC = () => {
         ...form,
         productSlug,
         orderType: 'browse-and-order',
-      } as any);
+      });
       navigate('/thank-you/browse-and-order');
     } catch {
       setSubmitting(false);

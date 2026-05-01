@@ -1,5 +1,5 @@
 import React from 'react';
-import { getOrderTypeConfig, getHeroColors, ServiceOrderType, ServiceBrand, SKYLUM_BLUE, BRAND_NEUTRAL } from '../../lib/orderTypes';
+import { getOrderTypeConfig, getHeroColors, ServiceOrderType, ServiceBrand, SKYLUM_BLUE, BRAND_NEUTRAL } from '../../lib/OrderTypes';
 
 interface OrderTypeTagProps {
   orderType?: ServiceOrderType | string | null;

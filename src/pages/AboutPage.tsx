@@ -11,8 +11,8 @@ import { CompanyInfo } from '../domain/types';
 import { getCompanyInfo } from '../services/data/dataService';
 import { ROUTES } from '../router';
 import { useTranslation } from 'react-i18next';
-import { Stripes } from '../components/journey/Stripes';
-import { BRAND_NEUTRAL, SKYLUM_BLUE, SKYLUM_DEEP } from '../lib/orderTypes';
+import { Stripes } from '../components/journey/stripes';
+import { BRAND_NEUTRAL, SKYLUM_BLUE, SKYLUM_DEEP } from '../lib/OrderTypes';
 
 export const AboutPage: React.FC = () => {
   const { i18n } = useTranslation();
