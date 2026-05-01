@@ -513,8 +513,10 @@ export async function getCompanyInfo(): Promise<CompanyInfo | null> {
       tagline: lang === 'he' && data.tagline_he ? data.tagline_he : data.tagline_en || '',
       description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
       phone: data.phone || '',
+      whatsapp: data.whatsapp || '',
       email: data.email || '',
       address: lang === 'he' && data.address_he ? data.address_he : data.address_en || '',
+      openingHours: lang === 'he' && data.opening_hours_he ? data.opening_hours_he : data.opening_hours || '',
     };
   } catch (e) {
     return null;
@@ -572,22 +574,55 @@ export async function submitContactForm(formData: {
 }
 
 export async function submitQuoteRequest(formData: {
+  // Contact
   name: string;
-  email: string;
   phone?: string;
+  email?: string;
   company?: string;
+  message?: string;
+  // Order context (redesign pages)
+  orderType?: string;
+  serviceSlug?: string;
+  subserviceSlug?: string;
+  productSlug?: string;
+  // Specification fields
+  material?: string;
+  quantity?: string;
+  deadline?: string;
+  timeline?: string;
+  objectType?: string;
+  // Legacy fields (kept for backward compat)
   project_type?: string;
   budget_range?: string;
-  timeline?: string;
-  message?: string;
   product_interest?: string[];
+  [key: string]: any;
 }): Promise<boolean> {
   try {
+    const row: Record<string, any> = {
+      name:            formData.name,
+      phone:           formData.phone || null,
+      company:         formData.company || null,
+      message:         formData.message || null,
+      is_read:         false,
+      // v2.1 order-type fields
+      order_type:      formData.orderType || null,
+      service_slug:    formData.serviceSlug || null,
+      subservice_slug: formData.subserviceSlug || null,
+      material:        formData.material || null,
+      volume:          formData.quantity || null,
+      deadline:        formData.deadline || formData.timeline || null,
+      object_type:     formData.objectType || formData.project_type || null,
+    };
+
     const { error } = await supabase
       .from('quote_submissions')
-      .insert([formData]);
+      .insert([row]);
 
-    return !error;
+    if (error) {
+      console.error('[DataService] submitQuoteRequest error:', error);
+      return false;
+    }
+    return true;
   } catch (e) {
     console.error('Failed to submit quote request:', e);
     return false;
