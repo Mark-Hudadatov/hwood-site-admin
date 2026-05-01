@@ -11,12 +11,7 @@
  *   informational         → neutral theme  (brand teal)
  */
 
-export type ServiceBrand = 'hwood' | 'skylum';
-export type ServiceOrderType =
-  | 'browse-and-order'
-  | 'send-file-and-process'
-  | 'describe-and-request'
-  | 'informational';
+export type { ServiceBrand, ServiceOrderType } from '../domain/types';
 
 export interface OrderTypeConfig {
   key: string;

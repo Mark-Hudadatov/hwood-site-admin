@@ -405,9 +405,11 @@ export async function getStories(): Promise<Story[]> {
       id: s.id,
       slug: s.slug,
       title: lang === 'he' && s.title_he ? s.title_he : s.title_en,
+      description: lang === 'he' && s.description_he ? s.description_he : s.description_en || '',
       date: formatDate(s.date),
       type: s.type as any,
       imageUrl: s.image_url || '',
+      visibilityStatus: s.visibility_status,
       excerpt: lang === 'he' && s.excerpt_he ? s.excerpt_he : s.excerpt_en,
       content: lang === 'he' && s.content_he ? s.content_he : s.content_en,
     }));
@@ -437,9 +439,11 @@ export async function getStoryBySlug(slug: string): Promise<Story | null> {
       id: data.id,
       slug: data.slug,
       title: lang === 'he' && data.title_he ? data.title_he : data.title_en,
+      description: lang === 'he' && data.description_he ? data.description_he : data.description_en || '',
       date: formatDate(data.date),
       type: data.type as any,
       imageUrl: data.image_url || '',
+      visibilityStatus: data.visibility_status,
       excerpt: lang === 'he' && data.excerpt_he ? data.excerpt_he : data.excerpt_en,
       content: lang === 'he' && data.content_he ? data.content_he : data.content_en,
     };

@@ -24,9 +24,9 @@ import { Service, Story } from '../domain/types';
 import { getServices, getStories } from '../services/data/dataService';
 import { ROUTES } from '../router';
 import { useTranslation } from 'react-i18next';
-import { Stripes } from '../components/journey/Stripes';
+import { Stripes } from '../components/journey/stripes';
 import { WhoWeWorkWith, HowItWorks, CTABanner, WhyChooseUs } from '../components/journey/sections';
-import { BRAND_NEUTRAL, SKYLUM_BLUE, ORDER_TYPE_CONFIG, ServiceOrderType } from '../lib/orderTypes';
+import { BRAND_NEUTRAL, SKYLUM_BLUE, ORDER_TYPE_CONFIG, ServiceOrderType } from '../lib/OrderTypes';
 
 // ── Fallbacks ─────────────────────────────────────────────────────────────────
 const SVC_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none"><rect width="800" height="1000" fill="#1a1a1a"/><g transform="translate(360,460)" stroke="#fff" stroke-width="3" fill="none" opacity="0.3"><rect x="0" y="0" width="80" height="50" rx="3"/><rect x="8" y="12" width="20" height="30" rx="2"/><rect x="33" y="12" width="20" height="30" rx="2"/></g></svg>`)}`;

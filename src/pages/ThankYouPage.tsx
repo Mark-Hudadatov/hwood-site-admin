@@ -14,8 +14,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Check, FileText, Grid3X3, PenLine, ArrowRight } from 'lucide-react';
 import { ROUTES } from '../router';
-import { Stripes } from '../components/journey/Stripes';
-import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL, ServiceOrderType } from '../lib/orderTypes';
+import { Stripes } from '../components/journey/stripes';
+import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL, ServiceOrderType } from '../lib/OrderTypes';
 
 // ── Ref number generator ──────────────────────────────────────────────────────
 const genRef = (type: ServiceOrderType): string => {

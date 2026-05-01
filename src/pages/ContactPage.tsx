@@ -12,8 +12,8 @@ import { MapPin, Phone, Mail, Clock, Send, ArrowRight } from 'lucide-react';
 import { CompanyInfo } from '../domain/types';
 import { getCompanyInfo, submitContactForm } from '../services/data/dataService';
 import { useTranslation } from 'react-i18next';
-import { Stripes } from '../components/journey/Stripes';
-import { BRAND_NEUTRAL, SKYLUM_BLUE } from '../lib/orderTypes';
+import { Stripes } from '../components/journey/stripes';
+import { BRAND_NEUTRAL, SKYLUM_BLUE } from '../lib/OrderTypes';
 
 export const ContactPage: React.FC = () => {
   const { i18n } = useTranslation();

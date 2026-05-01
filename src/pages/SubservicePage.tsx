@@ -23,11 +23,11 @@ import {
 } from '../domain/types';
 import { getSubservicePageData, submitQuoteRequest, uploadOrderFile } from '../services/data/dataService';
 import { ROUTES } from '../router';
-import { Stripes } from '../components/journey/Stripes';
+import { Stripes } from '../components/journey/stripes';
 import { HowItWorks, CTABanner } from '../components/journey/sections';
 import { OrderTypeTag } from '../components/ui/OrderTypeTag';
 import { BrandBadge } from '../components/ui/BrandBadge';
-import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/orderTypes';
+import { getHeroColors, getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/OrderTypes';
 import { Breadcrumb } from '../layouts/mainlayout';
 
 // ── Product card (browse-and-order) ───────────────────────────────────────────
