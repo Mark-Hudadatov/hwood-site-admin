@@ -108,6 +108,9 @@ export interface HeroSlide {
 }
 
 export interface CompanyInfo {
+  name?: string;
+  tagline?: string;
+  description?: string;
   phone?: string;
   whatsapp?: string;
   email?: string;
@@ -196,13 +199,23 @@ export interface OrderSubmission {
   phone: string;
   company?: string;
   message?: string;
-  order_type?: ServiceOrderType;
-  service_slug?: string;
-  subservice_slug?: string;
-  client_role?: string;
+  orderType?: ServiceOrderType;
+  serviceSlug?: string;
+  subserviceSlug?: string;
+  clientRole?: string;
   material?: string;
   volume?: string;
+  approximateVolume?: string;
   deadline?: string;
-  file_url?: string;
-  object_type?: string;
+  fileUrl?: string;
+  objectType?: string;
+  operationType?: string;
+  productTitle?: string;
+  quantity?: string;
+}
+
+/** Returned by submitOrderForm() */
+export interface QuoteSubmissionResult {
+  success: boolean;
+  error?: string;
 }
