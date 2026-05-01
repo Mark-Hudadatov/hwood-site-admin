@@ -1,10 +1,9 @@
 /**
- * ROUTER CONFIGURATION - HWOOD
- * ============================
- * Includes both public site and admin panel routes
- * 
- * UPDATES:
- * ✅ Added Partners admin route
+ * ROUTER CONFIGURATION — HWOOD v2.1
+ * ====================================
+ * Changes v2.1:
+ *   + ThankYouPage route: /thank-you/:orderType
+ *   + ROUTES.THANK_YOU helper
  */
 
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
@@ -18,6 +17,7 @@ import { ServicePage } from './pages/ServicePage';
 import { SubservicePage } from './pages/SubservicePage';
 import { ProductPage } from './pages/ProductPage';
 import { QuotePage } from './pages/QuotePage';
+import { ThankYouPage } from './pages/ThankYouPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { PortfolioPage } from './pages/PortfolioPage';
@@ -37,16 +37,12 @@ import { AdminCompanyInfo } from './admin/pages/AdminCompanyInfo';
 import { AdminSubmissions } from './admin/pages/AdminSubmissions';
 import { AdminPartners } from './admin/pages/AdminPartners';
 
-// Error boundary
 const ErrorPage = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-neutral-50">
     <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-      <p className="text-gray-600 mb-8">Page not found</p>
-      <a 
-        href="/" 
-        className="px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
-      >
+      <h1 className="text-4xl font-bold text-neutral-900 mb-4">404</h1>
+      <p className="text-neutral-500 mb-8">Page not found</p>
+      <a href="/" className="px-6 py-3 bg-brand text-white rounded-full hover:bg-teal-600 transition-colors font-semibold">
         Back to Home
       </a>
     </div>
@@ -66,13 +62,15 @@ const routes: RouteObject[] = [
       { path: 'products/:productSlug', element: <ProductPage /> },
       { path: 'quote', element: <QuotePage /> },
       { path: 'quote/:productSlug', element: <QuotePage /> },
+      // v2.1 — ThankYou route (all order types)
+      { path: 'thank-you/:orderType', element: <ThankYouPage /> },
       { path: 'about', element: <AboutPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'portfolio', element: <PortfolioPage /> },
       { path: 'stories/:storySlug', element: <StoryPage /> },
     ],
   },
-  // Admin Routes
+  // Admin Routes (unchanged)
   {
     path: '/admin/login',
     element: <AdminLogin />,
@@ -97,28 +95,18 @@ const routes: RouteObject[] = [
 
 export const router = createBrowserRouter(routes);
 
-// Export route paths as constants
+// Route path constants
 export const ROUTES = {
-  HOME: '/',
-  SERVICE: (slug: string) => `/services/${slug}`,
+  HOME:       '/',
+  SERVICE:    (slug: string) => `/services/${slug}`,
   SUBSERVICE: (slug: string) => `/subservices/${slug}`,
-  PRODUCT: (slug: string) => `/products/${slug}`,
-  QUOTE: '/quote',
-  QUOTE_PRODUCT: (productSlug: string) => `/quote/${productSlug}`,
-  ABOUT: '/about',
-  CONTACT: '/contact',
-  PORTFOLIO: '/portfolio',
-  STORY: (slug: string) => `/stories/${slug}`,
-  // Admin routes
-  ADMIN: '/admin',
-  ADMIN_LOGIN: '/admin/login',
-  ADMIN_SERVICES: '/admin/services',
-  ADMIN_SUBSERVICES: '/admin/subservices',
-  ADMIN_CATEGORIES: '/admin/categories',
-  ADMIN_PRODUCTS: '/admin/products',
-  ADMIN_STORIES: '/admin/stories',
-  ADMIN_MAIN_PAGE: '/admin/main-page',
-  ADMIN_PARTNERS: '/admin/partners',
-  ADMIN_COMPANY_INFO: '/admin/company-info',
-  ADMIN_SUBMISSIONS: '/admin/submissions',
-} as const;
+  PRODUCT:    (slug: string) => `/products/${slug}`,
+  QUOTE:      '/quote',
+  QUOTE_PRODUCT: (slug: string) => `/quote/${slug}`,
+  THANK_YOU:  (orderType: string) => `/thank-you/${orderType}`,
+  ABOUT:      '/about',
+  CONTACT:    '/contact',
+  PORTFOLIO:  '/portfolio',
+  STORY:      (slug: string) => `/stories/${slug}`,
+  ADMIN:      '/admin',
+};
