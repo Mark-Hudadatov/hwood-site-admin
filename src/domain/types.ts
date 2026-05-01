@@ -5,6 +5,9 @@
  *   + Service.brand: 'hwood' | 'skylum'
  *   + Service.orderType: ServiceOrderType
  *   + Service.visibilityStatus
+ *   + Story.excerpt, Story.content (optional)
+ *   + CompanyInfo.whatsapp, CompanyInfo.openingHours
+ *   + QuoteSubmissionResult
  */
 
 // =============================================================================
@@ -33,10 +36,10 @@ export interface Service {
   heroImageUrl?: string;
   accentColor?: string;
   ctaText?: string;
+  visibilityStatus?: string;
   // v2.1 fields
   brand?: ServiceBrand;
   orderType?: ServiceOrderType;
-  visibilityStatus?: string;
 }
 
 export interface Subservice {
