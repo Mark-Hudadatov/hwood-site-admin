@@ -8,12 +8,22 @@ import React, { useEffect, useState } from 'react';
 import { Mail, MessageSquare, Check, Clock, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import {
   ContactSubmission,
-  QuoteSubmission,
+  QuoteSubmission as QuoteSubmissionBase,
   getContactSubmissions,
   getQuoteSubmissions,
   markContactRead,
   markQuoteRead,
 } from '../adminStore';
+
+type QuoteSubmission = QuoteSubmissionBase & {
+  order_type?: string;
+  service_slug?: string;
+  client_role?: string;
+  material?: string;
+  volume?: string;
+  deadline?: string;
+  file_url?: string;
+};
 
 type TabType = 'contact' | 'quote';
 
@@ -264,20 +274,59 @@ export const AdminSubmissions: React.FC = () => {
                   {expandedId === item.id && (
                     <div className="px-4 pb-4 ml-7 border-l-2 border-gray-200">
                       <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-xs text-gray-500 uppercase">Email</span>
-                          <p className="text-gray-900">{item.email}</p>
-                        </div>
-                        {item.phone && (
+                        {item.order_type && (
+                          <div className="col-span-2">
+                            <span className="text-xs text-gray-500 uppercase">Order Type</span>
+                            <div className="mt-1">
+                              <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                                item.order_type === 'browse-and-order' ? 'bg-green-100 text-green-700' :
+                                item.order_type === 'send-file-and-process' ? 'bg-blue-100 text-blue-700' :
+                                item.order_type === 'describe-and-request' ? 'bg-amber-100 text-amber-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {item.order_type}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        {item.service_slug && (
                           <div>
-                            <span className="text-xs text-gray-500 uppercase">Phone</span>
-                            <p className="text-gray-900">{item.phone}</p>
+                            <span className="text-xs text-gray-500 uppercase">Service</span>
+                            <p className="text-gray-900">{item.service_slug}</p>
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-xs text-gray-500 uppercase">Phone</span>
+                          <p className="text-gray-900">{item.phone || '—'}</p>
+                        </div>
+                        {item.client_role && (
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase">Client Role</span>
+                            <p className="text-gray-900">{item.client_role}</p>
                           </div>
                         )}
                         {item.project_type && (
                           <div>
                             <span className="text-xs text-gray-500 uppercase">Project Type</span>
                             <p className="text-gray-900">{item.project_type}</p>
+                          </div>
+                        )}
+                        {item.material && (
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase">Material</span>
+                            <p className="text-gray-900">{item.material}</p>
+                          </div>
+                        )}
+                        {item.volume && (
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase">Volume</span>
+                            <p className="text-gray-900">{item.volume}</p>
+                          </div>
+                        )}
+                        {item.deadline && (
+                          <div>
+                            <span className="text-xs text-gray-500 uppercase">Deadline</span>
+                            <p className="text-gray-900">{item.deadline}</p>
                           </div>
                         )}
                         {item.budget_range && (
@@ -304,13 +353,23 @@ export const AdminSubmissions: React.FC = () => {
                             </div>
                           </div>
                         )}
+                        {item.file_url && (
+                          <div className="col-span-2">
+                            <span className="text-xs text-gray-500 uppercase">Attached File</span>
+                            <p className="mt-1">
+                              <a href={item.file_url} target="_blank" rel="noopener noreferrer" className="text-[#005f5f] hover:underline break-all">
+                                {item.file_url}
+                              </a>
+                            </p>
+                          </div>
+                        )}
                         {item.message && (
                           <div className="col-span-2">
                             <span className="text-xs text-gray-500 uppercase">Message</span>
                             <p className="text-gray-900 whitespace-pre-wrap">{item.message}</p>
                           </div>
                         )}
-                        
+
                         {!item.is_read && (
                           <div className="col-span-2">
                             <button
