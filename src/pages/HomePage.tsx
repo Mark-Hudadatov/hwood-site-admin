@@ -612,6 +612,7 @@ export const HomePage: React.FC = () => {
             heroImageUrl: s.hero_image_url,
             accentColor: s.accent_color,
             visibilityStatus: s.visibility_status,
+            orderType: s.order_type,
           }));
           setServices(mapped);
         }
@@ -766,14 +767,14 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className={`flex items-center gap-3 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-              <button 
+              <button
                 onClick={() => scrollServices('left')}
                 className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Previous"
               >
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
               </button>
-              <button 
+              <button
                 onClick={() => scrollServices('right')}
                 className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-gray-300 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all text-gray-400"
                 aria-label="Next"
@@ -781,6 +782,41 @@ export const HomePage: React.FC = () => {
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
+          </div>
+
+          {/* Filter chips — order type filter */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            {[
+              { label: lang === 'he' ? 'הכל' : 'All services', count: services.length, color: null, active: true },
+              { label: lang === 'he' ? 'עיון והזמנה' : 'Browse & Order', count: services.filter(s => s.orderType === 'browse-and-order').length, color: '#005f5f', active: false },
+              { label: lang === 'he' ? 'שלח קובץ' : 'Send File & Process', count: services.filter(s => s.orderType === 'send-file-and-process').length, color: '#1d4ed8', active: false },
+              { label: lang === 'he' ? 'תאר ובקש' : 'Describe & Request', count: services.filter(s => s.orderType === 'describe-and-request').length, color: '#b45309', active: false },
+              { label: lang === 'he' ? 'בקרוב' : 'Coming soon', count: services.filter(s => s.visibilityStatus === 'coming_soon').length, color: '#737373', active: false },
+            ].filter(chip => chip.count > 0).map((chip, i) => (
+              <button
+                key={i}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-semibold tracking-wide border transition-all"
+                style={{
+                  background: chip.active ? '#0a0a0a' : '#fff',
+                  color: chip.active ? '#fff' : '#262626',
+                  borderColor: chip.active ? '#0a0a0a' : '#e0e0e0',
+                }}
+              >
+                {chip.color && (
+                  <span
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: chip.color }}
+                  />
+                )}
+                {chip.label}
+                <span
+                  className="font-mono text-[10px]"
+                  style={{ color: chip.active ? 'rgba(255,255,255,0.5)' : '#a3a3a3' }}
+                >
+                  {chip.count}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -918,28 +954,112 @@ export const HomePage: React.FC = () => {
 
         <AboutSection settings={settings.about_section} lang={lang} />
         
-        {/* Masters of Materials Section */}
-        <section className="relative w-full py-12 md:py-20 xl:py-24">
-          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-20 text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 md:mb-6">
-              {lang === 'he' ? (
-                <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
-              ) : (
-                <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
-              )}
-            </h2>
-            <p className="text-sm md:text-base lg:text-lg text-white/60 font-light leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
-              {lang === 'he' 
-                ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
-                : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
-            </p>
-            <button 
-              onClick={() => navigate('/contact')}
-              className={`inline-flex items-center gap-3 px-8 py-3.5 border border-white/70 text-white/70 rounded-md font-semibold text-sm tracking-wide uppercase hover:bg-white hover:text-neutral-900 hover:border-white transition-all ${lang === 'he' ? 'flex-row-reverse' : ''}`}
+        {/* How It Works — PASS B dark block */}
+        <section className="relative w-full py-16 md:py-24 overflow-hidden" style={{ background: '#0a0a0a' }}>
+          <div className="teal-stripes" style={{ opacity: 0.35 }} />
+          <div className="relative z-10 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 max-w-[1920px] mx-auto">
+            {/* Header */}
+            <div className="mb-10 md:mb-16">
+              <span className="eyebrow" style={{ color: '#00d4aa' }}>
+                {lang === 'he' ? 'איך זה עובד' : 'How it works'}
+              </span>
+              <h2 className="mt-3 text-2xl md:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight text-white max-w-3xl"
+                  style={{ letterSpacing: '-0.02em' }}>
+                {lang === 'he'
+                  ? 'מהקובץ שלך או מהרעיון — לתוכנית עם מחיר תוך 24 שעות.'
+                  : 'From your file or your idea — to a costed plan in under 24 hours.'}
+              </h2>
+            </div>
+
+            {/* 4-step grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative">
+              {[
+                {
+                  n: '01',
+                  en: { t: 'Pick your route', b: 'Catalog, project DXF, or custom brief — three doors, one team.' },
+                  he: { t: 'בחר את המסלול שלך', b: 'קטלוג, DXF פרויקט, או בריף מותאם — שלושה פתחים, צוות אחד.' },
+                },
+                {
+                  n: '02',
+                  en: { t: 'Send what you have', b: 'DXF · XLS · PDF · or a description in your own words.' },
+                  he: { t: 'שלח מה שיש לך', b: 'DXF · XLS · PDF · או תיאור במילים שלך.' },
+                },
+                {
+                  n: '03',
+                  en: { t: 'Get a costed plan', b: 'Within one business day. Materials, lead time, breakdown.' },
+                  he: { t: 'קבל הצעת מחיר', b: 'תוך יום עסקים אחד. חומרים, זמן אספקה, פירוט.' },
+                },
+                {
+                  n: '04',
+                  en: { t: 'Production & delivery', b: 'You track the job. We deliver to your site or workshop.' },
+                  he: { t: 'ייצור ואספקה', b: 'אתה עוקב אחרי הפרויקט. אנחנו מספקים לאתר או הסדנה שלך.' },
+                },
+              ].map((step, i) => (
+                <div
+                  key={step.n}
+                  className="relative flex flex-col gap-4 p-6 md:p-7 rounded-xl"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <span className="font-mono text-sm font-semibold" style={{ color: '#00d4aa' }}>{step.n}</span>
+                  <h3 className="text-lg md:text-xl font-semibold text-white" style={{ letterSpacing: '-0.01em' }}>
+                    {lang === 'he' ? step.he.t : step.en.t}
+                  </h3>
+                  <p className="text-sm leading-relaxed font-light" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    {lang === 'he' ? step.he.b : step.en.b}
+                  </p>
+                  {/* Arrow between steps (desktop) */}
+                  {i < 3 && (
+                    <span
+                      className="hidden lg:block absolute -right-4 top-8 z-10"
+                      style={{ color: 'rgba(255,255,255,0.2)' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* File formats banner */}
+            <div
+              className="mt-8 md:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 md:p-6 rounded-xl"
+              style={{
+                background: 'rgba(0,212,170,0.07)',
+                border: '1px solid rgba(0,212,170,0.22)',
+              }}
             >
-              {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
-              <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
-            </button>
+              <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,170,0.15)', color: '#00d4aa' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14,2 14,8 20,8" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="text-sm md:text-base font-semibold text-white mb-1">
+                  {lang === 'he'
+                    ? 'אין קובץ CAD? שלח סקיצה, תמונה, או תאר את העבודה במילים.'
+                    : 'No CAD file? Send a sketch, a photo, or describe the job in words.'}
+                </div>
+                <span className="font-mono text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  {lang === 'he' ? 'מקובל: DXF · DWG · XLS · CSV · PDF · טקסט חופשי' : 'Accepted: DXF · DWG · XLS · CSV · PDF · plain text'}
+                </span>
+              </div>
+              <button
+                onClick={() => navigate('/quote')}
+                className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm transition-colors"
+                style={{ background: '#fff', color: '#0a0a0a', border: 0 }}
+              >
+                {lang === 'he' ? 'התחל בריף' : 'Start a brief'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         </section>
       </div>

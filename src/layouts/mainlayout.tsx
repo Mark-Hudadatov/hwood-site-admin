@@ -17,6 +17,7 @@ import { supabase } from '../services/supabase';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
+import { CookieBanner } from '../components/CookieBanner';
 
 // WhatsApp Icon
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -198,11 +199,10 @@ const Header: React.FC = () => {
 
 // Footer Component
 const Footer: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const isHe = i18n.language?.startsWith('he');
   const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
-  
+
   useEffect(() => {
     supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
       .then(({ data }) => {
@@ -212,80 +212,125 @@ const Footer: React.FC = () => {
 
   const platformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
-      case 'facebook': return Facebook;
+      case 'facebook':  return Facebook;
       case 'instagram': return Instagram;
-      case 'linkedin': return Linkedin;
-      case 'youtube': return Youtube;
-      default: return null;
+      case 'linkedin':  return Linkedin;
+      case 'youtube':   return Youtube;
+      default:          return null;
     }
   };
-  
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
+
+  const columns = [
+    {
+      title: isHe ? 'הזמנה' : 'Order',
+      links: [
+        { label: isHe ? 'הזמנה מקטלוג' : 'Catalog Order',  href: '/#services' },
+        { label: isHe ? 'הזמנת פרויקט'  : 'Project Order',  href: '/#services' },
+        { label: isHe ? 'הזמנה מותאמת'  : 'Custom Order',   href: '/#services' },
+        { label: isHe ? 'בקש הצעת מחיר' : 'Request a Quote', href: '/contact' },
+      ],
+    },
+    {
+      title: isHe ? 'קהל יעד' : 'Audience',
+      links: [
+        { label: isHe ? 'אדריכלים'        : 'Architects',          href: '/#services' },
+        { label: isHe ? 'מעצבי פנים'      : 'Interior Designers',  href: '/#services' },
+        { label: isHe ? 'קבלנים'          : 'Contractors',         href: '/#services' },
+        { label: isHe ? 'קמעונאות'        : 'Retail',              href: '/#services' },
+      ],
+    },
+    {
+      title: 'Skylum',
+      links: [
+        { label: isHe ? 'אודות Skylum'    : 'About Skylum',  href: 'https://skylum.co.il', external: true },
+        { label: isHe ? 'חיפוי חזיתות'   : 'Facades',        href: 'https://skylum.co.il', external: true },
+        { label: isHe ? 'לוחות חיפוי'    : 'Cladding',       href: 'https://skylum.co.il', external: true },
+      ],
+    },
+    {
+      title: isHe ? 'חברה' : 'Company',
+      links: [
+        { label: isHe ? 'אודות'     : 'About',     href: '/about' },
+        { label: isHe ? 'פורטפוליו' : 'Portfolio', href: '/portfolio' },
+        { label: isHe ? 'צור קשר'   : 'Contact',   href: '/contact' },
+      ],
+    },
+  ];
+
   return (
-    <footer className="w-full px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 pt-12 md:pt-16 pb-8 text-white relative z-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 md:mb-16 gap-6 md:gap-8">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="HWOOD Logo" className="h-10 w-auto brightness-0 invert object-contain" style={{ maxWidth: '140px' }} />
+    <footer className="w-full relative z-10 text-white">
+      <div className="teal-stripes" style={{ opacity: 0.25 }} />
+      <div className="relative z-10 px-6 md:px-12 lg:px-16 xl:px-20 pt-16 md:pt-20 pb-8 max-w-[1920px] mx-auto">
+
+        {/* Main grid: brand col (spans 2) + 4 nav columns */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 mb-14">
+
+          {/* Brand column — spans 2 cols on lg */}
+          <div className="col-span-2 lg:col-span-2 flex flex-col gap-6">
+            <img src="/logo.png" alt="HWOOD" className="h-9 w-auto brightness-0 invert object-contain self-start" style={{ maxWidth: '130px' }} />
+            <p className="text-sm text-white/50 leading-relaxed max-w-xs">
+              {isHe
+                ? 'ייצור CNC מדויק לארכיטקטורה, עיצוב פנים ובנייה — מנתניה, ישראל.'
+                : 'Precision CNC manufacturing for architecture, interior design, and construction — Netanya, Israel.'}
+            </p>
+            {/* Social icons */}
+            <div className="flex gap-3 mt-1">
+              {socialLinks.length > 0 ? (
+                socialLinks.map((link) => {
+                  const Icon = platformIcon(link.platform);
+                  if (!Icon) return null;
+                  return (
+                    <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  );
+                })
+              ) : (
+                [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
+                  <a key={idx} href="#"
+                    className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
+                    <Icon className="w-4 h-4" />
+                  </a>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Nav columns */}
+          {columns.map((col) => (
+            <div key={col.title} className="flex flex-col gap-4">
+              <p className="eyebrow text-white/40">{col.title}</p>
+              <ul className="flex flex-col gap-3">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    {(link as any).external ? (
+                      <a href={link.href} target="_blank" rel="noopener noreferrer"
+                        className="text-sm text-white/60 hover:text-white transition-colors">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="flex gap-4">
-          {socialLinks.length > 0 ? (
-            socialLinks.map((link) => {
-              const Icon = platformIcon(link.platform);
-              if (!Icon) return null;
-              return (
-                <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                  <Icon className="w-5 h-5" />
-                </a>
-              );
-            })
-          ) : (
-            [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-              <a key={idx} href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                <Icon className="w-5 h-5" />
-              </a>
-            ))
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-20 xl:gap-24 mb-10 md:mb-16">
-        <div>
-          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'עדכונים' : 'Updates'}</h3>
-          <div className="w-full h-px bg-neutral-600 mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'עדכונים טכניים, תובנות ייצור ושינויים במערכת.' : 'Technical updates, production insights, and system changes.'}</p>
-          <button onClick={() => navigate('/contact')} className="bg-white text-neutral-900 px-8 py-3 rounded font-medium hover:bg-neutral-200 transition-colors">{isHe ? 'הרשמה' : 'Subscribe'}</button>
+        {/* Bottom row */}
+        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/35">
+          <p>© {new Date().getFullYear()} HWOOD · Netanya, Israel</p>
+          <div className="flex gap-5">
+            <Link to="/privacy" className="hover:text-white transition-colors">{isHe ? 'פרטיות' : 'Privacy Policy'}</Link>
+            <Link to="/terms"   className="hover:text-white transition-colors">{isHe ? 'תנאי שימוש' : 'Terms of Use'}</Link>
+            <Link to="/cookies" className="hover:text-white transition-colors">{isHe ? 'עוגיות' : 'Cookies'}</Link>
+          </div>
         </div>
 
-        <div>
-          <h3 className="text-body-lg font-medium mb-4">{isHe ? 'תמיכה טכנית' : 'Technical Support'}</h3>
-          <div className="w-full h-px bg-brand mb-6" />
-          <p className="mb-8 text-meta text-neutral-400 leading-relaxed max-w-md">{isHe ? 'תמיכה לאחר אספקה עבור מערכות ייצור, רכיבים ותהליכי CNC.' : 'Post-delivery support for production systems, components, and CNC workflows.'}</p>
-          <button onClick={() => navigate('/contact')} className="bg-brand text-white px-8 py-3 rounded font-medium hover:bg-teal-600 transition-colors">{isHe ? 'בקשת תמיכה' : 'Request Support'}</button>
-        </div>
-      </div>
-
-      {/* Back to Top Button - larger, above copyright */}
-      <div className="flex justify-center mb-8">
-        <button 
-          onClick={scrollToTop}
-          className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/30 text-white/70 hover:bg-white hover:text-neutral-900 transition-all group"
-          aria-label="Back to top"
-        >
-          <ChevronDown className="w-5 h-5 rotate-180 group-hover:animate-bounce" />
-          <span className="text-sm font-medium">{isHe ? 'חזרה למעלה' : 'Back to top'}</span>
-        </button>
-      </div>
-
-      <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-meta-sm text-neutral-500">
-        <p>© HWOOD | Netanya, Israel | {t('footer.rights')}</p>
-        <div className="flex flex-wrap gap-6">
-          <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-        </div>
       </div>
     </footer>
   );
@@ -333,6 +378,7 @@ export const MainLayout: React.FC = () => {
         </main>
         <FooterWrapper />
         <WhatsAppButton />
+        <CookieBanner />
       </div>
     </>
   );
