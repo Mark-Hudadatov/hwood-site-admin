@@ -39,6 +39,7 @@ import { AdminMainPage } from './admin/pages/AdminMainPage';
 import { AdminCompanyInfo } from './admin/pages/AdminCompanyInfo';
 import { AdminSubmissions } from './admin/pages/AdminSubmissions';
 import { AdminPartners } from './admin/pages/AdminPartners';
+import { AdminHeroSlides } from './admin/pages/AdminHeroSlides';
 
 // Error boundary
 const ErrorPage = () => (
@@ -97,6 +98,7 @@ const routes: RouteObject[] = [
       { path: 'partners', element: <AdminPartners /> },
       { path: 'company-info', element: <AdminCompanyInfo /> },
       { path: 'submissions', element: <AdminSubmissions /> },
+      { path: 'hero-slides', element: <AdminHeroSlides /> },
     ],
   },
 ];
