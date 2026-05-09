@@ -104,6 +104,30 @@ interface HomepageSettings {
       overlay_opacity: number;
     }>;
   };
+  hero_rail: {
+    heading_en: string; heading_he: string;
+    eyebrow_en: string; eyebrow_he: string;
+    card1_title_en: string; card1_title_he: string;
+    card1_badge_en: string; card1_badge_he: string;
+    card1_desc_en: string; card1_desc_he: string;
+    card1_lead_en: string; card1_lead_he: string;
+    card1_link: string;
+    card2_title_en: string; card2_title_he: string;
+    card2_badge_en: string; card2_badge_he: string;
+    card2_desc_en: string; card2_desc_he: string;
+    card2_lead_en: string; card2_lead_he: string;
+    card2_link: string;
+    card3_title_en: string; card3_title_he: string;
+    card3_badge_en: string; card3_badge_he: string;
+    card3_desc_en: string; card3_desc_he: string;
+    card3_lead_en: string; card3_lead_he: string;
+    card3_link: string;
+    footer_text_en: string; footer_text_he: string;
+    footer_cta_en: string; footer_cta_he: string;
+    whatsapp_number: string;
+    badge1_en: string; badge1_he: string;
+    badge2_en: string; badge2_he: string;
+  };
 }
 
 const DEFAULT_SETTINGS: HomepageSettings = {
@@ -134,6 +158,35 @@ const DEFAULT_SETTINGS: HomepageSettings = {
       { title_en: 'Professional Carpentry & Joinery', title_he: 'נגרות מקצועית', subtitle_en: 'Custom Interior Fabrication', subtitle_he: 'ייצור פנים מותאם אישית', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.', image_url: '', overlay_opacity: 75 },
       { title_en: 'Interior & Fit-Out Contractors', title_he: 'קבלני פנים והתאמות', subtitle_en: 'Residential & Commercial Delivery', subtitle_he: 'אספקה למגורים ומסחר', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.', image_url: '', overlay_opacity: 80 },
     ],
+  },
+  hero_rail: {
+    heading_en: 'What kind of project\nare you working on?',
+    heading_he: 'על איזה סוג פרויקט\nאתה עובד?',
+    eyebrow_en: 'Start your order',
+    eyebrow_he: 'התחל הזמנה',
+    card1_title_en: 'Browse & Order', card1_title_he: 'עיון והזמנה',
+    card1_badge_en: 'Catalog', card1_badge_he: 'קטלוג',
+    card1_desc_en: '30+ ready cabinet modules — in stock, dispatched same week.',
+    card1_desc_he: '30+ מודולי ארונות מוכנים — במלאי, משלוח באותו שבוע.',
+    card1_lead_en: 'Lead time · from 5 days', card1_lead_he: 'זמן אספקה · מ-5 ימים',
+    card1_link: '/quote?type=browse',
+    card2_title_en: 'CNC Services', card2_title_he: 'שירותי CNC',
+    card2_badge_en: 'Service', card2_badge_he: 'שירות',
+    card2_desc_en: 'DXF, sketches or panel list — we run it through our line and ship the parts.',
+    card2_desc_he: 'DXF, סקיצות או רשימת לוחות — אנחנו מעבדים ומשלחים.',
+    card2_lead_en: 'Lead time · from 72h', card2_lead_he: 'זמן אספקה · מ-72 שעות',
+    card2_link: '/quote?type=file',
+    card3_title_en: 'Custom Order', card3_title_he: 'הזמנה מותאמת',
+    card3_badge_en: 'Project', card3_badge_he: 'פרויקט',
+    card3_desc_en: 'Brief, design, engineering and install — we handle the build end-to-end.',
+    card3_desc_he: 'בריף, עיצוב, הנדסה והתקנה — אנחנו מטפלים בהכל.',
+    card3_lead_en: 'Lead time · from 4 weeks', card3_lead_he: 'זמן אספקה · מ-4 שבועות',
+    card3_link: '/quote?type=describe',
+    footer_text_en: 'Not sure where to start?', footer_text_he: 'לא בטוח מאיפה להתחיל?',
+    footer_cta_en: 'Get a callback', footer_cta_he: 'קבל שיחה חזרה',
+    whatsapp_number: '972549222804',
+    badge1_en: 'Reply within 1 business day', badge1_he: 'תגובה תוך יום עסקים',
+    badge2_en: 'EN / HE', badge2_he: 'עב / אנ',
   },
 };
 
@@ -370,7 +423,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
 // HERO SECTION
 // =============================================================================
 
-const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | 'he' }> = ({ settings, lang }) => {
+const HeroSection: React.FC<{ settings: HomepageSettings['hero']; railSettings: HomepageSettings['hero_rail']; lang: 'en' | 'he' }> = ({ settings, railSettings, lang }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -378,10 +431,31 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   const leftTitle = lang === 'he' && settings.left_title_he ? settings.left_title_he : settings.left_title_en;
   const leftSubtitle = lang === 'he' && settings.left_subtitle_he ? settings.left_subtitle_he : settings.left_subtitle_en || '';
   const leftImg = settings.left_image_url || FALLBACK.hero;
-  
-  // Bilingual content for right panel
   const buttonText = lang === 'he' ? 'צפה בקטלוג המודולים' : 'View Module Catalog';
-  const tagText = lang === 'he' ? 'זרימת עבודה מדויקת' : 'Precision Workflow';
+
+  const rl = railSettings;
+  const L = (en: string, he: string) => (lang === 'he' && he ? he : en);
+  const rail = {
+    heading: L(rl.heading_en, rl.heading_he).split('\n'),
+    eyebrow: L(rl.eyebrow_en, rl.eyebrow_he),
+    c1title: L(rl.card1_title_en, rl.card1_title_he),
+    c1badge: L(rl.card1_badge_en, rl.card1_badge_he),
+    c1desc:  L(rl.card1_desc_en,  rl.card1_desc_he),
+    c1lead:  L(rl.card1_lead_en,  rl.card1_lead_he),
+    c2title: L(rl.card2_title_en, rl.card2_title_he),
+    c2badge: L(rl.card2_badge_en, rl.card2_badge_he),
+    c2desc:  L(rl.card2_desc_en,  rl.card2_desc_he),
+    c2lead:  L(rl.card2_lead_en,  rl.card2_lead_he),
+    c3title: L(rl.card3_title_en, rl.card3_title_he),
+    c3badge: L(rl.card3_badge_en, rl.card3_badge_he),
+    c3desc:  L(rl.card3_desc_en,  rl.card3_desc_he),
+    c3lead:  L(rl.card3_lead_en,  rl.card3_lead_he),
+    footerText: L(rl.footer_text_en, rl.footer_text_he),
+    footerCta:  L(rl.footer_cta_en,  rl.footer_cta_he),
+    badge1: L(rl.badge1_en, rl.badge1_he),
+    badge2: L(rl.badge2_en, rl.badge2_he),
+    waUrl: `https://wa.me/${rl.whatsapp_number}`,
+  };
 
   useEffect(() => { setTimeout(() => setIsVisible(true), 100); }, []);
 
@@ -475,13 +549,13 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
             <div className="flex items-center gap-2.5 mb-3">
               <span style={{ width: 18, height: 1.5, background: '#00d4aa', borderRadius: 99, flexShrink: 0 }} />
               <span className="text-[10px] font-bold tracking-[0.16em] uppercase" style={{ color: '#00d4aa' }}>
-                Start your order
+                {rail.eyebrow}
               </span>
             </div>
 
             {/* Heading */}
             <h3 className="font-semibold leading-snug mb-5 text-white" style={{ fontSize: 'clamp(17px, 1.6vw, 22px)' }}>
-              What kind of project<br />are you working on?
+              {rail.heading[0]}{rail.heading[1] && <><br />{rail.heading[1]}</>}
             </h3>
 
             {/* Cards */}
@@ -489,7 +563,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
 
               {/* Card 1 — Browse & Order */}
               <Link
-                to="/quote?type=browse"
+                to={railSettings.card1_link}
                 className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
                 style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
                 onMouseEnter={e => {
@@ -512,16 +586,16 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-semibold text-[13px] leading-none">Browse & Order</span>
+                    <span className="text-white font-semibold text-[13px] leading-none">{rail.c1title}</span>
                     <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
-                      style={{ background: 'rgba(0,212,170,0.15)', color: '#00d4aa' }}>Catalog</span>
+                      style={{ background: 'rgba(0,212,170,0.15)', color: '#00d4aa' }}>{rail.c1badge}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                    30+ ready cabinet modules — in stock, dispatched same week.
+                    {rail.c1desc}
                   </p>
                   <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
                     <span style={{ width: 3, height: 3, borderRadius: 999, background: '#00d4aa', flexShrink: 0 }} />
-                    Lead time · from 5 days
+                    {rail.c1lead}
                   </div>
                 </div>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -532,7 +606,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
 
               {/* Card 2 — CNC Services */}
               <Link
-                to="/quote?type=file"
+                to={railSettings.card2_link}
                 className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
                 style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
                 onMouseEnter={e => {
@@ -555,16 +629,16 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-semibold text-[13px] leading-none">CNC Services</span>
+                    <span className="text-white font-semibold text-[13px] leading-none">{rail.c2title}</span>
                     <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
-                      style={{ background: 'rgba(91,157,255,0.15)', color: '#5b9dff' }}>Service</span>
+                      style={{ background: 'rgba(91,157,255,0.15)', color: '#5b9dff' }}>{rail.c2badge}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                    DXF, sketches or panel list — we run it through our line and ship the parts.
+                    {rail.c2desc}
                   </p>
                   <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
                     <span style={{ width: 3, height: 3, borderRadius: 999, background: '#5b9dff', flexShrink: 0 }} />
-                    Lead time · from 72h
+                    {rail.c2lead}
                   </div>
                 </div>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -575,7 +649,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
 
               {/* Card 3 — Describe a Custom Order */}
               <Link
-                to="/quote?type=describe"
+                to={railSettings.card3_link}
                 className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
                 style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
                 onMouseEnter={e => {
@@ -597,16 +671,16 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-semibold text-[13px] leading-none">Custom Order</span>
+                    <span className="text-white font-semibold text-[13px] leading-none">{rail.c3title}</span>
                     <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
-                      style={{ background: 'rgba(244,166,75,0.15)', color: '#f4a64b' }}>Project</span>
+                      style={{ background: 'rgba(244,166,75,0.15)', color: '#f4a64b' }}>{rail.c3badge}</span>
                   </div>
                   <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                    Brief, design, engineering and install — we handle the build end-to-end.
+                    {rail.c3desc}
                   </p>
                   <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
                     <span style={{ width: 3, height: 3, borderRadius: 999, background: '#f4a64b', flexShrink: 0 }} />
-                    Lead time · from 4 weeks
+                    {rail.c3lead}
                   </div>
                 </div>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -626,10 +700,10 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                   </svg>
                 </span>
                 <span>
-                  Not sure where to start?{' '}
-                  <a href="https://wa.me/972549222804" target="_blank" rel="noopener noreferrer"
+                  {rail.footerText}{' '}
+                  <a href={rail.waUrl} target="_blank" rel="noopener noreferrer"
                     style={{ color: '#00d4aa', borderBottom: '1px dashed rgba(0,212,170,0.4)', paddingBottom: 1 }}>
-                    Get a callback
+                    {rail.footerCta}
                   </a>
                 </span>
               </div>
@@ -638,13 +712,13 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00d4aa' }}>
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
-                  Reply within 1 business day
+                  {rail.badge1}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00d4aa' }}>
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
-                  EN / HE
+                  {rail.badge2}
                 </span>
               </div>
             </div>
@@ -936,7 +1010,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      <HeroSection settings={settings.hero} lang={lang} />
+      <HeroSection settings={settings.hero} railSettings={settings.hero_rail} lang={lang} />
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
