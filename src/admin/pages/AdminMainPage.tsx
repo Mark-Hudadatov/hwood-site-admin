@@ -279,7 +279,10 @@ export const AdminMainPage: React.FC = () => {
   if (loading) return <div style={{ padding: 32, color: 'var(--fg-3)', fontSize: 13 }}>Loading…</div>;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: 'var(--bg-2)' }}>
+
+      {/* ── Left column (editor) ── */}
+      <div style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* Sticky section nav */}
       <div style={{
@@ -600,6 +603,132 @@ export const AdminMainPage: React.FC = () => {
 
         </div>
       </div>
+
+      </div>
+      {/* ── End left column ── */}
+
+      {/* ── Right column (preview placeholder) ── */}
+      <div style={{
+        width: 300, flexShrink: 0, height: '100%',
+        borderLeft: '1px solid var(--border-1)',
+        background: '#fff', display: 'flex', flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
+
+        {/* Header */}
+        <div style={{
+          padding: '12px 16px', borderBottom: '1px solid var(--border-1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--fg-3)' }}>
+            Page preview
+          </span>
+          <span style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+            padding: '2px 7px', borderRadius: 4,
+            background: 'var(--bg-3)', color: 'var(--fg-3)',
+          }}>
+            Coming soon
+          </span>
+        </div>
+
+        {/* Placeholder — scaled page wireframe */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+
+          {/* Browser chrome mockup */}
+          <div style={{
+            border: '1px solid var(--border-1)', borderRadius: 8, overflow: 'hidden',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          }}>
+            {/* Browser bar */}
+            <div style={{
+              padding: '7px 12px', background: 'var(--bg-2)',
+              borderBottom: '1px solid var(--border-1)',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {['#f87171', '#fbbf24', '#34d399'].map(c => (
+                  <div key={c} style={{ width: 7, height: 7, borderRadius: 999, background: c }} />
+                ))}
+              </div>
+              <div style={{
+                flex: 1, height: 16, background: 'var(--border-1)', borderRadius: 4,
+                display: 'flex', alignItems: 'center', paddingLeft: 8,
+              }}>
+                <span style={{ fontSize: 9, color: 'var(--fg-3)', fontFamily: 'ui-monospace, monospace' }}>
+                  hwood.co.il
+                </span>
+              </div>
+            </div>
+
+            {/* Page wireframe */}
+            <div style={{ background: '#fff' }}>
+
+              {/* Hero block */}
+              <div style={{ height: 80, background: '#1a1a1a', position: 'relative', overflow: 'hidden' }}>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(135deg, #1a1a1a 70%, #002828 100%)',
+                }} />
+                <div style={{ position: 'absolute', bottom: 10, left: 12, right: 12 }}>
+                  <div style={{ width: '55%', height: 5, background: 'rgba(255,255,255,0.7)', borderRadius: 2, marginBottom: 4 }} />
+                  <div style={{ width: '40%', height: 3, background: 'rgba(255,255,255,0.3)', borderRadius: 2 }} />
+                </div>
+                <div style={{
+                  position: 'absolute', top: 0, right: 0, bottom: 0, width: '30%',
+                  background: '#0d0d0d', borderLeft: '1px solid rgba(255,255,255,0.1)',
+                  padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 4,
+                }}>
+                  {(['#00d4aa', '#5b9dff', '#f4a64b'] as const).map((c, i) => (
+                    <div key={i} style={{
+                      height: 16, background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)', borderRadius: 4,
+                      display: 'flex', alignItems: 'center', paddingLeft: 5, gap: 4,
+                    }}>
+                      <div style={{ width: 6, height: 6, borderRadius: 2, background: c, opacity: 0.8 }} />
+                      <div style={{ flex: 1, height: 2, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sections */}
+              {[
+                { label: 'Services',          h: 48, bg: '#fff' },
+                { label: 'How It Works',      h: 32, bg: 'var(--bg-2)' },
+                { label: 'Who We Work With',  h: 40, bg: '#fff' },
+                { label: 'Stories',           h: 44, bg: '#111' },
+                { label: 'About',             h: 28, bg: '#f4f4f4' },
+                { label: 'Footer',            h: 24, bg: '#002828' },
+              ].map(s => (
+                <div key={s.label} style={{
+                  height: s.h, background: s.bg,
+                  borderBottom: '1px solid var(--border-1)',
+                  display: 'flex', alignItems: 'center', paddingLeft: 12,
+                }}>
+                  <span style={{
+                    fontSize: 8, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+                    color: s.bg === '#111' || s.bg === '#002828' ? 'rgba(255,255,255,0.4)' : 'var(--fg-3)',
+                  }}>
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Caption */}
+          <p style={{
+            fontSize: 10, color: 'var(--fg-3)', textAlign: 'center',
+            marginTop: 12, lineHeight: 1.5,
+          }}>
+            Live preview will render here.<br />Changes reflect after save.
+          </p>
+        </div>
+      </div>
+      {/* ── End right column ── */}
+
     </div>
   );
 };
