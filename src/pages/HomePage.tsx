@@ -482,7 +482,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; railSettings: 
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
           
           <div className={`absolute inset-0 flex flex-col justify-end p-6 md:p-16 lg:p-20 pb-28 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-            <h1 className={`text-white font-bold mb-4 md:mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}>
+            <h1 className={`text-white font-bold mb-4 md:mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(1.75rem, 4vw, 3.75rem)' }}>
               {leftTitle}
             </h1>
             {leftSubtitle && (
@@ -772,16 +772,16 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
   return (
     <section ref={sectionRef} className="bg-white py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
-        <h2 className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 md:mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <h2 className={`mb-8 md:mb-12 text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3.25rem)', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
           {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
         </h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 lg:gap-16 xl:gap-20 2xl:gap-24">
           <div className="space-y-6 md:space-y-8">
-            <p className={`text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
+            <p className={`text-sm md:text-base text-gray-600 leading-relaxed font-normal transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '200ms' }}>
               {c.p1}
             </p>
-            <p className={`text-base md:text-lg lg:text-xl text-gray-700 leading-relaxed font-light transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
+            <p className={`text-sm md:text-base text-gray-600 leading-relaxed font-normal transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
               {c.p2}
             </p>
           </div>
@@ -815,8 +815,8 @@ const AboutSection: React.FC<{ settings: HomepageSettings['about_section']; lang
   return (
     <section className="relative w-full min-h-[400px] md:min-h-[500px] flex md:pt-12">
       <div className="relative z-10 flex-1 rounded-l-[40px] md:rounded-l-[80px] lg:rounded-l-[100px] xl:rounded-l-[120px] 2xl:rounded-l-[160px] ml-4 md:ml-16 lg:ml-24 xl:ml-36 2xl:ml-48 flex flex-col justify-center px-6 md:px-12 lg:px-20 py-12 md:py-16 shadow-2xl" style={{ backgroundColor: settings.background_color }}>
-        <h2 className="text-xl md:text-2xl lg:text-3xl font-normal mb-6 md:mb-8" style={{ color: settings.text_color }}>{title}</h2>
-        <p className="text-gray-900 text-lg md:text-xl lg:text-2xl font-light leading-relaxed mb-8 md:mb-12 max-w-2xl">{description}</p>
+        <h2 className="mb-6 md:mb-8" style={{ fontSize: 'clamp(1.25rem, 2vw, 2rem)', fontWeight: 400, color: settings.text_color }}>{title}</h2>
+        <p className="text-gray-700 text-base md:text-lg leading-relaxed font-normal mb-8 md:mb-12 max-w-2xl">{description}</p>
         <button onClick={() => navigate(settings.button_link)} className="group relative text-white px-8 py-3.5 rounded-md font-semibold text-sm tracking-wide overflow-hidden self-start" style={{ backgroundColor: settings.text_color }}>
           <span className="relative z-10">{buttonText}</span>
           <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -1020,10 +1020,10 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
+              <h3 className="text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                 {servicesTitle}
               </h3>
-              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+              <p className="text-sm text-gray-500 leading-relaxed max-w-xl">
                 {servicesSubtitle}
               </p>
             </div>
@@ -1237,10 +1237,10 @@ export const HomePage: React.FC = () => {
         {/* Header - aligned with other sections */}
         <div className="px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 mb-10 md:mb-16 lg:mb-20">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
+            <h2 className="text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               {lang === 'he' && settings.partners_section.section_title_he ? settings.partners_section.section_title_he : settings.partners_section.section_title_en}
             </h2>
-            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
+            <p className="text-sm text-gray-500 leading-relaxed">
               {lang === 'he' && settings.partners_section.section_description_he ? settings.partners_section.section_description_he : settings.partners_section.section_description_en}
             </p>
           </div>
@@ -1273,7 +1273,7 @@ export const HomePage: React.FC = () => {
                 </span>
                 
                 {/* Title */}
-                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 tracking-tight leading-tight text-white">
+                <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-5 tracking-tight leading-tight text-white">
                   {lang === 'he' && partner.title_he ? partner.title_he : partner.title_en}
                 </h3>
                 
@@ -1309,7 +1309,7 @@ export const HomePage: React.FC = () => {
           <div className="max-w-7xl mx-auto mb-10 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-white" style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.5rem)', fontWeight: 600, letterSpacing: '-0.02em' }}>{storiesTitle}</h1>
                 <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                   <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
@@ -1339,14 +1339,14 @@ export const HomePage: React.FC = () => {
         {/* Masters of Materials Section */}
         <section className="relative w-full py-12 md:py-20 xl:py-24">
           <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-20 text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-normal text-white leading-tight mb-4 md:mb-5">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
               ) : (
                 <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
               )}
             </h2>
-            <p className="text-sm md:text-base lg:text-lg text-white/60 font-light leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
+            <p className="text-sm md:text-base text-white/60 leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
               {lang === 'he'
                 ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
                 : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
