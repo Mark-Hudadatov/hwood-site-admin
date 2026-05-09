@@ -480,12 +480,12 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
             </div>
 
             {/* Heading */}
-            <h3 className="font-semibold leading-snug mb-5 text-white" style={{ fontSize: 'clamp(14px, 1.2vw, 17px)' }}>
+            <h3 className="font-semibold leading-snug mb-5 text-white" style={{ fontSize: 'clamp(17px, 1.6vw, 22px)' }}>
               What kind of project<br />are you working on?
             </h3>
 
             {/* Cards */}
-            <div className="flex flex-col gap-2.5 flex-1">
+            <div className="flex flex-col gap-4 flex-1 justify-center">
 
               {/* Card 1 — Browse & Order */}
               <Link
@@ -618,10 +618,10 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
 
             {/* Footer */}
             <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="flex items-center gap-2.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <div className="flex items-center gap-2.5 text-[12px]" style={{ color: 'rgba(255,255,255,0.65)' }}>
                 <span className="flex items-center justify-center flex-shrink-0 rounded-full"
-                  style={{ width: 24, height: 24, background: 'rgba(0,212,170,0.12)', color: '#00d4aa' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  style={{ width: 28, height: 28, background: 'rgba(0,212,170,0.12)', color: '#00d4aa' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                   </svg>
                 </span>
@@ -633,7 +633,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
                   </a>
                 </span>
               </div>
-              <div className="flex items-center gap-4 text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              <div className="flex items-center gap-4 text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
                 <span className="flex items-center gap-1.5">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00d4aa' }}>
                     <polyline points="20 6 9 17 4 12"/>
