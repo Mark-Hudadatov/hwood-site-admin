@@ -355,10 +355,18 @@ export const QuotePage: React.FC = () => {
   const searchParams = new URLSearchParams(location.search);
   const serviceSlug = searchParams.get('service') || '';
   const productTitle = searchParams.get('productTitle') || '';
+  const typeParam = searchParams.get('type') || '';
 
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+
+  // Maps ?type= param to orderType values used by services
+  const TYPE_TO_ORDER_TYPE: Record<string, string> = {
+    browse:   'browse-and-order',
+    file:     'send-file-and-process',
+    describe: 'describe-and-request',
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -366,6 +374,11 @@ export const QuotePage: React.FC = () => {
       if (serviceSlug) {
         const svc = await getServiceBySlug(serviceSlug);
         setService(svc);
+      } else if (typeParam && TYPE_TO_ORDER_TYPE[typeParam]) {
+        const targetOrderType = TYPE_TO_ORDER_TYPE[typeParam];
+        const all = await getServices();
+        const matched = all.find(s => s.orderType === targetOrderType);
+        setService(matched || all[0] || null);
       } else {
         // Fallback: load first service so page isn't blank
         const all = await getServices();
@@ -374,7 +387,7 @@ export const QuotePage: React.FC = () => {
       setLoading(false);
     };
     load();
-  }, [serviceSlug]);
+  }, [serviceSlug, typeParam]);
 
   if (loading) {
     return (

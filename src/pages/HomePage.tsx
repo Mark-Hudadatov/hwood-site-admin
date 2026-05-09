@@ -438,33 +438,220 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           )}
         </div>
 
-        {/* Right Panel - hidden on mobile, 30% on desktop */}
-        <div className={`hidden md:flex relative w-[30%] h-full items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-          <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
-            <Link 
-              to={settings.right_link || '/services'} 
-              className={`inline-flex items-center gap-3 bg-white text-black px-6 md:px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn text-sm md:text-base ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
-            >
-              {buttonText}
-              <span className="bg-black text-white rounded-full p-1 group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
-                <ArrowRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+        {/* ── Right Panel — Version A: Refined Stack ────────────────── */}
+        <div className="hidden md:flex relative w-[30%] h-full flex-col bg-[#0d0d0d] overflow-hidden">
+
+          {/* Subtle grid texture */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.03]"
+            style={{
+              backgroundImage: `
+                linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px),
+                linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px',
+            }}
+          />
+
+          <div className="relative z-10 flex flex-col h-full px-7 py-6">
+
+            {/* Top utility row */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.14em] uppercase">
+                <span style={{ color: 'rgba(255,255,255,0.35)' }}>Start order</span>
+                <span style={{ width: 4, height: 4, borderRadius: 999, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+                <span className="text-white">Pick a type</span>
+              </div>
+              <span
+                className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.04em] select-none"
+                style={{ color: 'rgba(255,255,255,0.3)', padding: '4px 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 999, cursor: 'default' }}
+              >
+                <span style={{ width: 5, height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.25)' }} />
+                Client login
               </span>
-            </Link>
-            
-            <div className={`mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-              <span>{tagText}</span>
-              <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
-          </div>
-          
-          {/* Decorative background element */}
-          <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none">
-            <svg width="300" height="300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="48" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
-              <path d="M50 2v96M2 50h96" stroke="white" strokeWidth="0.2" />
-            </svg>
+
+            {/* Eyebrow */}
+            <div className="flex items-center gap-2.5 mb-3">
+              <span style={{ width: 18, height: 1.5, background: '#00d4aa', borderRadius: 99, flexShrink: 0 }} />
+              <span className="text-[10px] font-bold tracking-[0.16em] uppercase" style={{ color: '#00d4aa' }}>
+                Start your order
+              </span>
+            </div>
+
+            {/* Heading */}
+            <h3 className="font-semibold leading-snug mb-5 text-white" style={{ fontSize: 'clamp(14px, 1.2vw, 17px)' }}>
+              What kind of project<br />are you working on?
+            </h3>
+
+            {/* Cards */}
+            <div className="flex flex-col gap-2.5 flex-1">
+
+              {/* Card 1 — Browse & Order */}
+              <Link
+                to="/quote?type=browse"
+                className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
+                style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,212,170,0.4)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(0,212,170,0.05)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(2px)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(0)';
+                }}
+              >
+                <span className="flex items-center justify-center flex-shrink-0 rounded-[10px] mt-0.5"
+                  style={{ width: 38, height: 38, background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.18)', color: '#00d4aa' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                  </svg>
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white font-semibold text-[13px] leading-none">Browse & Order</span>
+                    <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
+                      style={{ background: 'rgba(0,212,170,0.15)', color: '#00d4aa' }}>Catalog</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                    30+ ready cabinet modules — in stock, dispatched same week.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    <span style={{ width: 3, height: 3, borderRadius: 999, background: '#00d4aa', flexShrink: 0 }} />
+                    Lead time · from 5 days
+                  </div>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  className="flex-shrink-0 mt-1 transition-transform duration-200 group-hover:translate-x-0.5">
+                  <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+              </Link>
+
+              {/* Card 2 — CNC Services */}
+              <Link
+                to="/quote?type=file"
+                className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
+                style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,157,255,0.4)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(91,157,255,0.05)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(2px)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(0)';
+                }}
+              >
+                <span className="flex items-center justify-center flex-shrink-0 rounded-[10px] mt-0.5"
+                  style={{ width: 38, height: 38, background: 'rgba(91,157,255,0.1)', border: '1px solid rgba(91,157,255,0.18)', color: '#5b9dff' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <path d="M14 2v6h6M9 13h6M9 17h4"/>
+                  </svg>
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white font-semibold text-[13px] leading-none">CNC Services</span>
+                    <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
+                      style={{ background: 'rgba(91,157,255,0.15)', color: '#5b9dff' }}>Service</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                    DXF, sketches or panel list — we run it through our line and ship the parts.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    <span style={{ width: 3, height: 3, borderRadius: 999, background: '#5b9dff', flexShrink: 0 }} />
+                    Lead time · from 72h
+                  </div>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  className="flex-shrink-0 mt-1 transition-transform duration-200 group-hover:translate-x-0.5">
+                  <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+              </Link>
+
+              {/* Card 3 — Describe a Custom Order */}
+              <Link
+                to="/quote?type=describe"
+                className="group flex items-start gap-3.5 rounded-xl p-3.5 transition-all duration-200 no-underline"
+                style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)' }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(244,166,75,0.4)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(244,166,75,0.05)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(2px)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateX(0)';
+                }}
+              >
+                <span className="flex items-center justify-center flex-shrink-0 rounded-[10px] mt-0.5"
+                  style={{ width: 38, height: 38, background: 'rgba(244,166,75,0.1)', border: '1px solid rgba(244,166,75,0.18)', color: '#f4a64b' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                  </svg>
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white font-semibold text-[13px] leading-none">Custom Order</span>
+                    <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-1.5 py-0.5 rounded-sm"
+                      style={{ background: 'rgba(244,166,75,0.15)', color: '#f4a64b' }}>Project</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed mb-1.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                    Brief, design, engineering and install — we handle the build end-to-end.
+                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    <span style={{ width: 3, height: 3, borderRadius: 999, background: '#f4a64b', flexShrink: 0 }} />
+                    Lead time · from 4 weeks
+                  </div>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  className="flex-shrink-0 mt-1 transition-transform duration-200 group-hover:translate-x-0.5">
+                  <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center gap-2.5 text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <span className="flex items-center justify-center flex-shrink-0 rounded-full"
+                  style={{ width: 24, height: 24, background: 'rgba(0,212,170,0.12)', color: '#00d4aa' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </span>
+                <span>
+                  Not sure where to start?{' '}
+                  <a href="https://wa.me/972549222804" target="_blank" rel="noopener noreferrer"
+                    style={{ color: '#00d4aa', borderBottom: '1px dashed rgba(0,212,170,0.4)', paddingBottom: 1 }}>
+                    Get a callback
+                  </a>
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-[10px] font-semibold" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                <span className="flex items-center gap-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00d4aa' }}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Reply within 1 business day
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00d4aa' }}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  EN / HE
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
+        {/* ── End Right Panel ─────────────────────────────────────────── */}
       </div>
     </section>
   );
