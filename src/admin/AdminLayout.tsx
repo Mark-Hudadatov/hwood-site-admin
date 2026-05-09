@@ -26,6 +26,66 @@ const ADMIN_VARS = `
     --brand-text: #0a4d4d;
     font-family: 'Inter', system-ui, sans-serif;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Tailwind override layer — aligns CRUD pages to Linear shell ── */
+
+  .admin-root .shadow-sm,
+  .admin-root .shadow-md,
+  .admin-root .shadow-lg { box-shadow: none !important; }
+
+  .admin-root .rounded-xl {
+    border-radius: 8px !important;
+    border: 1px solid var(--border-1) !important;
+  }
+
+  .admin-root .text-gray-900,
+  .admin-root .text-gray-800 { color: var(--fg-1) !important; }
+
+  .admin-root .text-gray-600,
+  .admin-root .text-gray-500 { color: var(--fg-2) !important; }
+
+  .admin-root .text-gray-400,
+  .admin-root .text-gray-300 { color: var(--fg-3) !important; }
+
+  .admin-root .hover\\:bg-gray-50:hover,
+  .admin-root .hover\\:bg-gray-100:hover { background: var(--bg-2) !important; }
+
+  .admin-root .bg-gray-50 { background: var(--bg-2) !important; }
+  .admin-root .bg-gray-100 { background: var(--bg-3) !important; }
+
+  .admin-root .border-gray-200,
+  .admin-root .border-gray-300 { border-color: var(--border-1) !important; }
+
+  .admin-root .bg-blue-50 {
+    background: #f0f7ff !important;
+    border-color: #c7dcf5 !important;
+  }
+  .admin-root .text-blue-700 { color: #1e4d8c !important; }
+  .admin-root .bg-green-50 { background: #f0faf4 !important; }
+  .admin-root .bg-red-50 { background: #fff5f5 !important; }
+
+  .admin-root input[type="text"],
+  .admin-root input[type="email"],
+  .admin-root input[type="url"],
+  .admin-root input[type="number"],
+  .admin-root input[type="tel"],
+  .admin-root textarea,
+  .admin-root select {
+    border-color: var(--border-1) !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    color: var(--fg-1) !important;
+  }
+  .admin-root input:focus,
+  .admin-root textarea:focus,
+  .admin-root select:focus {
+    outline: none !important;
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 2px rgba(0,95,95,0.1) !important;
+  }
+
+  .admin-root .bg-red-500 { background: var(--brand) !important; }
 `;
 
 // ─── Desktop gate ────────────────────────────────────────────────────────────

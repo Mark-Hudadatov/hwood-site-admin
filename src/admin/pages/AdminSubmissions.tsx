@@ -80,22 +80,22 @@ export const AdminSubmissions: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
+        <div style={{ width: 24, height: 24, border: '2px solid var(--border-1)', borderTopColor: 'var(--brand)', borderRadius: 999, animation: 'spin 0.8s linear infinite' }} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Submissions</h2>
-        <p className="text-gray-500">Contact messages and quote requests from website visitors</p>
+        <h2 style={{ fontSize: 17, fontWeight: 600, color: 'var(--fg-1)', letterSpacing: '-0.01em', margin: 0 }}>Submissions</h2>
+        <p style={{ fontSize: 12, color: 'var(--fg-3)', marginTop: 3 }}>Contact messages and quote requests from website visitors</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-2" style={{ borderBottom: '1px solid var(--border-1)' }}>
         <button
           onClick={() => setActiveTab('contact')}
           className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
