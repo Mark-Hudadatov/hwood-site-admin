@@ -35,7 +35,7 @@ const TopBar: React.FC<{ phone: string; email: string }> = ({ phone, email }) =>
   const isHe = i18n.language?.startsWith('he');
 
   return (
-    <div style={{ position: 'relative', background: '#002828', color: 'rgba(255,255,255,0.78)', fontSize: 11.5, overflow: 'hidden' }}>
+    <div style={{ position: 'sticky', top: 0, zIndex: 50, background: '#002828', color: 'rgba(255,255,255,0.78)', fontSize: 11.5, overflow: 'hidden' }}>
       {/* Diagonal teal stripes */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         <span style={{ position: 'absolute', top: '-50%', left: '-3rem', width: '8rem', height: '200%', transform: 'skewX(-20deg)', background: '#005f5f', opacity: 0.5 }} />
@@ -115,7 +115,7 @@ const Header: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)', position: 'sticky', top: 0, zIndex: 50, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <header style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)', fontFamily: 'Inter, system-ui, sans-serif' }}>
       <TopBar phone={contact.phone} email={contact.email} />
 
       <div style={{ display: 'flex', alignItems: 'stretch', minHeight: 72 }}>
@@ -192,7 +192,7 @@ const Header: React.FC = () => {
         <button
           className="lg:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
-          style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, borderLeft: '1px solid #efefef', flexShrink: 0 }}
+          style={{ border: 'none', background: 'transparent', cursor: 'pointer', alignItems: 'center', justifyContent: 'center', width: 48, borderLeft: '1px solid #efefef', flexShrink: 0 }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round">
             {mobileOpen
