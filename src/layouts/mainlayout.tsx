@@ -1,19 +1,14 @@
 /**
- * MAIN LAYOUT - FIXED
- * ===================
- * FIXES:
- * ✅ WhatsApp button (bottom right, green)
- * ✅ One language button only
- * ✅ User icon → /login
- * ✅ ScrollToTop on route change
- * ✅ Language switch reloads page
+ * MAIN LAYOUT
  */
 
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Globe, Facebook, Instagram, Linkedin, Youtube, Menu, X } from 'lucide-react';
+import { Globe, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Menu, X } from 'lucide-react';
 import { supabase } from '../services/supabase';
+import { getCompanyInfo } from '../services/data/dataService';
+import type { CompanyInfo } from '../domain/types';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
@@ -39,18 +34,18 @@ const ScrollToTop: React.FC = () => {
 const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 'dark' }) => {
   const { i18n } = useTranslation();
   const currentLang = i18n.language?.startsWith('he') ? 'he' : 'en';
-  
+
   const toggleLanguage = () => {
     const newLang = currentLang === 'en' ? 'he' : 'en';
     localStorage.setItem('i18nextLng', newLang);
     i18n.changeLanguage(newLang).then(() => window.location.reload());
   };
-  
+
   const baseClasses = "flex items-center gap-1.5 border rounded-full px-3 py-1.5 transition-all font-medium text-[11px]";
-  const variantClasses = variant === 'light' 
-    ? "border-white/50 text-white hover:bg-white/20" 
-    : "border-neutral-400 text-neutral-800 hover:bg-white hover:border-transparent";
-  
+  const variantClasses = variant === 'light'
+    ? "border-white/30 text-white/80 hover:bg-white/20 hover:border-white/60"
+    : "border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400";
+
   return (
     <button onClick={toggleLanguage} className={`${baseClasses} ${variantClasses}`} aria-label="Switch language">
       <Globe className="w-3.5 h-3.5" />
@@ -59,12 +54,49 @@ const LanguageSwitcher: React.FC<{ variant?: 'light' | 'dark' }> = ({ variant = 
   );
 };
 
-// Order types — anchor to #services
-const ORDER_TYPES = [
-  { label: 'Catalog Order',  labelHe: 'הזמנה מקטלוג' },
-  { label: 'Project Order',  labelHe: 'הזמנת פרויקט'  },
-  { label: 'Custom Order',   labelHe: 'הזמנה מותאמת'  },
-];
+// TopBar Component
+const TopBar: React.FC = () => {
+  const [companyInfo, setCompanyInfo] = useState<Pick<CompanyInfo, 'phone' | 'email'> | null>(null);
+
+  useEffect(() => {
+    getCompanyInfo().then(info => {
+      if (info) setCompanyInfo({ phone: info.phone, email: info.email });
+    });
+  }, []);
+
+  return (
+    <div style={{ background: '#002828', position: 'relative', overflow: 'hidden' }}>
+      <div className="teal-stripes" style={{ opacity: 0.15 }} />
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1440, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00d4aa', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite', flexShrink: 0 }} />
+          <span style={{ fontSize: 11, color: '#00d4aa', fontWeight: 500, letterSpacing: '0.04em' }}>Open for orders</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          {companyInfo?.phone && (
+            <a href={`tel:${companyInfo.phone}`} style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', letterSpacing: '0.02em' }}>
+              {companyInfo.phone}
+            </a>
+          )}
+          {companyInfo?.email && (
+            <a href={`mailto:${companyInfo.email}`} style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textDecoration: 'none', letterSpacing: '0.02em' }}
+              className="hidden sm:inline">
+              {companyInfo.email}
+            </a>
+          )}
+          <LanguageSwitcher variant="light" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Nav links definition
+const NAV_LINKS = [
+  { label: 'Portfolio', labelHe: 'פורטפוליו', sub: 'Our work',     subHe: 'העבודות שלנו', href: '/portfolio' },
+  { label: 'About',     labelHe: 'אודות',     sub: 'Our story',    subHe: 'הסיפור שלנו', href: '/about'     },
+  { label: 'Contact',   labelHe: 'צור קשר',   sub: 'Get in touch', subHe: 'ליצור קשר',   href: '/contact'   },
+] as const;
 
 // Header Component
 const Header: React.FC = () => {
@@ -74,121 +106,118 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = i18n.language?.startsWith('he') ? 'he' : 'en';
 
-  const handleOrderTypeClick = () => {
-    if (location.pathname === '/') {
-      document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/#services');
-    }
-    setMobileMenuOpen(false);
-  };
-
   return (
-    <header className="w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
-
-      {/* ── Single row ── */}
-      <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
-
-        {/* LEFT: HWOOD logo */}
-        <div className="cursor-pointer flex-shrink-0 py-3" onClick={() => navigate('/')}>
-          <img
-            src="/logo.png"
-            alt="HWOOD"
-            className="h-10 md:h-11 w-auto object-contain"
-            style={{ maxWidth: '150px', minWidth: '80px' }}
-          />
+    <header style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #efefef', boxShadow: '0 1px 0 #efefef' }}>
+      <TopBar />
+      <nav style={{ display: 'flex', alignItems: 'stretch', minHeight: 72 }}>
+        {/* Logo */}
+        <div
+          onClick={() => navigate('/')}
+          style={{ padding: '10px 24px', borderRight: '1px solid #efefef', display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}
+        >
+          <img src="/logo.png" alt="HWOOD" style={{ height: 44, width: 'auto', maxWidth: 150, objectFit: 'contain' }} />
         </div>
 
-        {/* CENTER: Order types + nav links — desktop */}
-        <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
-          {ORDER_TYPES.map((type, idx) => (
-            <button
-              key={idx}
-              onClick={handleOrderTypeClick}
-              className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-brand hover:text-white hover:bg-brand transition-all duration-200 tracking-wide uppercase whitespace-nowrap"
+        {/* Nav links — desktop */}
+        <div className="hidden lg:flex" style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center', display: 'flex' }}>
+          {NAV_LINKS.map((link) => {
+            const isActive = location.pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                to={link.href}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 28px', textDecoration: 'none', position: 'relative',
+                  borderBottom: isActive ? '2px solid #005f5f' : '2px solid transparent',
+                  transition: 'border-color 0.2s',
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 600, color: isActive ? '#005f5f' : '#1a1a1a', letterSpacing: '0.02em', lineHeight: 1.2 }}>
+                  {lang === 'he' ? link.labelHe : link.label}
+                </span>
+                <span style={{ fontSize: 10, color: '#b0b0b0', marginTop: 3, letterSpacing: '0.03em' }}>
+                  {lang === 'he' ? link.subHe : link.sub}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Right: CTA + Skylum notch + mobile toggle */}
+        <div style={{ display: 'flex', alignItems: 'stretch', marginLeft: 'auto' }}>
+          {/* Get a quote CTA */}
+          <div className="hidden md:flex" style={{ alignItems: 'center', padding: '0 24px', borderLeft: '1px solid #efefef' }}>
+            <Link
+              to="/contact"
+              style={{ display: 'inline-flex', alignItems: 'center', padding: '10px 20px', background: '#005f5f', color: '#fff', borderRadius: 6, fontSize: 13, fontWeight: 600, textDecoration: 'none', letterSpacing: '0.01em', whiteSpace: 'nowrap', transition: 'background 0.2s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#004d4d'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#005f5f'; }}
             >
-              {lang === 'he' ? type.labelHe : type.label}
-            </button>
-          ))}
+              {lang === 'he' ? 'בקש הצעת מחיר' : 'Get a quote'}
+            </Link>
+          </div>
 
-          <div className="w-px h-5 bg-neutral-300 mx-3" />
-
-          <Link to="/portfolio" className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Portfolio</Link>
-          <Link to="/about"     className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">About</Link>
-          <Link to="/contact"   className="px-4 xl:px-5 py-4 text-meta-sm font-medium text-neutral-600 hover:text-brand transition-colors tracking-wide uppercase whitespace-nowrap">Contact</Link>
-        </div>
-
-        {/* RIGHT: Skylum + Language + Mobile toggle */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-
-          {/* Skylum partner brand — desktop only */}
-          <a
-            href="https://skylum.co.il"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:flex flex-col items-end group py-2"
-            title="Skylum — Building Cladding & Facades"
+          {/* Skylum notched panel */}
+          <div
+            className="hidden lg:flex"
+            style={{
+              background: '#f0f0f0',
+              clipPath: 'polygon(20px 0%, 100% 0%, 100% 100%, 0% 100%)',
+              padding: '0 24px 0 36px',
+              alignItems: 'center',
+              gap: 8,
+              minWidth: 156,
+            }}
           >
-            <span className="text-[8px] font-medium text-neutral-400 uppercase tracking-widest leading-none mb-1">
-              Part of Skylum Group
-            </span>
-            <img
-              src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-              alt="Skylum"
-              className="h-8 w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ maxWidth: '100px' }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          </a>
-
-          <div className="hidden md:block w-px h-8 bg-neutral-300" />
-
-          <LanguageSwitcher variant="dark" />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 8, fontWeight: 700, color: '#a0a0a0', textTransform: 'uppercase', letterSpacing: '0.15em', lineHeight: 1, marginBottom: 5 }}>Part of</span>
+              <a href="https://skylum.co.il" target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                <img
+                  src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
+                  alt="Skylum"
+                  style={{ height: 28, width: 'auto', maxWidth: 90, objectFit: 'contain', opacity: 0.6, transition: 'opacity 0.2s' }}
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  onMouseEnter={(e) => { (e.target as HTMLImageElement).style.opacity = '1'; }}
+                  onMouseLeave={(e) => { (e.target as HTMLImageElement).style.opacity = '0.6'; }}
+                />
+              </a>
+            </div>
+          </div>
 
           {/* Mobile hamburger */}
           <button
-            className="lg:hidden w-10 h-10 rounded-full bg-white flex items-center justify-center text-black shadow-sm"
+            className="lg:hidden"
+            style={{ padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', borderLeft: '1px solid #efefef' }}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X style={{ width: 20, height: 20 }} /> : <Menu style={{ width: 20, height: 20 }} />}
           </button>
         </div>
       </nav>
 
-      {/* ── Mobile Menu ── */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-neutral-200 shadow-lg absolute top-full left-0 right-0 z-50">
-          <div className="px-4 py-4 space-y-1">
-            <p className="px-4 pt-2 pb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-widest">How to order</p>
-            {ORDER_TYPES.map((type, idx) => (
-              <button
-                key={idx}
-                onClick={handleOrderTypeClick}
-                className="w-full text-left px-4 py-3 text-base font-medium text-brand hover:bg-teal-50 rounded-lg"
-              >
-                {lang === 'he' ? type.labelHe : type.label}
-              </button>
-            ))}
-            <div className="border-t border-neutral-100 pt-3 mt-3 space-y-1">
-              <Link to="/portfolio" className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Portfolio</Link>
-              <Link to="/about"     className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>About</Link>
-              <Link to="/contact"   className="block px-4 py-2 text-neutral-700 hover:bg-neutral-50 rounded-lg" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-            </div>
-            <div className="border-t border-neutral-100 pt-3 mt-1">
-              <a
-                href="https://skylum.co.il"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-sky-50"
+        <div style={{ background: '#fff', borderTop: '1px solid #efefef', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 200, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+          <div style={{ padding: '8px 0 16px' }}>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
                 onClick={() => setMobileMenuOpen(false)}
+                style={{ display: 'block', padding: '13px 24px', fontSize: 14, fontWeight: 500, color: location.pathname === link.href ? '#005f5f' : '#1a1a1a', textDecoration: 'none', borderLeft: location.pathname === link.href ? '3px solid #005f5f' : '3px solid transparent' }}
               >
-                <img
-                  src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
-                  alt="Skylum"
-                  className="h-5 w-auto object-contain opacity-70"
-                />
-                <span className="text-meta-sm text-neutral-500 font-medium">Building Cladding & Facades ↗</span>
-              </a>
+                {lang === 'he' ? link.labelHe : link.label}
+              </Link>
+            ))}
+            <div style={{ margin: '12px 24px 0', paddingTop: 12, borderTop: '1px solid #efefef' }}>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ display: 'inline-flex', alignItems: 'center', padding: '10px 20px', background: '#005f5f', color: '#fff', borderRadius: 6, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}
+              >
+                {lang === 'he' ? 'בקש הצעת מחיר' : 'Get a quote'}
+              </Link>
             </div>
           </div>
         </div>
@@ -201,9 +230,11 @@ const Header: React.FC = () => {
 const Footer: React.FC = () => {
   const { i18n } = useTranslation();
   const isHe = i18n.language?.startsWith('he');
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [socialLinks, setSocialLinks] = useState<{ platform: string; url: string }[]>([]);
 
   useEffect(() => {
+    getCompanyInfo().then(info => { if (info) setCompanyInfo(info); });
     supabase.from('social_links').select('*').eq('is_visible', true).order('sort_order')
       .then(({ data }) => {
         if (data) setSocialLinks(data.filter((l: any) => l.url).map((l: any) => ({ platform: l.platform, url: l.url })));
@@ -216,101 +247,141 @@ const Footer: React.FC = () => {
       case 'instagram': return Instagram;
       case 'linkedin':  return Linkedin;
       case 'youtube':   return Youtube;
+      case 'whatsapp':  return MessageCircle;
       default:          return null;
     }
   };
 
-  const columns = [
+  const navColumns = [
     {
       title: isHe ? 'הזמנה' : 'Order',
       links: [
-        { label: isHe ? 'הזמנה מקטלוג' : 'Catalog Order',  href: '/#services' },
-        { label: isHe ? 'הזמנת פרויקט'  : 'Project Order',  href: '/#services' },
-        { label: isHe ? 'הזמנה מותאמת'  : 'Custom Order',   href: '/#services' },
-        { label: isHe ? 'בקש הצעת מחיר' : 'Request a Quote', href: '/contact' },
-      ],
-    },
-    {
-      title: isHe ? 'קהל יעד' : 'Audience',
-      links: [
-        { label: isHe ? 'אדריכלים'        : 'Architects',          href: '/#services' },
-        { label: isHe ? 'מעצבי פנים'      : 'Interior Designers',  href: '/#services' },
-        { label: isHe ? 'קבלנים'          : 'Contractors',         href: '/#services' },
-        { label: isHe ? 'קמעונאות'        : 'Retail',              href: '/#services' },
+        { label: isHe ? 'הזמנה מקטלוג'  : 'Catalog Order',   href: '/#services' },
+        { label: isHe ? 'הזמנת פרויקט'  : 'Project Order',   href: '/#services' },
+        { label: isHe ? 'הזמנה מותאמת'  : 'Custom Order',    href: '/#services' },
+        { label: isHe ? 'בקש הצעת מחיר' : 'Request a Quote', href: '/contact'   },
       ],
     },
     {
       title: 'Skylum',
       links: [
-        { label: isHe ? 'אודות Skylum'    : 'About Skylum',  href: 'https://skylum.co.il', external: true },
-        { label: isHe ? 'חיפוי חזיתות'   : 'Facades',        href: 'https://skylum.co.il', external: true },
-        { label: isHe ? 'לוחות חיפוי'    : 'Cladding',       href: 'https://skylum.co.il', external: true },
+        { label: isHe ? 'אודות Skylum'  : 'About Skylum', href: 'https://skylum.co.il', external: true },
+        { label: isHe ? 'חיפוי חזיתות' : 'Facades',       href: 'https://skylum.co.il', external: true },
+        { label: isHe ? 'לוחות חיפוי'  : 'Cladding',      href: 'https://skylum.co.il', external: true },
       ],
     },
     {
       title: isHe ? 'חברה' : 'Company',
       links: [
-        { label: isHe ? 'אודות'     : 'About',     href: '/about' },
+        { label: isHe ? 'אודות'     : 'About',     href: '/about'     },
         { label: isHe ? 'פורטפוליו' : 'Portfolio', href: '/portfolio' },
-        { label: isHe ? 'צור קשר'   : 'Contact',   href: '/contact' },
+        { label: isHe ? 'צור קשר'   : 'Contact',   href: '/contact'   },
       ],
     },
   ];
 
   return (
-    <footer className="w-full relative z-10 text-white">
-      <div className="teal-stripes" style={{ opacity: 0.25 }} />
-      <div className="relative z-10 px-6 md:px-12 lg:px-16 xl:px-20 pt-16 md:pt-20 pb-8 max-w-[1920px] mx-auto">
+    <footer style={{ background: '#0a0a0a', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+      <div className="teal-stripes" style={{ opacity: 0.12 }} />
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
-        {/* Main grid: brand col (spans 2) + 4 nav columns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10 mb-14">
-
-          {/* Brand column — spans 2 cols on lg */}
-          <div className="col-span-2 lg:col-span-2 flex flex-col gap-6">
-            <img src="/logo.png" alt="HWOOD" className="h-9 w-auto brightness-0 invert object-contain self-start" style={{ maxWidth: '130px' }} />
-            <p className="text-sm text-white/50 leading-relaxed max-w-xs">
-              {isHe
-                ? 'ייצור CNC מדויק לארכיטקטורה, עיצוב פנים ובנייה — מנתניה, ישראל.'
-                : 'Precision CNC manufacturing for architecture, interior design, and construction — Netanya, Israel.'}
+        {/* Get in touch banner */}
+        <div style={{ padding: 'clamp(32px, 5vw, 56px) clamp(24px, 5vw, 64px) clamp(24px, 4vw, 40px)', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#00d4aa', marginBottom: 12, marginTop: 0 }}>
+              {isHe ? 'בואו נעבוד יחד' : "Let's work together"}
             </p>
-            {/* Social icons */}
-            <div className="flex gap-3 mt-1">
-              {socialLinks.length > 0 ? (
-                socialLinks.map((link) => {
-                  const Icon = platformIcon(link.platform);
-                  if (!Icon) return null;
-                  return (
-                    <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                      <Icon className="w-4 h-4" />
-                    </a>
-                  );
-                })
-              ) : (
-                [Facebook, Instagram, Linkedin, Youtube].map((Icon, idx) => (
-                  <a key={idx} href="#"
-                    className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-neutral-900 transition-colors">
-                    <Icon className="w-4 h-4" />
-                  </a>
-                ))
+            <h2 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 3.25rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, margin: 0 }}>
+              {isHe ? 'מוכנים להתחיל?' : 'Ready to get in touch?'}
+            </h2>
+          </div>
+          <Link
+            to="/contact"
+            style={{ display: 'inline-flex', alignItems: 'center', padding: '14px 28px', background: '#005f5f', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background 0.2s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#004d4d'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#005f5f'; }}
+          >
+            {isHe ? 'בקש הצעת מחיר' : 'Get a quote'} →
+          </Link>
+        </div>
+
+        {/* Main grid */}
+        <div style={{ padding: 'clamp(32px, 4vw, 48px) clamp(24px, 5vw, 64px) clamp(24px, 4vw, 40px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'clamp(24px, 4vw, 48px)' }}>
+          {/* Brand column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, gridColumn: 'span 1' }}>
+            <img src="/logo.png" alt="HWOOD" style={{ height: 34, width: 'auto', maxWidth: 130, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            {companyInfo?.description && (
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.42)', lineHeight: 1.65, maxWidth: 280, margin: 0 }}>
+                {companyInfo.description}
+              </p>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {companyInfo?.address && (
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.32)', lineHeight: 1.5, margin: 0 }}>{companyInfo.address}</p>
               )}
+              {companyInfo?.phone && (
+                <a href={`tel:${companyInfo.phone}`} style={{ fontSize: 13, color: 'rgba(255,255,255,0.52)', textDecoration: 'none' }}>
+                  {companyInfo.phone}
+                </a>
+              )}
+              {companyInfo?.email && (
+                <a href={`mailto:${companyInfo.email}`} style={{ fontSize: 13, color: 'rgba(255,255,255,0.52)', textDecoration: 'none' }}>
+                  {companyInfo.email}
+                </a>
+              )}
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.32)', margin: 0 }}>
+                {isHe ? 'א׳–ה׳ 08:00–18:00' : 'Sun–Thu 08:00–18:00'}
+              </p>
+            </div>
+            {/* Social icons */}
+            <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+              {socialLinks.map((link) => {
+                const Icon = platformIcon(link.platform);
+                if (!Icon) return null;
+                return (
+                  <a
+                    key={link.platform}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.52)', textDecoration: 'none', transition: 'all 0.2s', flexShrink: 0 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.52)'; }}
+                  >
+                    <Icon style={{ width: 15, height: 15 }} />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
           {/* Nav columns */}
-          {columns.map((col) => (
-            <div key={col.title} className="flex flex-col gap-4">
-              <p className="eyebrow text-white/40">{col.title}</p>
-              <ul className="flex flex-col gap-3">
+          {navColumns.map((col) => (
+            <div key={col.title} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.32)', margin: 0 }}>
+                {col.title}
+              </p>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {col.links.map((link) => (
                   <li key={link.label}>
                     {(link as any).external ? (
-                      <a href={link.href} target="_blank" rel="noopener noreferrer"
-                        className="text-sm text-white/60 hover:text-white transition-colors">
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: 13, color: 'rgba(255,255,255,0.52)', textDecoration: 'none', transition: 'color 0.15s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.52)'; }}
+                      >
                         {link.label}
                       </a>
                     ) : (
-                      <Link to={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                      <Link
+                        to={link.href}
+                        style={{ fontSize: 13, color: 'rgba(255,255,255,0.52)', textDecoration: 'none', transition: 'color 0.15s' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.52)'; }}
+                      >
                         {link.label}
                       </Link>
                     )}
@@ -321,33 +392,66 @@ const Footer: React.FC = () => {
           ))}
         </div>
 
-        {/* Bottom row */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/35">
-          <p>© {new Date().getFullYear()} HWOOD · Netanya, Israel</p>
-          <div className="flex gap-5">
-            <Link to="/privacy" className="hover:text-white transition-colors">{isHe ? 'פרטיות' : 'Privacy Policy'}</Link>
-            <Link to="/terms"   className="hover:text-white transition-colors">{isHe ? 'תנאי שימוש' : 'Terms of Use'}</Link>
-            <Link to="/cookies" className="hover:text-white transition-colors">{isHe ? 'עוגיות' : 'Cookies'}</Link>
+        {/* Skylum lockup + back-to-top */}
+        <div style={{ padding: '20px clamp(24px, 5vw, 64px)', borderTop: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Part of</span>
+            <a href="https://skylum.co.il" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                src="https://skylum.co.il/wp-content/uploads/2023/08/IMG_0812.png"
+                alt="Skylum"
+                style={{ height: 20, width: 'auto', objectFit: 'contain', opacity: 0.4, filter: 'brightness(0) invert(1)', transition: 'opacity 0.2s' }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                onMouseEnter={(e) => { (e.target as HTMLImageElement).style.opacity = '0.75'; }}
+                onMouseLeave={(e) => { (e.target as HTMLImageElement).style.opacity = '0.4'; }}
+              />
+            </a>
           </div>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            style={{ width: 36, height: 36, borderRadius: '50%', background: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0a0a0a', fontSize: 16, fontWeight: 700, transition: 'background 0.2s, color 0.2s', lineHeight: 1, flexShrink: 0 }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#00d4aa'; e.currentTarget.style.color = '#002828'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#0a0a0a'; }}
+            aria-label="Back to top"
+          >
+            ↑
+          </button>
         </div>
 
+        {/* Copyright row */}
+        <div style={{ padding: '14px clamp(24px, 5vw, 64px)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', margin: 0 }}>
+            © {new Date().getFullYear()} HWOOD · Netanya, Israel
+          </p>
+          <div style={{ display: 'flex', gap: 20 }}>
+            {[
+              { label: isHe ? 'פרטיות'    : 'Privacy Policy', href: '/privacy' },
+              { label: isHe ? 'תנאי שימוש' : 'Terms of Use',  href: '/terms'   },
+              { label: isHe ? 'עוגיות'    : 'Cookies',        href: '/cookies' },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.22)'; }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </footer>
   );
 };
 
-// Footer Wrapper - simplified to blend with dark sections
-const FooterWrapper: React.FC = () => (
-  <div className="relative w-full bg-[#002828] overflow-hidden">
-    <Footer />
-  </div>
-);
+// Footer Wrapper
+const FooterWrapper: React.FC = () => <Footer />;
 
 // WhatsApp Button
 const WhatsAppButton: React.FC = () => {
-  // You can make this dynamic by loading from company_info table
   const whatsappNumber = '972549222804';
-
   return (
     <a
       href={`https://wa.me/${whatsappNumber}`}
@@ -365,9 +469,7 @@ const WhatsAppButton: React.FC = () => {
 export const MainLayout: React.FC = () => {
   return (
     <>
-      {/* Loading Screen - shows on first visit only */}
       <LoadingScreen minDuration={1200} />
-      
       <div className="w-full min-h-screen font-sans flex flex-col" style={{ overflowX: 'clip' }}>
         <ScrollToTop />
         <Header />

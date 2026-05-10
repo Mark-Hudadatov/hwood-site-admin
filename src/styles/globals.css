@@ -296,6 +296,11 @@ h1, h2, h3, h4, h5, h6 {
   50%       { box-shadow: 0 0 0 14px rgba(0, 95, 95, 0); }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 9px #00d4aa; }
+  50%       { opacity: 0.6; box-shadow: 0 0 16px #00d4aa; }
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 2.2s ease-in-out infinite;
 }
