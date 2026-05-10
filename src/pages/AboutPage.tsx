@@ -1,148 +1,387 @@
-/**
- * ABOUT PAGE - INDUSTRIAL STANDARD
- * =================================
- * Production capability overview
- */
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Factory, Users, Award, Truck } from 'lucide-react';
 import { getCompanyInfo } from '../services/data/dataService';
-import { CompanyInfo } from '../domain/types';
+import type { CompanyInfo } from '../domain/types';
+import { BRAND_NEUTRAL, SKYLUM_BLUE, SKYLUM_DEEP } from '../lib/OrderTypes';
+import { Stripes } from '../components/journey/stripes';
+import { StatCard, Eyebrow } from '../components/ui/shared';
+import { ROUTES } from '../router';
+
+const STATS = [
+  { value: '2000+', label: 'sqm Production Floor' },
+  { value: '50+', label: 'Team Members' },
+  { value: '15+', label: 'Years Operating' },
+  { value: '1000+', label: 'Projects Completed' },
+];
+
+const STANDARDS = [
+  {
+    title: 'Precision',
+    desc: 'CNC machining to ±0.1 mm tolerance. Verified measurement protocols at every stage.',
+  },
+  {
+    title: 'Materials',
+    desc: 'Grade-certified panels and components. Documented sourcing and full batch traceability.',
+  },
+  {
+    title: 'Delivery',
+    desc: 'Production scheduling aligned to project timelines. Coordinated site logistics.',
+  },
+];
 
 export const AboutPage: React.FC = () => {
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [info, setInfo] = useState<CompanyInfo | null>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      const info = await getCompanyInfo();
-      setCompanyInfo(info);
-    };
-    loadData();
+    getCompanyInfo().then(setInfo);
+    window.scrollTo(0, 0);
   }, []);
 
-  const stats = [
-    { icon: Factory, value: '2000+', label: 'sqm Production' },
-    { icon: Users, value: '50+', label: 'Team Members' },
-    { icon: Award, value: '15+', label: 'Years Operating' },
-    { icon: Truck, value: '1000+', label: 'Projects Completed' },
-  ];
-
   return (
-    <div className="w-full">
-      {/* Hero Section */}
-      <section className="relative bg-brand text-white py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="max-w-3xl">
-            <h1 className="text-display-sm md:text-display mb-6">
-              {companyInfo?.name || 'HWOOD'}
-            </h1>
-            <p className="text-body-lg text-white/80 leading-relaxed">
-              {companyInfo?.description || 'Industrial carpentry and CNC production facility'}
-            </p>
-          </div>
-        </div>
-        <div className="absolute right-0 top-0 w-1/3 h-full bg-teal-600 -skew-x-12 origin-top-right opacity-30" />
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <div className="w-14 h-14 mx-auto mb-4 bg-brand/10 rounded-xl flex items-center justify-center">
-                  <stat.icon className="w-7 h-7 text-brand" />
-                </div>
-                <div className="text-h1 text-neutral-900 mb-1">{stat.value}</div>
-                <div className="text-meta text-neutral-500">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Production Capability Section */}
-      <section className="py-16 bg-neutral-50">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-h1 text-neutral-900 mb-6">
-                Production Capability
-              </h2>
-              <div className="space-y-4 text-body text-neutral-600 leading-relaxed">
-                <p>
-                  2000+ sqm production facility equipped with CNC machining centers 
-                  for high-volume carpentry production. Serving construction companies, 
-                  architects, and manufacturing sectors across Israel.
-                </p>
-                <p>
-                  Production capacity supports projects ranging from modular kitchen 
-                  systems to custom furniture components and architectural elements.
-                </p>
-                <p>
-                  Integrated quality control ensures consistent output meeting 
-                  specified tolerances and finish requirements.
-                </p>
-              </div>
-            </div>
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=800"
-                alt="HWOOD Production Facility"
-                className="rounded-xl shadow-lg"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Production Standards Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <h2 className="text-h1 text-neutral-900 mb-12 text-center">
-            Production Standards
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: 'Precision', description: 'CNC machining to ±0.1mm tolerance. Verified measurement protocols.' },
-              { title: 'Materials', description: 'Grade-certified materials. Documented sourcing and batch traceability.' },
-              { title: 'Delivery', description: 'Production scheduling to meet project timelines. Coordinated logistics.' },
-            ].map((value, idx) => (
-              <div key={idx} className="bg-neutral-50 rounded-xl p-8">
-                <h3 className="text-h2 text-neutral-900 mb-3">{value.title}</h3>
-                <p className="text-body text-neutral-600">{value.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-brand text-white">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <h2 className="text-h1 mb-6">
-            Project Inquiry
-          </h2>
-          <p className="text-body-lg text-white/70 mb-8">
-            Contact for production consultation and project quotation.
+    <div style={{ width: '100%' }}>
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          position: 'relative',
+          background: `linear-gradient(150deg, #002828 0%, #001414 100%)`,
+          padding: '88px 0 72px',
+          overflow: 'hidden',
+        }}
+      >
+        <Stripes opacity={0.22} />
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            maxWidth: 1280,
+            margin: '0 auto',
+            padding: '0 48px',
+          }}
+        >
+          <Eyebrow color="#00d4aa">Industrial Carpentry</Eyebrow>
+          <h1
+            style={{
+              fontSize: 'clamp(36px, 5vw, 64px)',
+              fontWeight: 700,
+              color: '#fff',
+              lineHeight: 1.1,
+              maxWidth: 700,
+              marginBottom: 20,
+            }}
+          >
+            {info?.name || 'HWOOD'}
+          </h1>
+          <p
+            style={{
+              fontSize: 18,
+              color: 'rgba(255,255,255,0.7)',
+              maxWidth: 560,
+              lineHeight: 1.7,
+              marginBottom: 40,
+            }}
+          >
+            {info?.description ||
+              'Industrial carpentry and CNC production facility — serving builders, designers, and manufacturers across Israel.'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              to="/quote"
-              className="bg-white text-brand px-8 py-3 rounded font-medium hover:bg-neutral-100 transition-colors"
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <Link
+              to={ROUTES.QUOTE}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                background: BRAND_NEUTRAL,
+                color: '#fff',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
             >
               Request Quote
             </Link>
-            <Link 
-              to="/contact"
-              className="border border-white text-white px-8 py-3 rounded font-medium hover:bg-white/10 transition-colors"
+            <Link
+              to={ROUTES.CONTACT}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                background: 'transparent',
+                color: '#fff',
+                border: '1.5px solid rgba(255,255,255,0.3)',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              Contact Us
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats ───────────────────────────────────────────────────────── */}
+      <section style={{ background: '#0a1a1a', padding: '56px 0' }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: '0 auto',
+            padding: '0 48px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 20,
+          }}
+        >
+          {STATS.map((s) => (
+            <StatCard key={s.label} value={s.value} label={s.label} accent="#00d4aa" />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Production Capability ────────────────────────────────────────── */}
+      <section style={{ background: '#fff', padding: '80px 0' }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: '0 auto',
+            padding: '0 48px',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 64,
+            alignItems: 'center',
+          }}
+          className="about-factory-grid"
+        >
+          <div>
+            <Eyebrow color={BRAND_NEUTRAL}>Facility</Eyebrow>
+            <h2
+              style={{
+                fontSize: 'clamp(24px, 3vw, 36px)',
+                fontWeight: 600,
+                color: '#111',
+                marginBottom: 24,
+              }}
+            >
+              Production Capability
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[
+                '2000+ sqm production facility equipped with Biesse CNC machining centers for high-volume carpentry production.',
+                'Capacity covers projects from modular kitchen systems to custom furniture components and architectural elements.',
+                'Integrated quality control ensures consistent output meeting specified tolerances and finish requirements.',
+              ].map((p, i) => (
+                <p key={i} style={{ fontSize: 15, color: '#555', lineHeight: 1.7 }}>
+                  {p}
+                </p>
+              ))}
+            </div>
+          </div>
+          <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+            <img
+              src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=900"
+              alt="HWOOD Production Facility"
+              style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Production Standards ─────────────────────────────────────────── */}
+      <section style={{ background: '#f4f6f6', padding: '80px 0' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px' }}>
+          <Eyebrow color={BRAND_NEUTRAL}>Standards</Eyebrow>
+          <h2
+            style={{
+              fontSize: 'clamp(22px, 2.8vw, 34px)',
+              fontWeight: 600,
+              color: '#111',
+              marginBottom: 40,
+            }}
+          >
+            Production Standards
+          </h2>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: 24,
+            }}
+          >
+            {STANDARDS.map((s) => (
+              <div
+                key={s.title}
+                style={{
+                  background: '#fff',
+                  borderRadius: 16,
+                  padding: '32px 28px',
+                  boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
+                  borderTop: `3px solid ${BRAND_NEUTRAL}`,
+                }}
+              >
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#111', marginBottom: 12 }}>
+                  {s.title}
+                </h3>
+                <p style={{ fontSize: 14, color: '#666', lineHeight: 1.65 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Skylum Group ─────────────────────────────────────────────────── */}
+      <section
+        style={{
+          position: 'relative',
+          background: `linear-gradient(135deg, ${SKYLUM_DEEP} 0%, #0a1430 100%)`,
+          padding: '80px 0',
+          overflow: 'hidden',
+        }}
+      >
+        <Stripes opacity={0.12} />
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            maxWidth: 1280,
+            margin: '0 auto',
+            padding: '0 48px',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 64,
+            alignItems: 'center',
+          }}
+          className="about-skylum-grid"
+        >
+          <div>
+            <Eyebrow color={SKYLUM_BLUE}>Technology Group</Eyebrow>
+            <h2
+              style={{
+                fontSize: 'clamp(24px, 3vw, 36px)',
+                fontWeight: 600,
+                color: '#fff',
+                marginBottom: 20,
+              }}
+            >
+              Part of Skylum Group
+            </h2>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 16 }}>
+              HWOOD operates under the Skylum technology group, bringing advanced software integration
+              and process automation to industrial woodworking.
+            </p>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
+              The partnership enables seamless digital workflows — from design file submission to
+              production scheduling — giving clients a faster, more transparent experience.
+            </p>
+          </div>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 20,
+              padding: '40px 36px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 20,
+            }}
+          >
+            {[
+              { label: 'Digital File Processing', desc: 'DXF / CAD / Excel upload with automatic quoting' },
+              { label: 'Real-time Order Tracking', desc: 'Client portal for job status and delivery schedules' },
+              { label: 'Integrated CNC Workflow', desc: 'Direct machine programming from approved designs' },
+            ].map((item) => (
+              <div key={item.label} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: SKYLUM_BLUE,
+                    marginTop: 6,
+                    flexShrink: 0,
+                  }}
+                />
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 4 }}>
+                    {item.label}
+                  </div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ──────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          position: 'relative',
+          background: `linear-gradient(135deg, #002828 0%, #001414 100%)`,
+          padding: '72px 0',
+          textAlign: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <Stripes opacity={0.14} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 560, margin: '0 auto', padding: '0 32px' }}>
+          <h2 style={{ fontSize: 'clamp(22px, 3vw, 36px)', fontWeight: 700, color: '#fff', marginBottom: 16 }}>
+            Start a Project
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.65)', marginBottom: 36 }}>
+            Contact us for a production consultation and project quotation.
+          </p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link
+              to={ROUTES.QUOTE}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 30px',
+                background: BRAND_NEUTRAL,
+                color: '#fff',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              Request Quote
+            </Link>
+            <Link
+              to={ROUTES.CONTACT}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '14px 30px',
+                background: 'transparent',
+                color: '#fff',
+                border: '1.5px solid rgba(255,255,255,0.3)',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
             >
               Contact
             </Link>
           </div>
         </div>
       </section>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .about-factory-grid,
+          .about-skylum-grid {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

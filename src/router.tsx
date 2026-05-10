@@ -25,6 +25,7 @@ import { StoryPage } from './pages/StoryPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { CookiesPage } from './pages/CookiesPage';
+import { ThankYouPage } from './pages/ThankYouPage';
 
 // Admin Pages
 import { AdminLayout } from './admin/AdminLayout';
@@ -77,6 +78,7 @@ const routes: RouteObject[] = [
       { path: 'privacy', element: <PrivacyPage /> },
       { path: 'terms', element: <TermsPage /> },
       { path: 'cookies', element: <CookiesPage /> },
+      { path: 'thank-you/:orderType', element: <ThankYouPage /> },
     ],
   },
   // Admin Routes
@@ -133,4 +135,5 @@ export const ROUTES = {
   PRIVACY: '/privacy',
   TERMS: '/terms',
   COOKIES: '/cookies',
+  THANK_YOU: (orderType: string) => `/thank-you/${orderType}`,
 } as const;
