@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { Facebook, Instagram, Linkedin, Youtube, MessageCircle } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { getCompanyInfo } from '../services/data/dataService';
+import { getOrderTypeConfig, BRAND_NEUTRAL } from '../lib/OrderTypes';
+import type { ServiceOrderType } from '../lib/OrderTypes';
 
 // Premium Components
 import { LoadingScreen, PageTransition } from '../components/premium';
@@ -52,7 +54,7 @@ const TopBar: React.FC<{ phone: string; email: string }> = ({ phone, email }) =>
             </span>
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>·</span>
             <span style={{ color: 'rgba(255,255,255,0.6)' }}>
-              {isHe ? 'נתניה · א׳–ה׳ 9:00–18:00' : 'Netanya · 9:00 — 18:00 IST'}
+              {isHe ? 'נתניה · אא–הי 9:00–18:00' : 'Netanya · 9:00 — 18:00 IST'}
             </span>
           </span>
           {(phone || email) && (
@@ -366,7 +368,7 @@ const Footer: React.FC = () => {
             )}
             <li style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontSize: 13, color: 'rgba(255,255,255,0.72)', fontWeight: 300 }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              {isHe ? 'א׳–ה׳ · 9:00–18:00' : 'Sun – Thu · 9:00 – 18:00 IST'}
+              {isHe ? 'אי–הי · 9:00–18:00' : 'Sun – Thu · 9:00 – 18:00 IST'}
             </li>
           </ul>
           {socialLinks.length > 0 && (
@@ -473,6 +475,29 @@ const Footer: React.FC = () => {
 
 const FooterWrapper: React.FC = () => <Footer />;
 
+// ── Breadcrumb ────────────────────────────────────────────────────────────────
+interface BreadcrumbProps {
+  items: Array<{ label: string; href?: string }>;
+  orderType?: ServiceOrderType | string | null;
+}
+const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, orderType }) => {
+  const t = getOrderTypeConfig(orderType);
+  return (
+    <nav aria-label="breadcrumb" style={{ padding: '14px 32px', background: '#fafaf8', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11.5, letterSpacing: '.05em', color: '#737373', fontWeight: 500 }}>
+      {items.map((it, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span style={{ color: '#c4c4c4' }}>/</span>}
+          {it.href ? (
+            <Link to={it.href} style={{ color: '#737373', textDecoration: 'none' }}>{it.label}</Link>
+          ) : (
+            <span style={{ color: t?.tagFg || BRAND_NEUTRAL, fontWeight: 600 }}>{it.label}</span>
+          )}
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+};
+
 // WhatsApp Button
 const WhatsAppButton: React.FC = () => {
   const whatsappNumber = '972549222804';
@@ -509,3 +534,5 @@ export const MainLayout: React.FC = () => {
     </>
   );
 };
+
+export { Breadcrumb };
