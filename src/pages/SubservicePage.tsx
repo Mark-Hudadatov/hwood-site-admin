@@ -6,12 +6,13 @@
  * ✅ Product images with fallback placeholders
  * ✅ Horizontal scroll for categories
  * ✅ Better loading states
+ * v2.0: Multi-order-type routing
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Upload, MessageSquare, FileText } from 'lucide-react';
 import { Service, Subservice, ProductCategory, Product } from '../domain/types';
 import { getSubservicePageData } from '../services/data/dataService';
 import { ROUTES } from '../router';
@@ -36,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const imageSrc = imgError || !product.imageUrl ? PRODUCT_FALLBACK : product.imageUrl;
 
   return (
-    <div 
+    <div
       className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
       onClick={onClick}
     >
@@ -58,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
           }}
         />
       </div>
-      
+
       {/* Content */}
       <div className="p-5">
         <h3 className="text-lg font-medium text-[#1A1A1A] mb-1 group-hover:text-brand transition-colors">
@@ -203,7 +204,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
       )}
 
       {/* Tabs Container with drag scroll */}
-      <div 
+      <div
         ref={scrollRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -221,8 +222,8 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setA
             onClick={() => { if (!hasDragged) setActiveTab(category.id); }}
             className={`
               group text-left px-5 md:px-8 py-4 md:py-6 rounded-t-2xl min-w-[180px] md:min-w-[260px] flex-shrink-0 transition-all duration-200 relative
-              ${activeTab === category.id 
-                ? 'bg-[#F9FAFB] shadow-lg text-black z-10' 
+              ${activeTab === category.id
+                ? 'bg-[#F9FAFB] shadow-lg text-black z-10'
                 : 'bg-white/10 hover:bg-white/20 text-white z-0'
               }
             `}
@@ -280,13 +281,193 @@ const NotFound: React.FC = () => (
 );
 
 // =============================================================================
+// HERO SECTION (shared by all order types)
+// =============================================================================
+
+interface HeroProps {
+  service: Service;
+  subservice: Subservice;
+}
+
+const HeroSection: React.FC<HeroProps> = ({ service, subservice }) => {
+  const accentColor = service.accentColor || '#D48F28';
+  return (
+    <div className="w-full pt-6 flex flex-col" style={{ backgroundColor: accentColor }}>
+      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16">
+        {/* Breadcrumbs */}
+        <div className="text-white text-[10px] md:text-xs font-medium tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
+          <Link to="/" className="cursor-pointer hover:opacity-80">Home</Link>
+          <span>/</span>
+          <span>Services</span>
+          <span>/</span>
+          <Link to={ROUTES.SERVICE(service.slug)} className="cursor-pointer hover:opacity-80">{service.title}</Link>
+          <span>/</span>
+          <span>{subservice.title}</span>
+        </div>
+
+        {/* Dark Hero Card */}
+        <ScrollReveal animation="fade-up" duration={800}>
+          <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
+            <div className="absolute inset-0">
+              <img
+                src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
+                alt={subservice.title}
+                className="w-full h-full object-cover object-center opacity-50"
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'; }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+            </div>
+            <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-4xl">
+              <h1 className="text-2xl md:text-5xl font-normal tracking-tight mb-2">{subservice.title}</h1>
+              <p className="text-neutral-300 text-sm md:text-lg font-light leading-relaxed max-w-2xl line-clamp-2">{subservice.description}</p>
+            </div>
+          </div>
+        </ScrollReveal>
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// SEND FILE & PROCESS CONTENT
+// =============================================================================
+
+interface SendFileContentProps {
+  service: Service;
+}
+
+const SendFileContent: React.FC<SendFileContentProps> = ({ service }) => {
+  const quoteUrl = `/quote?service=${service.slug}`;
+  const cards = [
+    {
+      icon: <FileText className="w-8 h-8" />,
+      title: 'Describe the Job',
+      desc: 'Tell us about the operation — material type, dimensions, quantity. Text or file, no drawing required.',
+    },
+    {
+      icon: <Upload className="w-8 h-8" />,
+      title: 'Or Upload a File',
+      desc: 'We accept DXF, Excel, PDF. Our team will review and prepare a quote based on your file.',
+    },
+    {
+      icon: <MessageSquare className="w-8 h-8" />,
+      title: "We'll Contact You",
+      desc: 'We confirm details and send an accurate quote within 1–2 business days.',
+    },
+  ];
+
+  return (
+    <div className="flex-1 bg-[#F9FAFB] min-h-[500px]">
+      <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-12 md:py-16">
+        <h2 className="text-2xl md:text-3xl font-medium text-neutral-900 mb-8">How It Works</h2>
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {cards.map((card, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="w-14 h-14 rounded-xl bg-brand/10 text-brand flex items-center justify-center mb-4">
+                {card.icon}
+              </div>
+              <h3 className="text-lg font-medium text-neutral-900 mb-2">{card.title}</h3>
+              <p className="text-neutral-500 text-sm leading-relaxed">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to={quoteUrl}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-brand text-white rounded-xl font-medium hover:bg-brand/90 transition-colors">
+            <Upload className="w-5 h-5" />
+            Send File / Describe Job
+          </Link>
+          <Link to={ROUTES.CONTACT}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 border-2 border-brand text-brand rounded-xl font-medium hover:bg-brand/5 transition-colors">
+            Contact Us
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// DESCRIBE & REQUEST CONTENT
+// =============================================================================
+
+interface DescribeRequestContentProps {
+  service: Service;
+}
+
+const DescribeRequestContent: React.FC<DescribeRequestContentProps> = ({ service }) => {
+  const quoteUrl = `/quote?service=${service.slug}`;
+  const steps = [
+    {
+      num: '01',
+      title: 'Describe the Project',
+      desc: 'Tell us the object type, preferred material, and approximate scope or volume.',
+    },
+    {
+      num: '02',
+      title: 'Share References',
+      desc: 'Optionally attach photos, hand sketches, or technical drawings to help us understand your vision.',
+    },
+    {
+      num: '03',
+      title: "We'll Get Back to You",
+      desc: 'Our team reviews your request and responds within 1–2 business days with a proposal.',
+    },
+  ];
+
+  return (
+    <div className="flex-1 bg-[#F9FAFB] min-h-[500px]">
+      <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-12 md:py-16">
+        <h2 className="text-2xl md:text-3xl font-medium text-neutral-900 mb-8">How to Order</h2>
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {steps.map((step) => (
+            <div key={step.num} className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="text-4xl font-bold text-brand/20 mb-3">{step.num}</div>
+              <h3 className="text-lg font-medium text-neutral-900 mb-2">{step.title}</h3>
+              <p className="text-neutral-500 text-sm leading-relaxed">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to={quoteUrl}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-brand text-white rounded-xl font-medium hover:bg-brand/90 transition-colors">
+            <MessageSquare className="w-5 h-5" />
+            Describe My Project
+          </Link>
+          <Link to={ROUTES.CONTACT}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 border-2 border-brand text-brand rounded-xl font-medium hover:bg-brand/5 transition-colors">
+            Contact Us
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============================================================================
+// INFORMATIONAL CONTENT
+// =============================================================================
+
+interface InformationalContentProps {
+  subservice: Subservice;
+}
+
+const InformationalContent: React.FC<InformationalContentProps> = ({ subservice }) => (
+  <div className="flex-1 bg-[#F9FAFB] min-h-[500px]">
+    <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-12 md:py-16">
+      <p className="text-lg text-neutral-600 leading-relaxed max-w-3xl">{subservice.description}</p>
+    </div>
+  </div>
+);
+
+// =============================================================================
 // MAIN SUBSERVICE PAGE COMPONENT
 // =============================================================================
 
 export const SubservicePage: React.FC = () => {
   const { subserviceSlug } = useParams<{ subserviceSlug: string }>();
   const navigate = useNavigate();
-  
+
   const [service, setService] = useState<Service | null>(null);
   const [subservice, setSubservice] = useState<Subservice | null>(null);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -297,24 +478,24 @@ export const SubservicePage: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!subserviceSlug) return;
-      
+
       setIsLoading(true);
       const data = await getSubservicePageData(subserviceSlug);
-      
+
       if (data) {
         setService(data.service);
         setSubservice(data.subservice);
         setCategories(data.categories);
         setProducts(data.products);
-        
+
         if (data.categories.length > 0) {
           setActiveTab(data.categories[0].id);
         }
       }
-      
+
       setIsLoading(false);
     };
-    
+
     loadData();
     window.scrollTo(0, 0);
   }, [subserviceSlug]);
@@ -328,14 +509,46 @@ export const SubservicePage: React.FC = () => {
   if (isLoading) return <LoadingSkeleton />;
   if (!subservice || !service) return <NotFound />;
 
+  const orderType = service.orderType || 'browse-and-order';
   const accentColor = service.accentColor || '#D48F28';
 
+  // send-file-and-process
+  if (orderType === 'send-file-and-process') {
+    return (
+      <div className="w-full flex flex-col bg-white">
+        <HeroSection service={service} subservice={subservice} />
+        <SendFileContent service={service} />
+      </div>
+    );
+  }
+
+  // describe-and-request
+  if (orderType === 'describe-and-request') {
+    return (
+      <div className="w-full flex flex-col bg-white">
+        <HeroSection service={service} subservice={subservice} />
+        <DescribeRequestContent service={service} />
+      </div>
+    );
+  }
+
+  // informational
+  if (orderType === 'informational') {
+    return (
+      <div className="w-full flex flex-col bg-white">
+        <HeroSection service={service} subservice={subservice} />
+        <InformationalContent subservice={subservice} />
+      </div>
+    );
+  }
+
+  // browse-and-order (default) — existing layout unchanged
   return (
     <div className="w-full flex flex-col bg-white">
       {/* Top Section with Accent Background */}
       <div className="w-full pt-6 flex flex-col" style={{ backgroundColor: accentColor }}>
         <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16">
-          
+
           {/* Breadcrumbs */}
           <div className="text-white text-[10px] md:text-xs font-medium tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
             <Link to="/" className="cursor-pointer hover:opacity-80">Home</Link>
@@ -351,7 +564,7 @@ export const SubservicePage: React.FC = () => {
           <ScrollReveal animation="fade-up" duration={800}>
             <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
               <div className="absolute inset-0">
-                <img 
+                <img
                   src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
                   alt={subservice.title}
                   className="w-full h-full object-cover object-center opacity-50"
@@ -368,7 +581,7 @@ export const SubservicePage: React.FC = () => {
           </ScrollReveal>
 
           {/* Category Tabs with Navigation Arrows */}
-          <CategoryTabs 
+          <CategoryTabs
             categories={categories}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -379,10 +592,10 @@ export const SubservicePage: React.FC = () => {
       {/* Content Area */}
       <div className="flex-1 bg-[#F9FAFB] min-h-[600px]">
         <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-8 md:py-12">
-          
+
           {/* Products Grid */}
-          <StaggerReveal 
-            animation="fade-up" 
+          <StaggerReveal
+            animation="fade-up"
             staggerDelay={80}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
           >
