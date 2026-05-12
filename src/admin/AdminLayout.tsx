@@ -24,8 +24,10 @@ import {
   X,
   Monitor,
   Users,
+  Layout,
+  Palette,
 } from 'lucide-react';
-import { isAdminLoggedIn, adminLogout, getAdminSession } from './adminStore';
+import { isAdminLoggedIn, adminLogout, getAdminSession, getAdminDesignTokens } from './adminStore';
 
 // Desktop-only gate component
 const DesktopOnlyGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -70,15 +72,17 @@ const DesktopOnlyGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
 // Navigation items - UPDATED with Partners
 const navItems = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
-  { path: '/admin/main-page', icon: Image, label: 'Main Page' },
-  { path: '/admin/partners', icon: Users, label: 'Partners' },
-  { path: '/admin/services', icon: Layers, label: 'Services' },
-  { path: '/admin/subservices', icon: FolderTree, label: 'Subservices' },
-  { path: '/admin/categories', icon: Grid3X3, label: 'Categories' },
-  { path: '/admin/products', icon: Package, label: 'Products' },
-  { path: '/admin/stories', icon: FileText, label: 'Stories' },
-  { path: '/admin/company-info', icon: Building2, label: 'Company Info' },
-  { path: '/admin/submissions', icon: Mail, label: 'Submissions' },
+  { path: '/admin/pages',         icon: Layout,       label: 'Pages' },
+  { path: '/admin/design-tokens', icon: Palette,      label: 'Design Tokens' },
+  { path: '/admin/main-page',     icon: Image,        label: 'Main Page' },
+  { path: '/admin/partners',      icon: Users,        label: 'Partners' },
+  { path: '/admin/services',      icon: Layers,       label: 'Services' },
+  { path: '/admin/subservices',   icon: FolderTree,   label: 'Subservices' },
+  { path: '/admin/categories',    icon: Grid3X3,      label: 'Categories' },
+  { path: '/admin/products',      icon: Package,      label: 'Products' },
+  { path: '/admin/stories',       icon: FileText,     label: 'Stories' },
+  { path: '/admin/company-info',  icon: Building2,    label: 'Company Info' },
+  { path: '/admin/submissions',   icon: Mail,         label: 'Submissions' },
 ];
 
 export const AdminLayout: React.FC = () => {
@@ -87,11 +91,18 @@ export const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const session = getAdminSession();
 
-  // Check auth on mount
+  // Check auth on mount + inject design tokens as CSS vars
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate('/admin/login');
+      return;
     }
+    getAdminDesignTokens().then(t => {
+      if (!t) return;
+      const r = document.documentElement;
+      r.style.setProperty('--brand',         t.brand);
+      r.style.setProperty('--brand-runtime', t.brand);
+    }).catch(() => {});
   }, [navigate]);
 
   const handleLogout = () => {

@@ -979,3 +979,33 @@ export async function uploadOrderFile(file: File): Promise<string | null> {
     return null;
   }
 }
+
+// ============================================================================
+// PAGE BUILDER — PUBLIC READS
+// ============================================================================
+
+export async function getPageBySlug(slug: string, preview = false): Promise<Page | null> {
+  let query = supabase.from('pages').select('*').eq('slug', slug);
+  if (!preview) query = query.eq('status', 'published');
+  const { data, error } = await query.maybeSingle();
+  if (error || !data) return null;
+  return {
+    id: data.id,
+    slug: data.slug,
+    titleEn: data.title_en,
+    titleHe: data.title_he ?? '',
+    status: data.status,
+    blocks: (data.blocks as Block[]) ?? [],
+    metaDescriptionEn: data.meta_description_en,
+    metaDescriptionHe: data.meta_description_he,
+    sortOrder: data.sort_order ?? 0,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
+export async function getDesignTokens(): Promise<DesignTokens | null> {
+  const { data } = await supabase
+    .from('design_tokens').select('*').eq('id', 1).maybeSingle();
+  return data as DesignTokens | null;
+}
