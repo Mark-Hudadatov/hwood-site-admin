@@ -6,16 +6,16 @@ import { FieldRenderer } from './FieldRenderer';
 interface Props {
   field:    FieldDef;
   data:     Record<string, any>;
+  lang:     'en' | 'he';
   onChange: (patch: Record<string, any>) => void;
 }
 
-export const RepeaterField: React.FC<Props> = ({ field, data, onChange }) => {
-  const items: any[] = data[field.key] ?? [];
-  const subFields    = field.subFields ?? [];
+export const RepeaterField: React.FC<Props> = ({ field, data, lang, onChange }) => {
+  const items: any[]  = data[field.key] ?? [];
+  const subFields     = field.subFields ?? [];
 
   const updateItem = (i: number, patch: Record<string, any>) => {
-    const next = items.map((item, idx) => idx === i ? { ...item, ...patch } : item);
-    onChange({ [field.key]: next });
+    onChange({ [field.key]: items.map((item, idx) => idx === i ? { ...item, ...patch } : item) });
   };
 
   const addItem = () => {
@@ -30,8 +30,7 @@ export const RepeaterField: React.FC<Props> = ({ field, data, onChange }) => {
     onChange({ [field.key]: [...items, Object.fromEntries(pairs)] });
   };
 
-  const removeItem = (i: number) =>
-    onChange({ [field.key]: items.filter((_, idx) => idx !== i) });
+  const removeItem = (i: number) => onChange({ [field.key]: items.filter((_, idx) => idx !== i) });
 
   const moveItem = (i: number, dir: -1 | 1) => {
     const j = i + dir;
@@ -42,37 +41,34 @@ export const RepeaterField: React.FC<Props> = ({ field, data, onChange }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {items.map((item, i) => (
         <div key={i} style={{
-          border: '1px solid var(--border-1)', borderRadius: 8, padding: 10,
+          border: '1px solid var(--border-1)', borderRadius: 8, padding: '10px 10px 6px',
           background: 'var(--bg-2)', display: 'flex', flexDirection: 'column', gap: 8,
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-3)' }}>Item {i + 1}</span>
-            <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => moveItem(i, -1)} title="Move up"
-                      style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--fg-3)', padding: 2 }}>
-                <ChevronUp size={14} />
-              </button>
-              <button onClick={() => moveItem(i, 1)} title="Move down"
-                      style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--fg-3)', padding: 2 }}>
-                <ChevronDown size={14} />
-              </button>
-              <button onClick={() => removeItem(i)} title="Remove"
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--fg-3)' }}>#{i + 1}</span>
+            <div style={{ display: 'flex', gap: 2 }}>
+              {[[-1, <ChevronUp size={13} />], [1, <ChevronDown size={13} />]].map(([d, icon]) => (
+                <button key={String(d)} onClick={() => moveItem(i, d as -1 | 1)}
+                        style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--fg-3)', padding: 2 }}>
+                  {icon as React.ReactNode}
+                </button>
+              ))}
+              <button onClick={() => removeItem(i)}
                       style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#ef4444', padding: 2 }}>
-                <Trash2 size={14} />
+                <Trash2 size={13} />
               </button>
             </div>
           </div>
           {subFields.map(sf => (
-            <FieldRenderer key={sf.key} field={sf} data={item}
-                           onChange={patch => updateItem(i, patch)} />
+            <FieldRenderer key={sf.key} field={sf} data={item} lang={lang} onChange={p => updateItem(i, p)} />
           ))}
         </div>
       ))}
       <button onClick={addItem} style={{
-        display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 12px',
+        display: 'inline-flex', alignItems: 'center', gap: 4, padding: '7px 10px',
         border: '1px dashed var(--border-1)', borderRadius: 6, background: 'none',
         color: 'var(--fg-2)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
       }}>
