@@ -2,14 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import type { ContactFormEmbedData } from '../../domain/types';
-import { ROUTES } from '../../router';
 
 interface Props { data: ContactFormEmbedData; lang: 'en' | 'he'; }
 
 export const ContactFormEmbedBlock: React.FC<Props> = ({ data, lang }) => {
   const isHe   = lang === 'he';
   const heading = isHe && data.heading_he ? data.heading_he : data.heading_en;
-  const target  = data.form_type === 'quote' ? ROUTES.QUOTE : ROUTES.CONTACT;
+  const target  = data.form_type === 'quote' ? '/quote' : '/contact';
   const btnText = data.form_type === 'quote'
     ? (isHe ? 'לבקש הצעת מחיר' : 'Request a Quote')
     : (isHe ? 'ליצור קשר' : 'Contact Us');

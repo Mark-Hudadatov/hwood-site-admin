@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ROUTES } from '../../router';
 import type { ServiceCardsData, Service } from '../../domain/types';
 import { getServices } from '../../services/data/dataService';
 
@@ -24,7 +23,7 @@ export const ServiceCardsBlock: React.FC<Props> = ({ data, lang }) => {
     ? services.map(s => ({
         title:       isHe && s.title       ? s.title       : s.title,
         description: isHe && s.description ? s.description : s.description,
-        image_url:   s.imageUrl, link_url: ROUTES.SERVICE(s.slug),
+        image_url:   s.imageUrl, link_url: `/services/${s.slug}`,
         accent_color: s.accentColor ?? '#005f5f',
       }))
     : (data.manual_cards || []).map(c => ({
