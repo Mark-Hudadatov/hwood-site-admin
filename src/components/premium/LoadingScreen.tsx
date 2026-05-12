@@ -39,15 +39,15 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ minDuration = 1200
     <div
       className={`
         fixed inset-0 z-[9999] flex flex-col items-center justify-center
-        bg-gradient-to-br from-[#001f1f] via-[#002828] to-[#003333]
+        bg-gradient-to-br from-surface-deep-teal via-surface-dark to-brand-dark
         transition-opacity duration-500
         ${isFadingOut ? 'opacity-0' : 'opacity-100'}
       `}
     >
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -left-20 -top-20 w-96 h-96 bg-[#005f5f]/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#005f5f]/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute -left-20 -top-20 w-96 h-96 bg-brand/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-brand/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
       </div>
 
       {/* Logo */}
@@ -60,7 +60,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ minDuration = 1200
 
         {/* Loading bar */}
         <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
-          <div className="h-full bg-[#005f5f] rounded-full animate-loading-bar" />
+          <div className="h-full bg-brand rounded-full animate-loading-bar" />
         </div>
 
         <p className="mt-6 text-white/60 text-sm tracking-widest uppercase animate-fade-in" style={{ animationDelay: '0.3s' }}>
