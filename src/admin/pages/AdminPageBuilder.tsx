@@ -13,7 +13,6 @@ import * as LucideIcons from 'lucide-react';
 import { Save, ExternalLink, ArrowLeft, Plus, Globe } from 'lucide-react';
 import type { Block, BlockData, BlockType, PageStatus } from '../../domain/types';
 import { getAdminPage, createAdminPage, updateAdminPage } from '../adminStore';
-import { ROUTES } from '../../router';
 import { BlockLibraryPanel } from '../builder/BlockLibraryPanel';
 import { CanvasBlock }       from '../builder/CanvasBlock';
 import { SettingsPanel }     from '../builder/SettingsPanel';
@@ -264,7 +263,7 @@ export const AdminPageBuilder: React.FC = () => {
       if (isNew) {
         const created = await createAdminPage(payload);
         setLastSaved(new Date());
-        navigate(ROUTES.ADMIN_PAGE_BUILDER(created.id), { replace: true });
+        navigate('/admin/pages/' + created.id + '/edit', { replace: true });
       } else {
         await updateAdminPage(pageId!, payload);
         setLastSaved(new Date());
@@ -286,8 +285,8 @@ export const AdminPageBuilder: React.FC = () => {
         onTitleChange={setTitleEn} onSlugChange={setSlug}
         onStatusToggle={() => setStatus(s => s === 'published' ? 'draft' : 'published')}
         onSave={save}
-        onPreview={() => window.open(`${ROUTES.PAGE(slug)}?preview=1`, '_blank')}
-        onBack={() => navigate(ROUTES.ADMIN_PAGES)}
+        onPreview={() => window.open(`/p/${slug}?preview=1`, '_blank')}
+        onBack={() => navigate('/admin/pages')}
         onToggleLang={() => setPreviewLang(l => l === 'en' ? 'he' : 'en')}
       />
 

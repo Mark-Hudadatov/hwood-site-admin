@@ -6,17 +6,15 @@ import {
   getAdminPages, createAdminPage, duplicateAdminPage,
   deleteAdminPage, updateAdminPage,
 } from '../adminStore';
-import { ROUTES } from '../../router';
-
 // ─── Existing site pages — link to their dedicated editors ────────────────────
 const SITE_PAGES = [
-  { label: 'Home Page',       description: 'Hero, services grid, stories, partners, about section', adminPath: ROUTES.ADMIN_MAIN_PAGE, publicPath: '/' },
-  { label: 'Services',        description: 'Service catalog listing',                                adminPath: ROUTES.ADMIN_SERVICES,  publicPath: '/services' },
-  { label: 'Products',        description: 'Products and categories',                                adminPath: ROUTES.ADMIN_PRODUCTS,  publicPath: '/products' },
-  { label: 'Stories',         description: 'Blog posts and project stories',                         adminPath: ROUTES.ADMIN_STORIES,   publicPath: '/portfolio' },
-  { label: 'Partners',        description: 'Partner logos and company partnerships',                 adminPath: ROUTES.ADMIN_PARTNERS,  publicPath: '/#partners' },
-  { label: 'Company Info',    description: 'Contact details, address, social links',                adminPath: ROUTES.ADMIN_COMPANY_INFO, publicPath: '/about' },
-  { label: 'Submissions',     description: 'Contact & quote form submissions',                       adminPath: ROUTES.ADMIN_SUBMISSIONS, publicPath: null },
+  { label: 'Home Page',    description: 'Hero, services grid, stories, partners, about section', adminPath: '/admin/main-page',    publicPath: '/' },
+  { label: 'Services',     description: 'Service catalog listing',                               adminPath: '/admin/services',     publicPath: '/services' },
+  { label: 'Products',     description: 'Products and categories',                               adminPath: '/admin/products',     publicPath: '/products' },
+  { label: 'Stories',      description: 'Blog posts and project stories',                        adminPath: '/admin/stories',      publicPath: '/portfolio' },
+  { label: 'Partners',     description: 'Partner logos and company partnerships',                adminPath: '/admin/partners',     publicPath: '/#partners' },
+  { label: 'Company Info', description: 'Contact details, address, social links',               adminPath: '/admin/company-info', publicPath: '/about' },
+  { label: 'Submissions',  description: 'Contact & quote form submissions',                      adminPath: '/admin/submissions',  publicPath: null },
 ];
 
 // ─── Status dot ──────────────────────────────────────────────────────────────
@@ -65,14 +63,14 @@ export const AdminPageList: React.FC = () => {
         title_en: 'New Page', title_he: '', status: 'draft',
         blocks: [], sort_order: pages.length,
       });
-      navigate(ROUTES.ADMIN_PAGE_BUILDER(p.id));
+      navigate('/admin/pages/' + p.id + '/edit');
     } catch { setError('Failed to create page'); }
   };
 
   const handleDuplicate = async (id: string) => {
     try {
       const copy = await duplicateAdminPage(id);
-      navigate(ROUTES.ADMIN_PAGE_BUILDER(copy.id));
+      navigate('/admin/pages/' + copy.id + '/edit');
     } catch { setError('Failed to duplicate page'); }
   };
 
@@ -208,10 +206,10 @@ export const AdminPageList: React.FC = () => {
                     </td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <Btn onClick={() => navigate(ROUTES.ADMIN_PAGE_BUILDER(page.id))} title="Edit in builder">
+                        <Btn onClick={() => navigate('/admin/pages/' + page.id + '/edit')} title="Edit in builder">
                           <Edit2 size={12} />
                         </Btn>
-                        <Btn onClick={() => window.open(`${ROUTES.PAGE(page.slug)}?preview=1`, '_blank')} title="Preview">
+                        <Btn onClick={() => window.open(`/p/${page.slug}?preview=1`, '_blank')} title="Preview">
                           <ExternalLink size={12} />
                         </Btn>
                         <Btn onClick={() => handleToggleStatus(page)} title={page.status === 'published' ? 'Unpublish' : 'Publish'}>
