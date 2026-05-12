@@ -80,7 +80,7 @@ export const AdminDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -88,7 +88,7 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome */}
-      <div className="bg-gradient-to-r from-[#005f5f] to-[#003d3d] rounded-xl p-8 text-white">
+      <div className="bg-gradient-to-r from-brand to-brand-dark rounded-xl p-8 text-white">
         <h2 className="text-2xl font-bold mb-2">Welcome to HWOOD Admin</h2>
         <p className="text-white/80">
           Manage your website content, products, and customer inquiries from this dashboard.
@@ -157,36 +157,36 @@ export const AdminDashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-[#005f5f]" />
+          <TrendingUp className="w-5 h-5 text-brand" />
           Quick Actions
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Link
             to="/admin/products"
-            className="p-4 border border-gray-200 rounded-lg hover:border-[#005f5f] hover:bg-[#005f5f]/5 transition-colors text-center"
+            className="p-4 border border-gray-200 rounded-lg hover:border-brand hover:bg-brand/5 transition-colors text-center"
           >
-            <Package className="w-6 h-6 mx-auto mb-2 text-[#005f5f]" />
+            <Package className="w-6 h-6 mx-auto mb-2 text-brand" />
             <span className="text-sm text-gray-700">Add Product</span>
           </Link>
           <Link
             to="/admin/stories"
-            className="p-4 border border-gray-200 rounded-lg hover:border-[#005f5f] hover:bg-[#005f5f]/5 transition-colors text-center"
+            className="p-4 border border-gray-200 rounded-lg hover:border-brand hover:bg-brand/5 transition-colors text-center"
           >
-            <FileText className="w-6 h-6 mx-auto mb-2 text-[#005f5f]" />
+            <FileText className="w-6 h-6 mx-auto mb-2 text-brand" />
             <span className="text-sm text-gray-700">Add Story</span>
           </Link>
           <Link
             to="/admin/hero-slides"
-            className="p-4 border border-gray-200 rounded-lg hover:border-[#005f5f] hover:bg-[#005f5f]/5 transition-colors text-center"
+            className="p-4 border border-gray-200 rounded-lg hover:border-brand hover:bg-brand/5 transition-colors text-center"
           >
-            <TrendingUp className="w-6 h-6 mx-auto mb-2 text-[#005f5f]" />
+            <TrendingUp className="w-6 h-6 mx-auto mb-2 text-brand" />
             <span className="text-sm text-gray-700">Edit Hero</span>
           </Link>
           <Link
             to="/admin/company-info"
-            className="p-4 border border-gray-200 rounded-lg hover:border-[#005f5f] hover:bg-[#005f5f]/5 transition-colors text-center"
+            className="p-4 border border-gray-200 rounded-lg hover:border-brand hover:bg-brand/5 transition-colors text-center"
           >
-            <TrendingUp className="w-6 h-6 mx-auto mb-2 text-[#005f5f]" />
+            <TrendingUp className="w-6 h-6 mx-auto mb-2 text-brand" />
             <span className="text-sm text-gray-700">Company Info</span>
           </Link>
         </div>

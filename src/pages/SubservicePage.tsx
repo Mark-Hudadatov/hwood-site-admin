@@ -1,244 +1,12 @@
-/**
- * SUBSERVICE PAGE - FIXED
- * =======================
- * FIXES:
- * ✅ Category tabs with LEFT/RIGHT navigation arrows
- * ✅ Product images with fallback placeholders
- * ✅ Horizontal scroll for categories
- * ✅ Better loading states
- */
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { COLORS } from '../tokens';
 import { Service, Subservice, ProductCategory, Product } from '../domain/types';
 import { getSubservicePageData } from '../services/data/dataService';
 import { ROUTES } from '../router';
 import { ScrollReveal, StaggerReveal } from '../components/premium';
-
-// Fallback image for products - dark background with small wood plank icon
-const PRODUCT_FALLBACK = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none"><rect width="600" height="600" fill="#1a1a1a"/><g transform="translate(260, 260)" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.4"><rect x="0" y="5" width="80" height="12" rx="2"/><rect x="0" y="22" width="80" height="12" rx="2"/><rect x="0" y="39" width="80" height="12" rx="2"/><rect x="0" y="56" width="80" height="12" rx="2"/><line x1="20" y1="5" x2="20" y2="68" stroke-width="1" opacity="0.3"/><line x1="40" y1="5" x2="40" y2="68" stroke-width="1" opacity="0.3"/><line x1="60" y1="5" x2="60" y2="68" stroke-width="1" opacity="0.3"/></g></svg>`)}`;
-
-// =============================================================================
-// PRODUCT CARD COMPONENT
-// =============================================================================
-
-interface ProductCardProps {
-  product: Product;
-  onClick: () => void;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
-
-  const imageSrc = imgError || !product.imageUrl ? PRODUCT_FALLBACK : product.imageUrl;
-
-  return (
-    <div 
-      className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-      onClick={onClick}
-    >
-      {/* Image */}
-      <div className="w-full aspect-square bg-neutral-100 overflow-hidden relative">
-        {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-neutral-100">
-            <div className="w-8 h-8 border-2 border-neutral-300 border-t-brand rounded-full animate-spin" />
-          </div>
-        )}
-        <img
-          src={imageSrc}
-          alt={product.title}
-          className={`w-full h-full object-cover p-4 transition-all duration-500 group-hover:scale-110 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={() => setImgLoaded(true)}
-          onError={() => {
-            setImgError(true);
-            setImgLoaded(true);
-          }}
-        />
-      </div>
-      
-      {/* Content */}
-      <div className="p-5">
-        <h3 className="text-lg font-medium text-[#1A1A1A] mb-1 group-hover:text-brand transition-colors">
-          {product.title}
-        </h3>
-        {product.subtitle && (
-          <p className="text-sm text-neutral-500">{product.subtitle}</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// =============================================================================
-// CATEGORY TABS WITH NAVIGATION ARROWS
-// =============================================================================
-
-interface CategoryTabsProps {
-  categories: ProductCategory[];
-  activeTab: string;
-  setActiveTab: (id: string) => void;
-}
-
-const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTab, setActiveTab }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
-  const { i18n } = useTranslation();
-  const isRTL = i18n.language?.startsWith('he') || document.documentElement.dir === 'rtl';
-
-  // Drag scroll state
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollStart, setScrollStart] = useState(0);
-  const [hasDragged, setHasDragged] = useState(false);
-
-  const checkScroll = useCallback(() => {
-    if (scrollRef.current) {
-      const { scrollWidth, clientWidth } = scrollRef.current;
-      const hasOverflow = scrollWidth > clientWidth + 10;
-      // Always show both arrows if there's overflow - RTL scroll detection is unreliable
-      setShowLeftArrow(hasOverflow);
-      setShowRightArrow(hasOverflow);
-    }
-  }, []);
-
-  useEffect(() => {
-    checkScroll();
-    const el = scrollRef.current;
-    if (el) {
-      el.addEventListener('scroll', checkScroll);
-      window.addEventListener('resize', checkScroll);
-    }
-    return () => {
-      if (el) el.removeEventListener('scroll', checkScroll);
-      window.removeEventListener('resize', checkScroll);
-    };
-  }, [categories, checkScroll]);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const amount = direction === 'right' ? 300 : -300;
-      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
-    }
-  };
-
-  // Drag handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setHasDragged(false);
-    setStartX(e.pageX);
-    setScrollStart(scrollRef.current.scrollLeft);
-    scrollRef.current.style.cursor = 'grabbing';
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const dx = e.pageX - startX;
-    scrollRef.current.scrollLeft = scrollStart - dx;
-    if (Math.abs(dx) > 5) setHasDragged(true);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
-  };
-
-  // Touch drag support
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setHasDragged(false);
-    setStartX(e.touches[0].pageX);
-    setScrollStart(scrollRef.current.scrollLeft);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    const dx = e.touches[0].pageX - startX;
-    scrollRef.current.scrollLeft = scrollStart - dx;
-    if (Math.abs(dx) > 5) setHasDragged(true);
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  if (categories.length === 0) return null;
-
-  // In RTL: left-side arrow scrolls left (shows next), right-side arrow scrolls right (shows previous)
-  // In LTR: left-side arrow scrolls left (shows previous), right-side arrow scrolls right (shows next)
-  const LeftSideIcon = isRTL ? ChevronRight : ChevronLeft;
-  const RightSideIcon = isRTL ? ChevronLeft : ChevronRight;
-
-  return (
-    <div className="relative">
-      {/* Left-side Arrow */}
-      {showLeftArrow && (
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
-        >
-          <LeftSideIcon className="w-6 h-6 text-neutral-700" />
-        </button>
-      )}
-
-      {/* Right-side Arrow */}
-      {showRightArrow && (
-        <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all"
-        >
-          <RightSideIcon className="w-6 h-6 text-neutral-700" />
-        </button>
-      )}
-
-      {/* Tabs Container with drag scroll */}
-      <div 
-        ref={scrollRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth px-12 cursor-grab active:cursor-grabbing select-none"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => { if (!hasDragged) setActiveTab(category.id); }}
-            className={`
-              group text-left px-5 md:px-8 py-4 md:py-6 rounded-t-2xl min-w-[180px] md:min-w-[260px] flex-shrink-0 transition-all duration-200 relative
-              ${activeTab === category.id 
-                ? 'bg-[#F9FAFB] shadow-lg text-black z-10' 
-                : 'bg-white/10 hover:bg-white/20 text-white z-0'
-              }
-            `}
-          >
-            <h3 className={`text-base md:text-xl font-medium mb-1 ${activeTab === category.id ? 'text-black' : 'text-white'}`}>
-              {category.title}
-            </h3>
-            <p className={`text-xs md:text-sm leading-snug line-clamp-2 ${activeTab === category.id ? 'text-neutral-600' : 'text-white/70'}`}>
-              {category.description}
-            </p>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+import { CategoryTabs } from '../components/CategoryTabs';
+import { ProductCard } from '../components/ProductCard';
 
 // =============================================================================
 // LOADING SKELETON
@@ -286,7 +54,7 @@ const NotFound: React.FC = () => (
 export const SubservicePage: React.FC = () => {
   const { subserviceSlug } = useParams<{ subserviceSlug: string }>();
   const navigate = useNavigate();
-  
+
   const [service, setService] = useState<Service | null>(null);
   const [subservice, setSubservice] = useState<Subservice | null>(null);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -297,24 +65,24 @@ export const SubservicePage: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       if (!subserviceSlug) return;
-      
+
       setIsLoading(true);
       const data = await getSubservicePageData(subserviceSlug);
-      
+
       if (data) {
         setService(data.service);
         setSubservice(data.subservice);
         setCategories(data.categories);
         setProducts(data.products);
-        
+
         if (data.categories.length > 0) {
           setActiveTab(data.categories[0].id);
         }
       }
-      
+
       setIsLoading(false);
     };
-    
+
     loadData();
     window.scrollTo(0, 0);
   }, [subserviceSlug]);
@@ -328,14 +96,14 @@ export const SubservicePage: React.FC = () => {
   if (isLoading) return <LoadingSkeleton />;
   if (!subservice || !service) return <NotFound />;
 
-  const accentColor = service.accentColor || '#D48F28';
+  const accentColor = service.accentColor || COLORS.accentGold;
 
   return (
     <div className="w-full flex flex-col bg-white">
       {/* Top Section with Accent Background */}
       <div className="w-full pt-6 flex flex-col" style={{ backgroundColor: accentColor }}>
         <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16">
-          
+
           {/* Breadcrumbs */}
           <div className="text-white text-[10px] md:text-xs font-medium tracking-wide uppercase mb-4 flex items-center gap-2 pl-2 flex-wrap">
             <Link to="/" className="cursor-pointer hover:opacity-80">Home</Link>
@@ -351,7 +119,7 @@ export const SubservicePage: React.FC = () => {
           <ScrollReveal animation="fade-up" duration={800}>
             <div className="w-full relative rounded-[2rem] md:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-black text-white h-[160px] md:h-[220px] shadow-xl mb-8">
               <div className="absolute inset-0">
-                <img 
+                <img
                   src={subservice.heroImageUrl || subservice.imageUrl || 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1600&h=900&fit=crop'}
                   alt={subservice.title}
                   className="w-full h-full object-cover object-center opacity-50"
@@ -367,8 +135,8 @@ export const SubservicePage: React.FC = () => {
             </div>
           </ScrollReveal>
 
-          {/* Category Tabs with Navigation Arrows */}
-          <CategoryTabs 
+          {/* Category Tabs */}
+          <CategoryTabs
             categories={categories}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -377,12 +145,12 @@ export const SubservicePage: React.FC = () => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 bg-[#F9FAFB] min-h-[600px]">
+      <div className="flex-1 bg-neutral-50 min-h-[600px]">
         <div className="max-w-[1920px] mx-auto px-4 md:px-12 lg:px-16 py-8 md:py-12">
-          
+
           {/* Products Grid */}
-          <StaggerReveal 
-            animation="fade-up" 
+          <StaggerReveal
+            animation="fade-up"
             staggerDelay={80}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
           >

@@ -42,11 +42,11 @@ export const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#005f5f] to-[#003d3d] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#005f5f]">HWOOD</h1>
+          <h1 className="text-3xl font-bold text-brand">HWOOD</h1>
           <p className="text-gray-500 mt-2">Admin Panel</p>
         </div>
 
@@ -70,7 +70,7 @@ export const AdminLogin: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                 placeholder="admin@hwood.co.il"
                 required
               />
@@ -87,7 +87,7 @@ export const AdminLogin: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
                 placeholder="••••••••"
                 required
               />
@@ -102,7 +102,7 @@ export const AdminLogin: React.FC = () => {
               transition-all duration-200
               ${loading 
                 ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-[#005f5f] hover:bg-[#004d4d]'
+                : 'bg-brand hover:bg-brand-hover'
               }
             `}
           >
@@ -114,7 +114,7 @@ export const AdminLogin: React.FC = () => {
         <div className="mt-8 text-center">
           <a 
             href="/" 
-            className="text-sm text-gray-500 hover:text-[#005f5f] transition-colors"
+            className="text-sm text-gray-500 hover:text-brand transition-colors"
           >
             ← Back to Website
           </a>

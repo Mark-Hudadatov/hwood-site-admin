@@ -159,7 +159,7 @@ export const AdminStories: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -182,7 +182,7 @@ export const AdminStories: React.FC = () => {
           </button>
           <button
             onClick={openNewModal}
-            className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Story
@@ -195,7 +195,7 @@ export const AdminStories: React.FC = () => {
         {stories.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-500 mb-4">No stories yet</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
+            <button onClick={openNewModal} className="text-brand hover:underline">
               Create your first story
             </button>
           </div>
@@ -223,7 +223,7 @@ export const AdminStories: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="px-3 py-1 rounded-full text-xs font-medium bg-[#005f5f]/10 text-[#005f5f]">
+                <div className="px-3 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand">
                   {item.type_id ? getTypeName(item.type_id) : item.type}
                 </div>
 
@@ -238,7 +238,7 @@ export const AdminStories: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEditModal(item)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -277,12 +277,12 @@ export const AdminStories: React.FC = () => {
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                     placeholder="story-slug"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
-                    className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                    className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
                   >
                     Generate
                   </button>
@@ -309,7 +309,7 @@ export const AdminStories: React.FC = () => {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   />
                 </div>
 
@@ -326,7 +326,7 @@ export const AdminStories: React.FC = () => {
                         type: type?.name || 'EVENTS'
                       });
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   >
                     {storyTypes.map(type => (
                       <option key={type.id} value={type.id}>{type.name}</option>
@@ -355,7 +355,7 @@ export const AdminStories: React.FC = () => {
                   id="is_visible"
                   checked={formData.is_visible}
                   onChange={(e) => setFormData({ ...formData, is_visible: e.target.checked })}
-                  className="w-4 h-4 text-[#005f5f] rounded"
+                  className="w-4 h-4 text-brand rounded"
                 />
                 <label htmlFor="is_visible" className="text-sm text-gray-700">
                   Visible on website
@@ -396,7 +396,7 @@ export const AdminStories: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Story'}
@@ -426,7 +426,7 @@ export const AdminStories: React.FC = () => {
                     handleUpdateType(type.id, e.target.value);
                   }
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
             </div>
           ))}

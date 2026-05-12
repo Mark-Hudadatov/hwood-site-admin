@@ -45,7 +45,7 @@ const ErrorPage = () => (
       <p className="text-gray-600 mb-8">Page not found</p>
       <a 
         href="/" 
-        className="px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+        className="px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
       >
         Back to Home
       </a>

@@ -74,7 +74,7 @@ const SortableProductItem: React.FC<{
         <button onClick={onDuplicate} className="p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Duplicate">
           <Copy className="w-4 h-4" />
         </button>
-        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors">
           <Edit className="w-4 h-4" />
         </button>
         <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -318,7 +318,7 @@ export const AdminProducts: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -333,7 +333,7 @@ export const AdminProducts: React.FC = () => {
         </div>
         <button
           onClick={openNewModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Product
@@ -349,13 +349,13 @@ export const AdminProducts: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
           />
         </div>
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
         >
           <option value="all">All Categories</option>
           {categoriesBySubservice.map(group => (
@@ -373,7 +373,7 @@ export const AdminProducts: React.FC = () => {
         {filteredProducts.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-500 mb-4">No products found</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
+            <button onClick={openNewModal} className="text-brand hover:underline">
               Create your first product
             </button>
           </div>
@@ -429,7 +429,7 @@ export const AdminProducts: React.FC = () => {
                 <select
                   value={formData.category_id}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 >
                   <option value="">Select a category...</option>
                   {categoriesBySubservice.map(group => (
@@ -453,12 +453,12 @@ export const AdminProducts: React.FC = () => {
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                     placeholder="product-slug"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
-                    className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                    className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
                   >
                     Generate
                   </button>
@@ -555,7 +555,7 @@ export const AdminProducts: React.FC = () => {
                   value={formData.video_url}
                   onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
                   placeholder="https://youtube.com/... or https://vimeo.com/..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">YouTube, Vimeo, or direct MP4 URL</p>
               </div>
@@ -570,7 +570,7 @@ export const AdminProducts: React.FC = () => {
                   value={formData.model_url}
                   onChange={(e) => setFormData({ ...formData, model_url: e.target.value, has_3d_view: !!e.target.value })}
                   placeholder="https://your-supabase.co/storage/v1/object/public/images/models/model.glb"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">GLB file URL from Supabase Storage. 3D badge auto-enables when URL is set.</p>
               </div>
@@ -580,7 +580,7 @@ export const AdminProducts: React.FC = () => {
                   id="has3d"
                   checked={formData.has_3d_view}
                   onChange={(e) => setFormData({ ...formData, has_3d_view: e.target.checked })}
-                  className="w-4 h-4 text-[#005f5f] rounded"
+                  className="w-4 h-4 text-brand rounded"
                 />
                 <label htmlFor="has3d" className="text-sm text-gray-700">
                   Show 3D Viewer on product page
@@ -616,7 +616,7 @@ export const AdminProducts: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Product'}

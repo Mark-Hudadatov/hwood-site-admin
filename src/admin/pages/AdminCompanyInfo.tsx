@@ -111,7 +111,7 @@ export const AdminCompanyInfo: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -130,7 +130,7 @@ export const AdminCompanyInfo: React.FC = () => {
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
             saved 
               ? 'bg-green-500 text-white' 
-              : 'bg-[#005f5f] text-white hover:bg-[#004d4d]'
+              : 'bg-brand text-white hover:bg-brand-hover'
           } disabled:opacity-50`}
         >
           <Save className="w-4 h-4" />
@@ -189,7 +189,7 @@ export const AdminCompanyInfo: React.FC = () => {
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="+972-54-000-0000"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent"
             />
           </div>
           <div>
@@ -199,7 +199,7 @@ export const AdminCompanyInfo: React.FC = () => {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="office@company.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent"
             />
           </div>
         </div>
@@ -236,14 +236,14 @@ export const AdminCompanyInfo: React.FC = () => {
                   value={link.url || ''}
                   onChange={(e) => handleSocialChange(link.id, 'url', e.target.value)}
                   placeholder={link.platform === 'whatsapp' ? 'Phone number' : 'https://...'}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent text-sm"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent text-sm"
                 />
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={link.is_visible}
                     onChange={(e) => handleSocialChange(link.id, 'is_visible', e.target.checked)}
-                    className="w-4 h-4 text-[#005f5f] rounded focus:ring-[#005f5f]"
+                    className="w-4 h-4 text-brand rounded focus:ring-brand"
                   />
                   <span className="text-sm text-gray-600">Show</span>
                 </label>

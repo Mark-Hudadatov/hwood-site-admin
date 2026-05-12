@@ -43,9 +43,9 @@ const DesktopOnlyGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-[#005f5f] flex items-center justify-center p-8">
+      <div className="min-h-screen bg-brand flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl p-12 max-w-md text-center shadow-2xl">
-          <Monitor className="w-20 h-20 text-[#005f5f] mx-auto mb-6" />
+          <Monitor className="w-20 h-20 text-brand mx-auto mb-6" />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Desktop Required
           </h1>
@@ -55,7 +55,7 @@ const DesktopOnlyGate: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </p>
           <Link 
             to="/"
-            className="inline-block px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+            className="inline-block px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
           >
             Return to Website
           </Link>
@@ -114,7 +114,7 @@ export const AdminLayout: React.FC = () => {
         {/* Sidebar */}
         <aside 
           className={`
-            fixed top-0 left-0 h-full bg-[#1a1a2e] text-white z-40
+            fixed top-0 left-0 h-full bg-surface-raised text-white z-40
             transition-all duration-300 flex flex-col
             ${sidebarOpen ? 'w-64' : 'w-20'}
           `}
@@ -122,7 +122,7 @@ export const AdminLayout: React.FC = () => {
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
             {sidebarOpen && (
-              <span className="text-xl font-bold text-[#00d4aa]">HWOOD Admin</span>
+              <span className="text-xl font-bold text-accent-mint">HWOOD Admin</span>
             )}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -146,7 +146,7 @@ export const AdminLayout: React.FC = () => {
                     flex items-center gap-3 px-4 py-3 mx-2 rounded-lg
                     transition-all duration-200
                     ${active 
-                      ? 'bg-[#005f5f] text-white' 
+                      ? 'bg-brand text-white' 
                       : 'text-gray-400 hover:bg-white/10 hover:text-white'
                     }
                   `}
@@ -190,7 +190,7 @@ export const AdminLayout: React.FC = () => {
             <Link 
               to="/" 
               target="_blank"
-              className="text-sm text-[#005f5f] hover:underline"
+              className="text-sm text-brand hover:underline"
             >
               View Website →
             </Link>

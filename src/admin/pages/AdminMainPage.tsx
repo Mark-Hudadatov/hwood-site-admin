@@ -11,6 +11,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Save, RefreshCw, Eye, Layout, Image, Type, Palette, Sliders } from 'lucide-react';
+import { COLORS } from '../../tokens';
 import { supabase } from '../../services/supabase';
 import { BilingualInput, ImageUpload } from '../components';
 
@@ -139,14 +140,14 @@ export const AdminMainPage: React.FC = () => {
     button_text_en: 'Discover HWOOD',
     button_text_he: 'גלה את HWOOD',
     button_link: '/about',
-    background_color: '#EAEAEA',
-    text_color: '#005f5f',
+    background_color: COLORS.surfaceChrome,
+    text_color: COLORS.brand,
   });
 
   const [layoutSettings, setLayoutSettings] = useState<LayoutSettings>({
-    primary_color: '#005f5f',
-    secondary_color: '#004d4d',
-    background_dark: '#002828',
+    primary_color: COLORS.brand,
+    secondary_color: COLORS.brandHover,
+    background_dark: COLORS.surfaceDark,
     section_spacing: '0',
     border_radius: '2xl',
   });
@@ -269,7 +270,7 @@ export const AdminMainPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -286,7 +287,7 @@ export const AdminMainPage: React.FC = () => {
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+          className="flex items-center gap-2 px-4 py-2 text-brand border border-brand rounded-lg hover:bg-brand/10"
         >
           <Eye className="w-4 h-4" />
           Preview Site
@@ -310,7 +311,7 @@ export const AdminMainPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-[#005f5f] text-[#005f5f]'
+                    ? 'border-brand text-brand'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -383,7 +384,7 @@ export const AdminMainPage: React.FC = () => {
                       value={hero.right_link}
                       onChange={(e) => setHero({ ...hero, right_link: e.target.value })}
                       placeholder="/services/modular-cabinet-systems"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                     />
                     <p className="text-xs text-gray-500 mt-1">Where the arrow button links to</p>
                   </div>
@@ -399,7 +400,7 @@ export const AdminMainPage: React.FC = () => {
                   <select
                     value={hero.hero_height}
                     onChange={(e) => setHero({ ...hero, hero_height: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand outline-none"
                   >
                     <option value="60vh">60% viewport (shorter)</option>
                     <option value="70vh">70% viewport</option>
@@ -415,7 +416,7 @@ export const AdminMainPage: React.FC = () => {
                     id="show_pagination"
                     checked={hero.show_pagination}
                     onChange={(e) => setHero({ ...hero, show_pagination: e.target.checked })}
-                    className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
+                    className="w-5 h-5 rounded border-gray-300 text-brand focus:ring-brand"
                   />
                   <label htmlFor="show_pagination" className="text-sm text-gray-700">
                     Show pagination dots
@@ -427,7 +428,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('hero', hero)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Hero Settings'}
@@ -519,7 +520,7 @@ export const AdminMainPage: React.FC = () => {
                   id="show_descriptions"
                   checked={servicesSection.show_descriptions}
                   onChange={(e) => setServicesSection({ ...servicesSection, show_descriptions: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
+                  className="w-5 h-5 rounded border-gray-300 text-brand focus:ring-brand"
                 />
                 <label htmlFor="show_descriptions" className="text-sm text-gray-700">
                   Show descriptions on service cards
@@ -530,7 +531,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('services_section', servicesSection)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Services Settings'}
@@ -616,7 +617,7 @@ export const AdminMainPage: React.FC = () => {
                   id="show_generate_button"
                   checked={storiesSection.show_generate_button}
                   onChange={(e) => setStoriesSection({ ...storiesSection, show_generate_button: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#005f5f] focus:ring-[#005f5f]"
+                  className="w-5 h-5 rounded border-gray-300 text-brand focus:ring-brand"
                 />
                 <label htmlFor="show_generate_button" className="text-sm text-gray-700">
                   Show "See more" button
@@ -627,7 +628,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('stories_section', storiesSection)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Stories Settings'}
@@ -712,7 +713,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('about_section', aboutSection)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save About Settings'}
@@ -787,7 +788,7 @@ export const AdminMainPage: React.FC = () => {
                         max="100"
                         value={box.overlay_opacity}
                         onChange={(e) => updateBox({ overlay_opacity: parseInt(e.target.value) })}
-                        className="w-full accent-[#005f5f]"
+                        className="w-full accent-brand"
                       />
                       <div className="flex justify-between text-xs text-gray-400 mt-1">
                         <span>Transparent</span>
@@ -833,7 +834,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('partners_section', partnersSection)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Who We Work With'}
@@ -946,7 +947,7 @@ export const AdminMainPage: React.FC = () => {
                 <button
                   onClick={() => saveSection('layout', layoutSettings)}
                   disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Layout Settings'}

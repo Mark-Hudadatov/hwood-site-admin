@@ -51,7 +51,7 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
             onClick={() => setActiveTab('en')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -62,7 +62,7 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
             onClick={() => setActiveTab('he')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -78,7 +78,7 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
           placeholder={placeholder}
           dir={activeTab === 'he' ? 'rtl' : 'ltr'}
           rows={4}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all resize-none"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all resize-none"
         />
       ) : (
         <input
@@ -87,7 +87,7 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
           onChange={(e) => activeTab === 'en' ? onChangeEn(e.target.value) : onChangeHe(e.target.value)}
           placeholder={placeholder}
           dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all"
         />
       )}
       
@@ -141,7 +141,7 @@ export const VisibilitySelect: React.FC<VisibilitySelectProps> = ({
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-lg border transition-all
                 ${isActive 
-                  ? 'border-[#005f5f] bg-[#005f5f]/10' 
+                  ? 'border-brand bg-brand/10' 
                   : 'border-gray-200 hover:border-gray-300'
                 }
               `}
@@ -264,7 +264,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           className={`
             border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all
             ${dragActive 
-              ? 'border-[#005f5f] bg-[#005f5f]/5' 
+              ? 'border-brand bg-brand/5' 
               : 'border-gray-300 hover:border-gray-400'
             }
             ${uploading ? 'opacity-50 pointer-events-none' : ''}
@@ -280,7 +280,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           
           {uploading ? (
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f] mb-2" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mb-2" />
               <span className="text-sm text-gray-500">Uploading...</span>
             </div>
           ) : (
@@ -352,7 +352,7 @@ export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({
             onClick={() => setActiveTab('en')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -363,7 +363,7 @@ export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({
             onClick={() => setActiveTab('he')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -381,7 +381,7 @@ export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({
               onChange={(e) => updateFeature(index, e.target.value)}
               placeholder={`Feature ${index + 1}`}
               dir={activeTab === 'he' ? 'rtl' : 'ltr'}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none text-sm"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none text-sm"
             />
             <button
               type="button"
@@ -395,7 +395,7 @@ export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({
         <button
           type="button"
           onClick={addFeature}
-          className="text-sm text-[#005f5f] hover:underline"
+          className="text-sm text-brand hover:underline"
         >
           + Add Feature
         </button>
@@ -466,7 +466,7 @@ export const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({
               value={spec.value}
               onChange={(e) => updateSpec(index, e.target.value)}
               placeholder="Value"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none text-sm"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none text-sm"
             />
             {spec.unit && (
               <span className="text-sm text-gray-500 w-12">{spec.unit}</span>
@@ -491,7 +491,7 @@ export const SpecificationsEditor: React.FC<SpecificationsEditorProps> = ({
               key={spec.label}
               type="button"
               onClick={() => addSpec(spec.label, spec.unit)}
-              className="px-3 py-1 text-xs border border-gray-300 rounded-full hover:border-[#005f5f] hover:text-[#005f5f] transition-colors"
+              className="px-3 py-1 text-xs border border-gray-300 rounded-full hover:border-brand hover:text-brand transition-colors"
             >
               + {spec.label}
             </button>
@@ -546,7 +546,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => setActiveTab('en')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'en' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -557,7 +557,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             onClick={() => setActiveTab('he')}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               activeTab === 'he' 
-                ? 'bg-white text-[#005f5f] shadow-sm' 
+                ? 'bg-white text-brand shadow-sm' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -616,7 +616,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onChange={(e) => onChange(e.target.value)}
         dir={activeTab === 'he' ? 'rtl' : 'ltr'}
         rows={10}
-        className="w-full px-4 py-3 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none transition-all resize-none font-mono text-sm"
+        className="w-full px-4 py-3 border border-gray-300 rounded-b-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all resize-none font-mono text-sm"
         placeholder="Write your content here. Use **bold**, *italic*, ## Heading, - List items, [link](url)"
       />
 
@@ -776,7 +776,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             className={`px-4 py-2 text-white rounded-lg transition-colors ${
               danger 
                 ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-[#005f5f] hover:bg-[#004d4d]'
+                : 'bg-brand hover:bg-brand-hover'
             }`}
           >
             {confirmText}

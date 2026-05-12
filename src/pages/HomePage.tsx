@@ -14,6 +14,7 @@ import { getServices, getStories } from '../services/data/dataService';
 import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
 import { ScrollReveal, StaggerReveal } from '../components/premium';
+import { COLORS } from '../tokens';
 
 // =============================================================================
 // CONSTANTS
@@ -122,8 +123,8 @@ const DEFAULT_SETTINGS: HomepageSettings = {
   },
   services_section: { title_en: 'Our Services', title_he: 'השירותים שלנו', subtitle_en: 'Precision services designed for the modern industrial workflow.', subtitle_he: 'שירותי דיוק המיועדים לתהליכי העבודה התעשייתיים המודרניים.', show_descriptions: true },
   stories_section: { title_en: 'Recent Projects and News', title_he: '', button_text_en: 'See all', button_text_he: '', button_link: '/portfolio' },
-  about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: '#EAEAEA', text_color: '#005f5f' },
-  layout: { primary_color: '#005f5f', secondary_color: '#004d4d', background_dark: '#002828' },
+  about_section: { title_en: 'About HWOOD', title_he: '', description_en: 'Modern production powerhouse.', description_he: '', button_text_en: 'Discover', button_text_he: '', button_link: '/about', background_color: COLORS.surfaceChrome, text_color: COLORS.brand },
+  layout: { primary_color: COLORS.brand, secondary_color: COLORS.brandHover, background_dark: COLORS.surfaceDark },
   partners_section: {
     section_title_en: 'Who We Work With',
     section_title_he: 'עם מי אנחנו עובדים',
@@ -270,7 +271,7 @@ const ServiceCard: React.FC<{
       <div className="relative z-10 p-6 md:p-10 flex flex-col h-full text-white">
         {/* Technical Descriptor Badge */}
         <div className="flex items-center justify-between mb-4 gap-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-brand px-3 py-2 rounded-sm text-white truncate max-w-[70%]">
             {technicalDescriptor}
           </span>
           {isPrimary && (
@@ -330,7 +331,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
         
         {/* Type label inside image - top */}
         <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'}`}>
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-[#005f5f] px-3 py-2 rounded-sm text-white">
+          <span className="text-[10px] uppercase tracking-[0.2em] font-bold bg-brand px-3 py-2 rounded-sm text-white">
             {story.type}
           </span>
         </div>
@@ -346,7 +347,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
       </div>
 
       <h3 className={`text-base md:text-lg font-bold leading-tight mb-3 px-2 line-clamp-2 transition-colors duration-300 ${isRTL ? 'text-right' : 'text-left'} ${
-        isComingSoon ? 'text-white/60' : 'text-white group-hover:text-[#00d4aa]'
+        isComingSoon ? 'text-white/60' : 'text-white group-hover:text-accent-mint'
       }`}>
         {story.title}
       </h3>
@@ -394,7 +395,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   };
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#121212]" style={{ height: settings.hero_height, minHeight: '600px' }}>
+    <section className="relative w-full overflow-hidden bg-surface-hero" style={{ height: settings.hero_height, minHeight: '600px' }}>
       <div className="absolute inset-0 flex flex-col md:flex-row">
         {/* Left Panel - full width on mobile, 70% on desktop */}
         <div className="relative w-full md:w-[70%] h-full overflow-hidden border-r border-white/5">
@@ -439,7 +440,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
         </div>
 
         {/* Right Panel - hidden on mobile, 30% on desktop */}
-        <div className={`hidden md:flex relative w-[30%] h-full items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
+        <div className={`hidden md:flex relative w-[30%] h-full items-end pb-20 px-8 md:px-12 bg-surface-charcoal ${lang === 'he' ? 'text-right' : 'text-left'}`}>
           <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
             <Link 
               to={settings.right_link || '/services'} 
@@ -512,7 +513,7 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
     <section ref={sectionRef} className="bg-white py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto">
         <h2 className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 md:mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
+          {c.title} <span style={{ color: COLORS.success }}>{c.highlight}</span>
         </h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 lg:gap-16 xl:gap-20 2xl:gap-24">
@@ -740,7 +741,7 @@ export const HomePage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-12 h-12 border-2 border-[#005f5f] border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-2 border-brand border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -752,7 +753,7 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section id="services" className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden select-none">
+      <section id="services" className="bg-neutral-50 py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
         <div className="max-w-7xl mx-auto mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
@@ -834,7 +835,7 @@ export const HomePage: React.FC = () => {
             <div 
               key={index}
               className="relative h-[280px] md:h-[360px] lg:h-[420px] xl:h-[440px] 2xl:h-[480px] overflow-hidden group cursor-pointer transition-all duration-500 hover:brightness-110 border-r border-white/5 last:border-r-0"
-              style={{ backgroundColor: '#0a0a0a' }}
+              style={{ backgroundColor: COLORS.surfaceBlack }}
             >
               {/* Background Image */}
               {partner.image_url && (
@@ -898,7 +899,7 @@ export const HomePage: React.FC = () => {
                     <button onClick={() => scrollStories('right')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronRight className="w-5 h-5" /></button>
                   </div>
                   <button onClick={() => navigate(settings.stories_section.button_link)} className="group relative px-6 md:px-8 py-2 rounded-lg border border-white text-white overflow-hidden transition-all">
-                    <span className="relative z-10 text-sm font-medium group-hover:text-[#005f5f] transition-colors">{storiesButtonText}</span>
+                    <span className="relative z-10 text-sm font-medium group-hover:text-brand transition-colors">{storiesButtonText}</span>
                     <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   </button>
                 </div>

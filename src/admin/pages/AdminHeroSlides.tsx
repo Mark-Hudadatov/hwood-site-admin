@@ -133,7 +133,7 @@ export const AdminHeroSlides: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -149,7 +149,7 @@ export const AdminHeroSlides: React.FC = () => {
         <button
           onClick={openNewModal}
           disabled={slides.length >= 3}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus className="w-5 h-5" />
           Add Slide ({slides.length}/3)
@@ -167,7 +167,7 @@ export const AdminHeroSlides: React.FC = () => {
         {slides.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <p className="text-gray-500 mb-4">No hero slides yet</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
+            <button onClick={openNewModal} className="text-brand hover:underline">
               Create your first slide
             </button>
           </div>
@@ -225,7 +225,7 @@ export const AdminHeroSlides: React.FC = () => {
                         {slide.subtitle_en}
                       </p>
                       {slide.cta_text_en && (
-                        <span className="inline-block px-3 py-1 bg-[#005f5f] text-white text-sm rounded">
+                        <span className="inline-block px-3 py-1 bg-brand text-white text-sm rounded">
                           {slide.cta_text_en} → {slide.cta_link}
                         </span>
                       )}
@@ -237,7 +237,7 @@ export const AdminHeroSlides: React.FC = () => {
                       </div>
                       <button
                         onClick={() => openEditModal(slide)}
-                        className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
@@ -297,7 +297,7 @@ export const AdminHeroSlides: React.FC = () => {
                 value={formData.video_url}
                 onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
                 placeholder="https://example.com/video.mp4"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Direct MP4 link. 10s loop, muted autoplay.
@@ -335,7 +335,7 @@ export const AdminHeroSlides: React.FC = () => {
                 value={formData.cta_link}
                 onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
                 placeholder="/services/modular-cabinet-systems"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <p className="text-xs text-gray-500 mt-1">Internal link only (starts with /)</p>
             </div>
@@ -348,7 +348,7 @@ export const AdminHeroSlides: React.FC = () => {
               id="slide_visible"
               checked={formData.is_visible}
               onChange={(e) => setFormData({ ...formData, is_visible: e.target.checked })}
-              className="w-4 h-4 text-[#005f5f] rounded"
+              className="w-4 h-4 text-brand rounded"
             />
             <label htmlFor="slide_visible" className="text-sm text-gray-700">
               Visible on homepage
@@ -367,7 +367,7 @@ export const AdminHeroSlides: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Slide'}

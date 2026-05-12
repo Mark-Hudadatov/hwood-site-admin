@@ -13,6 +13,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Check, Rotate3d, Info, ChevronLeft, ChevronDown } from 'lucide-react';
+import { COLORS } from '../tokens';
 import { 
   Product, 
   ProductCategory, 
@@ -339,7 +340,7 @@ export const ProductPage: React.FC = () => {
                     camera-controls
                     shadow-intensity="1"
                     environment-image="neutral"
-                    style={{ width: '100%', height: '100%', backgroundColor: '#f5f5f5' }}
+                    style={{ width: '100%', height: '100%', backgroundColor: COLORS.neutral100 }}
                     loading="eager"
                     poster={allImages[0] || PRODUCT_FALLBACK}
                   >

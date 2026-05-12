@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Save, X, GripVertical } from 'lucide-react';
+import { COLORS } from '../../tokens';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -63,9 +64,9 @@ const SortableServiceItem: React.FC<{
         {service.visibility_status === 'visible' ? 'Visible' :
          service.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
       </div>
-      <div className="w-6 h-6 rounded-full border-2 border-white shadow" style={{ backgroundColor: service.accent_color || '#005f5f' }} />
+      <div className="w-6 h-6 rounded-full border-2 border-white shadow" style={{ backgroundColor: service.accent_color || COLORS.brand }} />
       <div className="flex items-center gap-2">
-        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors">
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors">
           <Edit className="w-4 h-4" />
         </button>
         <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -112,7 +113,7 @@ const [formData, setFormData] = useState<{
     cta_text_he: 'לפרטים נוספים',
     image_url: '',
     hero_image_url: '',
-    accent_color: '#005f5f',
+    accent_color: COLORS.brand,
     visibility_status: 'visible',
   });
 
@@ -145,7 +146,7 @@ const [formData, setFormData] = useState<{
       cta_text_he: 'לפרטים נוספים',
       image_url: '',
       hero_image_url: '',
-      accent_color: '#005f5f',
+      accent_color: COLORS.brand,
       visibility_status: 'visible',
     });
     setIsModalOpen(true);
@@ -165,7 +166,7 @@ const [formData, setFormData] = useState<{
       cta_text_he: service.cta_text_he || 'לפרטים נוספים',
       image_url: service.image_url || '',
       hero_image_url: service.hero_image_url || '',
-      accent_color: service.accent_color || '#005f5f',
+      accent_color: service.accent_color || COLORS.brand,
       visibility_status: service.visibility_status,
     });
     setIsModalOpen(true);
@@ -217,7 +218,7 @@ const [formData, setFormData] = useState<{
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -232,7 +233,7 @@ const [formData, setFormData] = useState<{
         </div>
         <button
           onClick={openNewModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Service
@@ -246,7 +247,7 @@ const [formData, setFormData] = useState<{
             <p className="text-gray-500 mb-4">No services yet</p>
             <button
               onClick={openNewModal}
-              className="text-[#005f5f] hover:underline"
+              className="text-brand hover:underline"
             >
               Create your first service
             </button>
@@ -301,12 +302,12 @@ const [formData, setFormData] = useState<{
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="service-slug"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
-                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
               >
                 Generate
               </button>
@@ -424,7 +425,7 @@ const [formData, setFormData] = useState<{
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Service'}

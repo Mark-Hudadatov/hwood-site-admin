@@ -71,7 +71,7 @@ export const AdminSubmissions: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -90,7 +90,7 @@ export const AdminSubmissions: React.FC = () => {
           onClick={() => setActiveTab('contact')}
           className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
             activeTab === 'contact'
-              ? 'border-[#005f5f] text-[#005f5f]'
+              ? 'border-brand text-brand'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -106,7 +106,7 @@ export const AdminSubmissions: React.FC = () => {
           onClick={() => setActiveTab('quote')}
           className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
             activeTab === 'quote'
-              ? 'border-[#005f5f] text-[#005f5f]'
+              ? 'border-brand text-brand'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -196,7 +196,7 @@ export const AdminSubmissions: React.FC = () => {
                               e.stopPropagation();
                               handleMarkRead('contact', item.id);
                             }}
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm text-brand hover:bg-brand/10 rounded-lg transition-colors"
                           >
                             <Check className="w-4 h-4" />
                             Mark as Read
@@ -318,7 +318,7 @@ export const AdminSubmissions: React.FC = () => {
                                 e.stopPropagation();
                                 handleMarkRead('quote', item.id);
                               }}
-                              className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                              className="flex items-center gap-2 px-3 py-1.5 text-sm text-brand hover:bg-brand/10 rounded-lg transition-colors"
                             >
                               <Check className="w-4 h-4" />
                               Mark as Read

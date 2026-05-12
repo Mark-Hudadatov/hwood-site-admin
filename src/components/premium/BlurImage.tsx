@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { COLORS } from '../../tokens';
 
 interface BlurImageProps {
   src: string;
@@ -21,7 +22,7 @@ export const BlurImage: React.FC<BlurImageProps> = ({
   src,
   alt,
   className = '',
-  placeholderColor = '#f3f4f6',
+  placeholderColor = COLORS.neutral100,
   blurAmount = 20,
   duration = 500,
   lazy = true,

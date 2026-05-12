@@ -325,7 +325,7 @@ export const AdminConfigLibrary: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -342,7 +342,7 @@ export const AdminConfigLibrary: React.FC = () => {
         </div>
         <button
           onClick={openNewTypeModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Option Type
@@ -357,7 +357,7 @@ export const AdminConfigLibrary: React.FC = () => {
             <p className="text-gray-500 mb-4">No configuration options defined yet.</p>
             <button
               onClick={openNewTypeModal}
-              className="text-[#005f5f] font-medium hover:underline"
+              className="text-brand font-medium hover:underline"
             >
               Create your first option type
             </button>
@@ -399,7 +399,7 @@ export const AdminConfigLibrary: React.FC = () => {
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => openEditTypeModal(type)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-brand hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -419,7 +419,7 @@ export const AdminConfigLibrary: React.FC = () => {
                     <h4 className="text-sm font-medium text-gray-700">Values</h4>
                     <button
                       onClick={() => openNewValueModal(type.id)}
-                      className="text-sm text-[#005f5f] hover:underline flex items-center gap-1"
+                      className="text-sm text-brand hover:underline flex items-center gap-1"
                     >
                       <Plus className="w-3 h-3" />
                       Add Value
@@ -451,7 +451,7 @@ export const AdminConfigLibrary: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => openEditValueModal(value)}
-                              className="p-1 text-gray-400 hover:text-[#005f5f] transition-colors"
+                              className="p-1 text-gray-400 hover:text-brand transition-colors"
                             >
                               <Edit className="w-3 h-3" />
                             </button>
@@ -496,12 +496,12 @@ export const AdminConfigLibrary: React.FC = () => {
                 value={typeFormData.slug}
                 onChange={(e) => setTypeFormData({ ...typeFormData, slug: e.target.value })}
                 placeholder="option_slug"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <button
                 type="button"
                 onClick={() => setTypeFormData({ ...typeFormData, slug: generateSlug(typeFormData.name_en) })}
-                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
               >
                 Generate
               </button>
@@ -541,7 +541,7 @@ export const AdminConfigLibrary: React.FC = () => {
               <select
                 value={typeFormData.input_type}
                 onChange={(e) => setTypeFormData({ ...typeFormData, input_type: e.target.value as any })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               >
                 <option value="button_group">Button Group</option>
                 <option value="color_picker">Color Picker</option>
@@ -560,7 +560,7 @@ export const AdminConfigLibrary: React.FC = () => {
                 value={typeFormData.unit}
                 onChange={(e) => setTypeFormData({ ...typeFormData, unit: e.target.value })}
                 placeholder="e.g., cm, mm, kg"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
             </div>
           </div>
@@ -572,7 +572,7 @@ export const AdminConfigLibrary: React.FC = () => {
               id="type_active"
               checked={typeFormData.is_active}
               onChange={(e) => setTypeFormData({ ...typeFormData, is_active: e.target.checked })}
-              className="w-4 h-4 text-[#005f5f] rounded"
+              className="w-4 h-4 text-brand rounded"
             />
             <label htmlFor="type_active" className="text-sm text-gray-700">
               Active (visible in configurator)
@@ -591,7 +591,7 @@ export const AdminConfigLibrary: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save'}
@@ -619,12 +619,12 @@ export const AdminConfigLibrary: React.FC = () => {
                 value={valueFormData.slug}
                 onChange={(e) => setValueFormData({ ...valueFormData, slug: e.target.value })}
                 placeholder="value_slug"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <button
                 type="button"
                 onClick={() => setValueFormData({ ...valueFormData, slug: generateSlug(valueFormData.label_en) })}
-                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
               >
                 Generate
               </button>
@@ -653,7 +653,7 @@ export const AdminConfigLibrary: React.FC = () => {
               value={valueFormData.value}
               onChange={(e) => setValueFormData({ ...valueFormData, value: e.target.value })}
               placeholder="e.g., 60, white, soft_close"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
             />
             <p className="text-xs text-gray-500 mt-1">
               The actual value stored. If empty, slug will be used.
@@ -677,7 +677,7 @@ export const AdminConfigLibrary: React.FC = () => {
                 value={valueFormData.color_hex}
                 onChange={(e) => setValueFormData({ ...valueFormData, color_hex: e.target.value })}
                 placeholder="#FFFFFF"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               {valueFormData.color_hex && (
                 <button
@@ -698,7 +698,7 @@ export const AdminConfigLibrary: React.FC = () => {
               id="value_active"
               checked={valueFormData.is_active}
               onChange={(e) => setValueFormData({ ...valueFormData, is_active: e.target.checked })}
-              className="w-4 h-4 text-[#005f5f] rounded"
+              className="w-4 h-4 text-brand rounded"
             />
             <label htmlFor="value_active" className="text-sm text-gray-700">
               Active (available for selection)
@@ -717,7 +717,7 @@ export const AdminConfigLibrary: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save'}

@@ -167,7 +167,7 @@ export const AdminPartners: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -182,7 +182,7 @@ export const AdminPartners: React.FC = () => {
         </div>
         <button
           onClick={openNewModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Partner
@@ -201,7 +201,7 @@ export const AdminPartners: React.FC = () => {
         {partners.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-500 mb-4">No partners added yet</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
+            <button onClick={openNewModal} className="text-brand hover:underline">
               Add your first partner
             </button>
           </div>
@@ -249,7 +249,7 @@ export const AdminPartners: React.FC = () => {
                       href={partner.website_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-sm text-[#005f5f] hover:underline flex items-center gap-1"
+                      className="text-sm text-brand hover:underline flex items-center gap-1"
                     >
                       {partner.website_url} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -269,7 +269,7 @@ export const AdminPartners: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEditModal(partner)}
-                    className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -307,7 +307,7 @@ export const AdminPartners: React.FC = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Company name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 />
               </div>
 
@@ -321,7 +321,7 @@ export const AdminPartners: React.FC = () => {
                   value={formData.logo_url}
                   onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
                   placeholder="https://example.com/logo.png"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">Use a transparent PNG for best results</p>
                 
@@ -348,7 +348,7 @@ export const AdminPartners: React.FC = () => {
                   value={formData.website_url}
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                   placeholder="https://example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">Optional - link when logo is clicked</p>
               </div>
@@ -360,7 +360,7 @@ export const AdminPartners: React.FC = () => {
                   id="is_visible"
                   checked={formData.is_visible}
                   onChange={(e) => setFormData({ ...formData, is_visible: e.target.checked })}
-                  className="w-4 h-4 text-[#005f5f] rounded"
+                  className="w-4 h-4 text-brand rounded"
                 />
                 <label htmlFor="is_visible" className="text-sm text-gray-700">
                   Visible on website
@@ -378,7 +378,7 @@ export const AdminPartners: React.FC = () => {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 {saving ? 'Saving...' : 'Save Partner'}

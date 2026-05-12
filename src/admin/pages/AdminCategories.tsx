@@ -56,7 +56,7 @@ const SortableCategoryItem: React.FC<{
         {item.visibility_status === 'visible' ? 'Visible' : item.visibility_status === 'coming_soon' ? 'Coming Soon' : 'Hidden'}
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-[#005f5f] hover:bg-[#005f5f]/10 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+        <button onClick={onEdit} className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
         <button onClick={onDelete} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
       </div>
     </div>
@@ -206,7 +206,7 @@ export const AdminCategories: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#005f5f]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand" />
       </div>
     );
   }
@@ -221,7 +221,7 @@ export const AdminCategories: React.FC = () => {
         </div>
         <button
           onClick={openNewModal}
-          className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Category
@@ -234,7 +234,7 @@ export const AdminCategories: React.FC = () => {
         <select
           value={filterSubservice}
           onChange={(e) => setFilterSubservice(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
         >
           <option value="all">All Subservices</option>
           {subservicesByService.map(group => (
@@ -252,7 +252,7 @@ export const AdminCategories: React.FC = () => {
         {filteredCategories.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-gray-500 mb-4">No categories found</p>
-            <button onClick={openNewModal} className="text-[#005f5f] hover:underline">
+            <button onClick={openNewModal} className="text-brand hover:underline">
               Create your first category
             </button>
           </div>
@@ -304,7 +304,7 @@ export const AdminCategories: React.FC = () => {
             <select
               value={formData.subservice_id}
               onChange={(e) => setFormData({ ...formData, subservice_id: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
             >
               <option value="">Select a subservice...</option>
               {subservicesByService.map(group => (
@@ -328,12 +328,12 @@ export const AdminCategories: React.FC = () => {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="category-slug"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005f5f] focus:border-transparent outline-none"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               />
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, slug: generateSlug(formData.title_en) })}
-                className="px-4 py-2 text-sm text-[#005f5f] border border-[#005f5f] rounded-lg hover:bg-[#005f5f]/10"
+                className="px-4 py-2 text-sm text-brand border border-brand rounded-lg hover:bg-brand/10"
               >
                 Generate
               </button>
@@ -380,7 +380,7 @@ export const AdminCategories: React.FC = () => {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#005f5f] text-white rounded-lg hover:bg-[#004d4d] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save'}

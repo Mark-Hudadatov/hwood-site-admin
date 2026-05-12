@@ -83,7 +83,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="w-full bg-[#EAEAEA] relative z-20 shadow-sm font-sans">
+    <header className="w-full bg-surface-chrome relative z-20 shadow-sm font-sans">
 
       {/* ── Single row ── */}
       <nav className="w-full px-4 md:px-8 flex items-center justify-between gap-4">
@@ -293,7 +293,7 @@ const Footer: React.FC = () => {
 
 // Footer Wrapper - simplified to blend with dark sections
 const FooterWrapper: React.FC = () => (
-  <div className="relative w-full bg-[#002828] overflow-hidden">
+  <div className="relative w-full bg-surface-dark overflow-hidden">
     <Footer />
   </div>
 );
@@ -308,7 +308,7 @@ const WhatsAppButton: React.FC = () => {
       href={`https://wa.me/${whatsappNumber}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-lg hover:bg-[#20BA5C] hover:scale-110 transition-all duration-300"
+      className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-whatsapp rounded-full flex items-center justify-center text-white shadow-lg hover:bg-whatsapp-hover hover:scale-110 transition-all duration-300"
       aria-label="Contact us on WhatsApp"
     >
       <WhatsAppIcon className="w-7 h-7" />

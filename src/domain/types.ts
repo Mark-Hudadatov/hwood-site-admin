@@ -12,6 +12,18 @@
  */
 
 // =============================================================================
+// BRAND & ORDER TYPE ENUMS
+// =============================================================================
+
+export type ServiceBrand = 'hwood' | 'skylum';
+
+export type ServiceOrderType =
+  | 'browse-and-order'
+  | 'send-file-and-process'
+  | 'describe-and-request'
+  | 'informational';
+
+// =============================================================================
 // CORE DOMAIN ENTITIES
 // =============================================================================
 
@@ -27,6 +39,8 @@ export interface Service {
   imageUrl: string;
   heroImageUrl?: string;           // Optional larger hero image for service page
   accentColor?: string;            // Optional brand color (e.g., "#D48F28")
+  brand?: ServiceBrand;            // 'hwood' | 'skylum'
+  orderType?: ServiceOrderType;    // Determines form flow and theming
 }
 
 /**

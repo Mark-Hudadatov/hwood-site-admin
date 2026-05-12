@@ -108,9 +108,9 @@ interface TouchButtonProps {
 }
 
 const variantClasses = {
-  primary: 'bg-[#005f5f] text-white hover:bg-[#004d4d]',
+  primary: 'bg-brand text-white hover:bg-brand-hover',
   secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-  outline: 'border-2 border-[#005f5f] text-[#005f5f] hover:bg-[#005f5f]/5',
+  outline: 'border-2 border-brand text-brand hover:bg-brand/5',
 };
 
 const sizeClasses = {
