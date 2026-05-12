@@ -40,7 +40,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({ children, ti
 
   return (
     <div className="relative">
-      <div className="flex justify-between items-center mb-8 px-2">
+      <div className="flex justify-between items-center mb-8">
         <h2 className="text-neutral-900 text-h1 font-medium tracking-tight">{title}</h2>
         <div className="flex gap-3">
           <button onClick={() => scroll('left')}  disabled={!showLeft}  className={`${arrowBase} ${showLeft  ? arrowActive : arrowDisabled}`}><ChevronLeft  className="w-5 h-5" /></button>

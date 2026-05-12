@@ -82,12 +82,18 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTa
 
   const LeftIcon  = isRTL ? ChevronRight : ChevronLeft;
   const RightIcon = isRTL ? ChevronLeft  : ChevronRight;
-  const arrowCls  = 'absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-110 transition-all';
+  const arrowBase = 'w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200';
+  const arrowOn   = 'bg-white/20 hover:bg-white/40 text-white cursor-pointer';
+  const arrowOff  = 'bg-white/10 text-white/30 cursor-not-allowed';
 
   return (
-    <div className="relative">
-      {showLeft  && <button onClick={() => scroll('left')}  className={`${arrowCls} left-0`} ><LeftIcon  className="w-6 h-6 text-neutral-700" /></button>}
-      {showRight && <button onClick={() => scroll('right')} className={`${arrowCls} right-0`}><RightIcon className="w-6 h-6 text-neutral-700" /></button>}
+    <div>
+      {(showLeft || showRight) && (
+        <div className="flex justify-end gap-2 mb-2">
+          <button onClick={() => scroll('left')}  disabled={!showLeft}  className={`${arrowBase} ${showLeft  ? arrowOn : arrowOff}`}><LeftIcon  className="w-5 h-5" /></button>
+          <button onClick={() => scroll('right')} disabled={!showRight} className={`${arrowBase} ${showRight ? arrowOn : arrowOff}`}><RightIcon className="w-5 h-5" /></button>
+        </div>
+      )}
 
       <div
         ref={scrollRef}
@@ -98,7 +104,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeTa
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth px-12 cursor-grab active:cursor-grabbing select-none"
+        className="flex flex-row gap-3 md:gap-4 overflow-x-auto no-scrollbar items-end -mb-px scroll-smooth cursor-grab active:cursor-grabbing select-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {categories.map((cat) => (
