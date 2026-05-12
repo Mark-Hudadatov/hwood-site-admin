@@ -20,6 +20,9 @@ import {
   ProductConfiguration,
   OrderSubmission,
   QuoteSubmissionResult,
+  Page,
+  Block,
+  DesignTokens,
 } from '../../domain/types';
 
 // ============================================================================

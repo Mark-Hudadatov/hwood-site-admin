@@ -756,3 +756,75 @@ export async function getDashboardStats(): Promise<{
     unreadQuotes: unreadQuotes || 0,
   };
 }
+
+// ============================================================================
+// PAGES CRUD
+// ============================================================================
+
+import type { AdminPage, Block, DesignTokens, PageStatus } from '../domain/types';
+
+export async function getAdminPages(): Promise<AdminPage[]> {
+  const { data, error } = await supabase
+    .from('pages')
+    .select('id,slug,title_en,title_he,status,sort_order,created_at,updated_at')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data || []) as AdminPage[];
+}
+
+export async function getAdminPage(id: string): Promise<AdminPage> {
+  const { data, error } = await supabase
+    .from('pages').select('*').eq('id', id).single();
+  if (error) throw error;
+  return { ...data, blocks: (data.blocks as Block[]) ?? [] } as AdminPage;
+}
+
+export async function createAdminPage(page: Partial<AdminPage>): Promise<AdminPage> {
+  const { data, error } = await supabase
+    .from('pages').insert([page]).select().single();
+  if (error) throw error;
+  return data as AdminPage;
+}
+
+export async function updateAdminPage(id: string, updates: Partial<AdminPage>): Promise<AdminPage> {
+  const { data, error } = await supabase
+    .from('pages').update(updates).eq('id', id).select().single();
+  if (error) throw error;
+  return data as AdminPage;
+}
+
+export async function deleteAdminPage(id: string): Promise<void> {
+  const { error } = await supabase.from('pages').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function duplicateAdminPage(id: string): Promise<AdminPage> {
+  const { data: orig, error } = await supabase
+    .from('pages').select('*').eq('id', id).single();
+  if (error || !orig) throw error || new Error('Page not found');
+  const { id: _id, created_at: _c, updated_at: _u, ...rest } = orig as any;
+  return createAdminPage({
+    ...rest,
+    slug: `${orig.slug}-copy-${Date.now().toString(36)}`,
+    title_en: `${orig.title_en} (Copy)`,
+    title_he: orig.title_he ? `${orig.title_he} (העתק)` : undefined,
+    status: 'draft' as PageStatus,
+  });
+}
+
+// ============================================================================
+// DESIGN TOKENS
+// ============================================================================
+
+export async function getAdminDesignTokens(): Promise<DesignTokens> {
+  const { data, error } = await supabase
+    .from('design_tokens').select('*').eq('id', 1).single();
+  if (error) throw error;
+  return data as DesignTokens;
+}
+
+export async function updateAdminDesignTokens(tokens: Partial<DesignTokens>): Promise<void> {
+  const { error } = await supabase
+    .from('design_tokens').update(tokens).eq('id', 1);
+  if (error) throw error;
+}
