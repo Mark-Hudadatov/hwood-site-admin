@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/sortable';
 import * as LucideIcons from 'lucide-react';
 import { Save, ExternalLink, ArrowLeft, Plus, Globe } from 'lucide-react';
-import type { Block, BlockData, BlockType, PageStatus } from '../../domain/types';
+import type { Block, BlockData, BlockCommonStyle, BlockType, PageStatus } from '../../domain/types';
 import { getAdminPage, createAdminPage, updateAdminPage } from '../adminStore';
 import { BlockLibraryPanel } from '../builder/BlockLibraryPanel';
 import { CanvasBlock }       from '../builder/CanvasBlock';
@@ -255,6 +255,12 @@ export const AdminPageBuilder: React.FC = () => {
     setSelected(s => s === id ? null : s);
   }, []);
 
+  const updateBlockCommon = useCallback((id: string, patch: Partial<BlockCommonStyle>) => {
+    setBlocks(prev => prev.map(b =>
+      b.id === id ? { ...b, commonStyle: { ...b.commonStyle, ...patch } } : b
+    ));
+  }, []);
+
   const save = async () => {
     setSaving(true);
     setError(null);
@@ -309,7 +315,7 @@ export const AdminPageBuilder: React.FC = () => {
           <BlockLibraryPanel onAdd={appendBlock} />
 
           {/* Canvas */}
-          <main style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-2)', display: 'flex', flexDirection: 'column' }}>
+          <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', background: 'var(--bg-2)', display: 'flex', flexDirection: 'column' }}>
             <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
               {blocks.length === 0 ? (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -356,6 +362,7 @@ export const AdminPageBuilder: React.FC = () => {
           <SettingsPanel
             block={selectedBlock}
             onChange={updateBlock}
+            onCommonChange={updateBlockCommon}
             onToggleVisible={toggleVisible}
             onDuplicate={duplicateBlock}
             onDeselect={() => setSelected(null)}

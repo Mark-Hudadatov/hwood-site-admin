@@ -470,10 +470,27 @@ export type BlockData =
   | TestimonialData | AccordionFaqData | ServiceCardsData
   | RichTextData | SpacerData | VideoEmbedData | ContactFormEmbedData;
 
+// Common style overrides applied to every block at the wrapper level.
+// These override the block-component's own internal styles where possible.
+export interface BlockCommonStyle {
+  // Style
+  wrapBg?: string;             // wrapper background (overrides block's own bg)
+  wrapTextColor?: string;      // wrapper text color
+  paddingPreset?: 'tight' | 'normal' | 'spacious';
+  customPaddingY?: number;     // px, replaces paddingPreset when set
+  // Layout
+  maxWidth?: 'full' | 'normal' | 'narrow';
+  textAlign?: 'left' | 'center' | 'right';
+  // Advanced
+  customClass?: string;
+  visibility?: 'always' | 'desktop-only' | 'mobile-only';
+}
+
 export interface Block {
   id: string;
   type: BlockType;
   data: BlockData;
+  commonStyle?: BlockCommonStyle;
   visible: boolean;
 }
 

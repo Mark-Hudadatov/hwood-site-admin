@@ -65,7 +65,7 @@ export const BlockLibraryPanel: React.FC<Props> = ({ onAdd }) => {
 
   return (
     <aside style={{
-      width: 230, flexShrink: 0, borderRight: '1px solid var(--border-1)',
+      width: 260, flexShrink: 0, borderRight: '1px solid var(--border-1)',
       background: 'var(--bg-1)', overflowY: 'auto', height: '100%',
     }}>
       <div style={{ padding: '10px 10px 8px', borderBottom: '1px solid var(--border-1)', marginBottom: 4 }}>
