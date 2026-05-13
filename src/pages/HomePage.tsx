@@ -1305,7 +1305,7 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-12 md:py-20 xl:py-24 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
+        <section className="relative z-10 w-full text-white py-12 md:py-20 xl:py-24 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden">
           <div className="max-w-7xl mx-auto mb-10 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
