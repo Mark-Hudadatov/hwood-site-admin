@@ -3,6 +3,7 @@ import type {
   HeroBannerData, TextColumnsData, ImageTextData, StatsRowData,
   CtaBandData, GalleryGridData, TestimonialData, AccordionFaqData,
   ServiceCardsData, RichTextData, SpacerData, VideoEmbedData, ContactFormEmbedData,
+  PageHeroData, PartnersMarqueeData, MarketingSplitData, StoriesIndexData, PartnerBoxesData,
 } from '../../domain/types';
 
 export function makeBlockId(): string {
@@ -381,6 +382,166 @@ export const BLOCK_REGISTRY: BlockTypeDef[] = [
       heading_en: 'Get in Touch', heading_he: 'צור קשר',
       form_type: 'contact', bg_color: '#f5f5f5', text_color: '#171717',
     } as ContactFormEmbedData,
+  },
+
+  // ── PAGE HERO ────────────────────────────────────────────────────────────────
+  {
+    type: 'page_hero',
+    label: 'Page Hero',
+    description: 'Standard full-width page hero with title, subtitle and optional CTA buttons',
+    icon: 'PanelTop',
+    category: 'layout',
+    fields: [
+      { key: 'eyebrow',     label: 'Eyebrow label', type: 'bilingual_text', placeholder: 'About us' },
+      { key: 'heading',     label: 'Heading',    type: 'bilingual_text' },
+      { key: 'subheading',  label: 'Subheading', type: 'bilingual_textarea' },
+      bgColor('#005f5f'), txtColor('#ffffff'),
+      { key: 'decoration', label: 'Decoration', type: 'select', options: [
+        { value: 'none', label: 'None' }, { value: 'skew', label: 'Diagonal accent' },
+      ]},
+      { key: 'cta1_text', label: 'Primary CTA text', type: 'bilingual_text' },
+      { key: 'cta1_url',  label: 'Primary CTA link', type: 'url' },
+      { key: 'cta2_text', label: 'Secondary CTA text', type: 'bilingual_text' },
+      { key: 'cta2_url',  label: 'Secondary CTA link', type: 'url' },
+    ],
+    defaultData: {
+      eyebrow_en: '', eyebrow_he: '',
+      heading_en: 'Page Title', heading_he: 'כותרת עמוד',
+      subheading_en: 'A short description of this page.',
+      subheading_he: 'תיאור קצר של עמוד זה.',
+      bg_color: '#005f5f', text_color: '#ffffff',
+      decoration: 'skew',
+      cta1_text_en: '', cta1_text_he: '', cta1_url: '',
+      cta2_text_en: '', cta2_text_he: '', cta2_url: '',
+    } as PageHeroData,
+  },
+
+  // ── PARTNERS MARQUEE ─────────────────────────────────────────────────────────
+  {
+    type: 'partners_marquee',
+    label: 'Logo Strip',
+    description: 'Infinite scrolling logo/partner strip',
+    icon: 'Grip',
+    category: 'media',
+    fields: [
+      { key: 'heading', label: 'Heading (optional)', type: 'bilingual_text', placeholder: 'Trusted by' },
+      { key: 'speed',   label: 'Speed', type: 'select', options: [
+        { value: 'slow', label: 'Slow' }, { value: 'medium', label: 'Medium' }, { value: 'fast', label: 'Fast' },
+      ]},
+      bgColor('#ffffff'),
+      { key: 'logos', label: 'Logos', type: 'repeater', subFields: [
+        { key: 'url',    label: 'Logo image', type: 'image' },
+        { key: 'alt_en', label: 'Alt text (EN)', type: 'text' },
+        { key: 'alt_he', label: 'Alt text (HE)', type: 'text' },
+      ]},
+    ],
+    defaultData: {
+      heading_en: '', heading_he: '',
+      speed: 'medium', bg_color: '#ffffff', logos: [],
+    } as PartnersMarqueeData,
+  },
+
+  // ── MARKETING SPLIT ──────────────────────────────────────────────────────────
+  {
+    type: 'marketing_split',
+    label: 'Marketing Split',
+    description: 'Large editorial heading with 2-column body text and CTA link',
+    icon: 'SplitSquareHorizontal',
+    category: 'content',
+    fields: [
+      { key: 'eyebrow',         label: 'Eyebrow',           type: 'bilingual_text' },
+      { key: 'title',           label: 'Title',             type: 'bilingual_text' },
+      { key: 'highlight',       label: 'Highlighted word',  type: 'bilingual_text' },
+      { key: 'highlight_color', label: 'Highlight colour',  type: 'color', helpText: '#10b981' },
+      { key: 'body1',           label: 'Body paragraph 1',  type: 'bilingual_textarea' },
+      { key: 'body2',           label: 'Body paragraph 2',  type: 'bilingual_textarea' },
+      { key: 'link_text',       label: 'Link text',         type: 'bilingual_text' },
+      { key: 'link_url',        label: 'Link URL',          type: 'url' },
+      bgColor('#ffffff'), txtColor('#171717'),
+    ],
+    defaultData: {
+      eyebrow_en: '', eyebrow_he: '',
+      title_en: 'Work starts from the', title_he: 'העבודה מתחילה',
+      highlight_en: 'inside', highlight_he: 'מבפנים',
+      highlight_color: '#10b981',
+      body1_en: 'Production is rarely static. Layouts change, dimensions vary, and each project introduces new constraints.',
+      body1_he: 'הייצור לעיתים רחוקות סטטי. פריסות משתנות, מידות משתנות.',
+      body2_en: 'We focus on the internal logic of CNC-based production.',
+      body2_he: 'אנחנו מתמקדים בלוגיקה הפנימית של ייצור מבוסס CNC.',
+      link_text_en: 'Explore Our Engineering', link_text_he: 'לחקור את ההנדסה שלנו',
+      link_url: '/about',
+      bg_color: '#ffffff', text_color: '#171717',
+    } as MarketingSplitData,
+  },
+
+  // ── STORIES INDEX ────────────────────────────────────────────────────────────
+  {
+    type: 'stories_index',
+    label: 'Stories / Portfolio',
+    description: 'Auto-loading stories grid with optional type filter',
+    icon: 'Newspaper',
+    category: 'content',
+    fields: [
+      { key: 'heading',    label: 'Section heading', type: 'bilingual_text' },
+      { key: 'subheading', label: 'Subheading',      type: 'bilingual_textarea' },
+      { key: 'show_filter', label: 'Show type filter', type: 'toggle' },
+      { key: 'limit',   label: 'Max stories to load', type: 'number', min: 3, max: 48, step: 3 },
+      { key: 'columns', label: 'Columns', type: 'select', options: [
+        { value: '2', label: '2 columns' }, { value: '3', label: '3 columns' },
+      ]},
+      bgColor('#f5f5f5'),
+    ],
+    defaultData: {
+      heading_en: 'Projects & News', heading_he: 'פרויקטים וחדשות',
+      subheading_en: 'Explore our latest work.', subheading_he: 'גלה את העבודות האחרונות שלנו.',
+      show_filter: true, limit: 9, columns: 3, bg_color: '#f5f5f5',
+    } as StoriesIndexData,
+  },
+
+  // ── PARTNER BOXES ────────────────────────────────────────────────────────────
+  {
+    type: 'partner_boxes',
+    label: 'Audience Cards',
+    description: '3-column dark image cards with overlay — "Who We Work With" style',
+    icon: 'PanelTopDashed',
+    category: 'content',
+    fields: [
+      bgColor('#0a0a0a'),
+      { key: 'boxes', label: 'Cards', type: 'repeater', subFields: [
+        { key: 'title',           label: 'Title',           type: 'bilingual_text' },
+        { key: 'subtitle',        label: 'Subtitle / Tag',  type: 'bilingual_text' },
+        { key: 'description',     label: 'Description',     type: 'bilingual_textarea' },
+        { key: 'image_url',       label: 'Background image',type: 'image' },
+        { key: 'overlay_opacity', label: 'Overlay (0–100)', type: 'number', min: 0, max: 100, step: 5 },
+        { key: 'cta_url',         label: 'Link URL',        type: 'url' },
+      ]},
+    ],
+    defaultData: {
+      bg_color: '#0a0a0a',
+      boxes: [
+        {
+          title_en: 'Kitchen & Cabinet Manufacturers', title_he: 'יצרני מטבחים וארונות',
+          subtitle_en: 'Series & Project Production', subtitle_he: 'ייצור סדרתי ופרויקטאלי',
+          description_en: 'Focused on repeatable manufacturing and CNC-based workflows.',
+          description_he: 'התמקדות בייצור חוזר ותהליכי CNC.',
+          image_url: '', overlay_opacity: 70, cta_url: '',
+        },
+        {
+          title_en: 'Professional Carpentry', title_he: 'נגרות מקצועית',
+          subtitle_en: 'Custom Interior Fabrication', subtitle_he: 'ייצור פנים מותאם',
+          description_en: 'Using CNC machining to improve accuracy and stabilize production.',
+          description_he: 'שימוש ב-CNC לשיפור דיוק.',
+          image_url: '', overlay_opacity: 75, cta_url: '',
+        },
+        {
+          title_en: 'Interior Contractors', title_he: 'קבלני פנים',
+          subtitle_en: 'Residential & Commercial', subtitle_he: 'מגורים ומסחר',
+          description_en: 'Requiring predictable production and reliable integration.',
+          description_he: 'דורשים ייצור צפוי ואינטגרציה אמינה.',
+          image_url: '', overlay_opacity: 80, cta_url: '',
+        },
+      ],
+    } as PartnerBoxesData,
   },
 ];
 

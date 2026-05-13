@@ -13,6 +13,11 @@ import { RichTextBlock }         from './RichTextBlock';
 import { SpacerBlock }           from './SpacerBlock';
 import { VideoEmbedBlock }       from './VideoEmbedBlock';
 import { ContactFormEmbedBlock } from './ContactFormEmbedBlock';
+import { PageHeroBlock }         from './PageHeroBlock';
+import { PartnersMarqueeBlock }  from './PartnersMarqueeBlock';
+import { MarketingSplitBlock }   from './MarketingSplitBlock';
+import { StoriesIndexBlock }     from './StoriesIndexBlock';
+import { PartnerBoxesBlock }     from './PartnerBoxesBlock';
 
 // ─── CommonStyle → CSS ────────────────────────────────────────────────────────
 
@@ -87,6 +92,11 @@ function renderBlock(block: Block, lang: 'en' | 'he'): React.ReactNode {
     case 'spacer':             return <SpacerBlock            data={d} />;
     case 'video_embed':        return <VideoEmbedBlock        data={d} lang={lang} />;
     case 'contact_form_embed': return <ContactFormEmbedBlock  data={d} lang={lang} />;
+    case 'page_hero':          return <PageHeroBlock          data={d} lang={lang} />;
+    case 'partners_marquee':   return <PartnersMarqueeBlock   data={d} lang={lang} />;
+    case 'marketing_split':    return <MarketingSplitBlock    data={d} lang={lang} />;
+    case 'stories_index':      return <StoriesIndexBlock      data={d} lang={lang} />;
+    case 'partner_boxes':      return <PartnerBoxesBlock      data={d} lang={lang} />;
     default:                   return null;
   }
 }

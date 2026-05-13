@@ -318,7 +318,12 @@ export type BlockType =
   | 'rich_text'
   | 'spacer'
   | 'video_embed'
-  | 'contact_form_embed';
+  | 'contact_form_embed'
+  | 'page_hero'
+  | 'partners_marquee'
+  | 'marketing_split'
+  | 'stories_index'
+  | 'partner_boxes';
 
 // Field types that drive the right-panel settings UI
 export type FieldType =
@@ -464,11 +469,65 @@ export interface ContactFormEmbedData {
   bg_color: string; text_color: string;
 }
 
+// ─── New block data types ─────────────────────────────────────────────────────
+
+export interface PageHeroData {
+  eyebrow_en: string; eyebrow_he: string;
+  heading_en: string; heading_he: string;
+  subheading_en: string; subheading_he: string;
+  bg_color: string; text_color: string;
+  cta1_text_en: string; cta1_text_he: string; cta1_url: string;
+  cta2_text_en: string; cta2_text_he: string; cta2_url: string;
+  decoration: 'none' | 'skew';
+}
+
+export interface LogoItem { url: string; alt_en: string; alt_he: string; }
+export interface PartnersMarqueeData {
+  heading_en: string; heading_he: string;
+  speed: 'slow' | 'medium' | 'fast';
+  bg_color: string;
+  logos: LogoItem[];
+}
+
+export interface MarketingSplitData {
+  eyebrow_en: string; eyebrow_he: string;
+  title_en: string; title_he: string;
+  highlight_en: string; highlight_he: string;
+  highlight_color: string;
+  body1_en: string; body1_he: string;
+  body2_en: string; body2_he: string;
+  link_text_en: string; link_text_he: string;
+  link_url: string;
+  bg_color: string; text_color: string;
+}
+
+export interface StoriesIndexData {
+  heading_en: string; heading_he: string;
+  subheading_en: string; subheading_he: string;
+  show_filter: boolean;
+  limit: number;
+  columns: 2 | 3;
+  bg_color: string;
+}
+
+export interface PartnerBoxItem {
+  title_en: string; title_he: string;
+  subtitle_en: string; subtitle_he: string;
+  description_en: string; description_he: string;
+  image_url: string; overlay_opacity: number; cta_url: string;
+}
+export interface PartnerBoxesData {
+  boxes: PartnerBoxItem[];
+  bg_color: string;
+}
+
 export type BlockData =
   | HeroBannerData | TextColumnsData | ImageTextData
   | StatsRowData | CtaBandData | GalleryGridData
   | TestimonialData | AccordionFaqData | ServiceCardsData
-  | RichTextData | SpacerData | VideoEmbedData | ContactFormEmbedData;
+  | RichTextData | SpacerData | VideoEmbedData | ContactFormEmbedData
+  | PageHeroData | PartnersMarqueeData | MarketingSplitData
+  | StoriesIndexData | PartnerBoxesData;
 
 // Common style overrides applied to every block at the wrapper level.
 // These override the block-component's own internal styles where possible.
