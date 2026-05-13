@@ -105,6 +105,30 @@ interface HomepageSettings {
       overlay_opacity: number;
     }>;
   };
+  hero_rail: {
+    heading_en: string; heading_he: string;
+    eyebrow_en: string; eyebrow_he: string;
+    card1_title_en: string; card1_title_he: string;
+    card1_badge_en: string; card1_badge_he: string;
+    card1_desc_en: string; card1_desc_he: string;
+    card1_lead_en: string; card1_lead_he: string;
+    card1_link: string;
+    card2_title_en: string; card2_title_he: string;
+    card2_badge_en: string; card2_badge_he: string;
+    card2_desc_en: string; card2_desc_he: string;
+    card2_lead_en: string; card2_lead_he: string;
+    card2_link: string;
+    card3_title_en: string; card3_title_he: string;
+    card3_badge_en: string; card3_badge_he: string;
+    card3_desc_en: string; card3_desc_he: string;
+    card3_lead_en: string; card3_lead_he: string;
+    card3_link: string;
+    footer_text_en: string; footer_text_he: string;
+    footer_cta_en: string; footer_cta_he: string;
+    whatsapp_number: string;
+    badge1_en: string; badge1_he: string;
+    badge2_en: string; badge2_he: string;
+  };
 }
 
 const DEFAULT_SETTINGS: HomepageSettings = {
@@ -135,6 +159,34 @@ const DEFAULT_SETTINGS: HomepageSettings = {
       { title_en: 'Professional Carpentry & Joinery', title_he: 'נגרות מקצועית', subtitle_en: 'Custom Interior Fabrication', subtitle_he: 'ייצור פנים מותאם אישית', description_en: 'Using CNC machining to improve accuracy and stabilize non-standard production.', description_he: 'שימוש בעיבוד CNC לשיפור דיוק וייצוב ייצור לא סטנדרטי.', image_url: '', overlay_opacity: 75 },
       { title_en: 'Interior & Fit-Out Contractors', title_he: 'קבלני פנים והתאמות', subtitle_en: 'Residential & Commercial Delivery', subtitle_he: 'אספקה למגורים ומסחר', description_en: 'Requiring predictable production, system-compatible cabinetry, and reliable integration.', description_he: 'דורשים ייצור צפוי, ארונות תואמי מערכת ואינטגרציה אמינה.', image_url: '', overlay_opacity: 80 },
     ],
+  },
+  hero_rail: {
+    heading_en: 'What kind of project\nare you working on?',
+    heading_he: 'על איזה סוג פרויקט\nאתה עובד?',
+    eyebrow_en: 'Start your order', eyebrow_he: 'התחל הזמנה',
+    card1_title_en: 'Browse & Order',  card1_title_he: 'עיון והזמנה',
+    card1_badge_en: 'Catalog',         card1_badge_he: 'קטלוג',
+    card1_desc_en:  '30+ ready cabinet modules — in stock, dispatched same week.',
+    card1_desc_he:  '30+ מודולי ארונות מוכנים — במלאי, משלוח באותו שבוע.',
+    card1_lead_en:  'Lead time · from 5 days', card1_lead_he: 'זמן אספקה · מ-5 ימים',
+    card1_link: '/quote?type=browse',
+    card2_title_en: 'CNC Services',    card2_title_he: 'שירותי CNC',
+    card2_badge_en: 'Service',         card2_badge_he: 'שירות',
+    card2_desc_en:  'DXF, sketches or panel list — we run it through our line and ship the parts.',
+    card2_desc_he:  'DXF, סקיצות או רשימת לוחות — אנחנו מעבדים ומשלחים.',
+    card2_lead_en:  'Lead time · from 72h', card2_lead_he: 'זמן אספקה · מ-72 שעות',
+    card2_link: '/quote?type=file',
+    card3_title_en: 'Custom Order',    card3_title_he: 'הזמנה מותאמת',
+    card3_badge_en: 'Project',         card3_badge_he: 'פרויקט',
+    card3_desc_en:  'Brief, design, engineering and install — we handle the build end-to-end.',
+    card3_desc_he:  'בריף, עיצוב, הנדסה והתקנה — אנחנו מטפלים בהכל.',
+    card3_lead_en:  'Lead time · from 4 weeks', card3_lead_he: 'זמן אספקה · מ-4 שבועות',
+    card3_link: '/quote?type=describe',
+    footer_text_en: 'Not sure where to start?', footer_text_he: 'לא בטוח מאיפה להתחיל?',
+    footer_cta_en:  'Get a callback',           footer_cta_he: 'קבל שיחה חזרה',
+    whatsapp_number: '972549222804',
+    badge1_en: 'Reply within 1 business day', badge1_he: 'תגובה תוך יום עסקים',
+    badge2_en: 'EN / HE',                      badge2_he: 'עב / אנ',
   },
 };
 
@@ -371,7 +423,7 @@ const StoryCard: React.FC<{ story: StoryWithStatus; lang?: 'en' | 'he' }> = ({ s
 // HERO SECTION
 // =============================================================================
 
-const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | 'he' }> = ({ settings, lang }) => {
+const HeroSection: React.FC<{ settings: HomepageSettings['hero']; railSettings: HomepageSettings['hero_rail']; lang: 'en' | 'he' }> = ({ settings, railSettings, lang }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -379,10 +431,20 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
   const leftTitle = lang === 'he' && settings.left_title_he ? settings.left_title_he : settings.left_title_en;
   const leftSubtitle = lang === 'he' && settings.left_subtitle_he ? settings.left_subtitle_he : settings.left_subtitle_en || '';
   const leftImg = settings.left_image_url || FALLBACK.hero;
-  
-  // Bilingual content for right panel
   const buttonText = lang === 'he' ? 'צפה בקטלוג המודולים' : 'View Module Catalog';
-  const tagText = lang === 'he' ? 'זרימת עבודה מדויקת' : 'Precision Workflow';
+
+  const rl = railSettings;
+  const L = (en: string, he: string) => (lang === 'he' && he ? he : en);
+  const rail = {
+    heading: L(rl.heading_en, rl.heading_he).split('\n'),
+    eyebrow: L(rl.eyebrow_en, rl.eyebrow_he),
+    c1: { title: L(rl.card1_title_en, rl.card1_title_he), badge: L(rl.card1_badge_en, rl.card1_badge_he), desc: L(rl.card1_desc_en, rl.card1_desc_he), lead: L(rl.card1_lead_en, rl.card1_lead_he), link: rl.card1_link, accent: '#a8c47a', accentBg: 'rgba(168,196,122,.15)' },
+    c2: { title: L(rl.card2_title_en, rl.card2_title_he), badge: L(rl.card2_badge_en, rl.card2_badge_he), desc: L(rl.card2_desc_en, rl.card2_desc_he), lead: L(rl.card2_lead_en, rl.card2_lead_he), link: rl.card2_link, accent: '#5fa8d3', accentBg: 'rgba(95,168,211,.15)'  },
+    c3: { title: L(rl.card3_title_en, rl.card3_title_he), badge: L(rl.card3_badge_en, rl.card3_badge_he), desc: L(rl.card3_desc_en, rl.card3_desc_he), lead: L(rl.card3_lead_en, rl.card3_lead_he), link: rl.card3_link, accent: '#e8a87c', accentBg: 'rgba(232,168,124,.15)' },
+    footerText: L(rl.footer_text_en, rl.footer_text_he),
+    footerCta:  L(rl.footer_cta_en,  rl.footer_cta_he),
+    waUrl: `https://wa.me/${rl.whatsapp_number}`,
+  };
 
   useEffect(() => { setTimeout(() => setIsVisible(true), 100); }, []);
 
@@ -409,7 +471,7 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30" />
           
           <div className={`absolute inset-0 flex flex-col justify-end p-6 md:p-16 lg:p-20 pb-28 md:pb-20 ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-            <h1 className={`text-white font-bold mb-4 md:mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}>
+            <h1 className={`text-white font-bold mb-4 md:mb-6 tracking-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ fontSize: 'clamp(1.75rem, 4vw, 3.75rem)' }}>
               {leftTitle}
             </h1>
             {leftSubtitle && (
@@ -439,31 +501,69 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; lang: 'en' | '
           )}
         </div>
 
-        {/* Right Panel - hidden on mobile, 30% on desktop */}
-        <div className={`hidden md:flex relative w-[30%] h-full items-end pb-20 px-8 md:px-12 bg-[#1a1a1a] ${lang === 'he' ? 'text-right' : 'text-left'}`}>
-          <div className={`text-white w-full transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
-            <Link 
-              to={settings.right_link || '/services'} 
-              className={`inline-flex items-center gap-3 bg-white text-black px-6 md:px-8 py-4 rounded-full font-bold hover:bg-emerald-500 hover:text-white transition-all transform hover:translate-x-2 group/btn text-sm md:text-base ${lang === 'he' ? 'flex-row-reverse hover:-translate-x-2 hover:translate-x-0' : ''}`}
-            >
-              {buttonText}
-              <span className="bg-black text-white rounded-full p-1 group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
-                <ArrowRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
+        {/* Right Panel — order-type picker rail */}
+        <div className="hidden md:flex relative w-[30%] h-full flex-col bg-[#0d0d0d] overflow-hidden">
+          {/* Subtle grid texture */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(to bottom,rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(to right,rgba(255,255,255,.04) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
+
+          <div className="relative z-10 flex flex-col h-full px-7 py-6">
+            {/* Top utility row */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.14em] uppercase">
+                <span style={{ color: 'rgba(255,255,255,0.35)' }}>{lang === 'he' ? 'הזמנה' : 'Start order'}</span>
+                <span style={{ width: 4, height: 4, borderRadius: 999, background: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
+                <span className="text-white">{lang === 'he' ? 'בחר סוג' : 'Pick a type'}</span>
+              </div>
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.04em] select-none" style={{ color: 'rgba(255,255,255,0.3)', padding: '4px 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 999, cursor: 'default' }}>
+                <span style={{ width: 5, height: 5, borderRadius: 999, background: 'rgba(255,255,255,0.25)' }} />
+                {lang === 'he' ? 'כניסת לקוח' : 'Client login'}
               </span>
-            </Link>
-            
-            <div className={`mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
-              <span>{tagText}</span>
-              <span className="w-12 h-[1px] bg-gray-700"></span>
             </div>
-          </div>
-          
-          {/* Decorative background element */}
-          <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none">
-            <svg width="300" height="300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="48" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
-              <path d="M50 2v96M2 50h96" stroke="white" strokeWidth="0.2" />
-            </svg>
+
+            {/* Eyebrow */}
+            <div className="flex items-center gap-2.5 mb-3">
+              <span style={{ width: 18, height: 1.5, background: '#00d4aa', borderRadius: 99, flexShrink: 0 }} />
+              <span className="text-[10px] font-bold tracking-[0.16em] uppercase" style={{ color: '#00d4aa' }}>{rail.eyebrow}</span>
+            </div>
+
+            {/* Heading */}
+            <h3 className="font-semibold leading-snug mb-5 text-white" style={{ fontSize: 'clamp(17px,1.6vw,22px)' }}>
+              {rail.heading[0]}{rail.heading[1] && <><br />{rail.heading[1]}</>}
+            </h3>
+
+            {/* Order-type cards */}
+            <div className="flex flex-col gap-3 flex-1 justify-center">
+              {([rail.c1, rail.c2, rail.c3] as const).map((card) => (
+                <Link key={card.link} to={card.link}
+                  className="group flex flex-col gap-1.5 rounded-xl p-4 transition-all cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span style={{ width: 7, height: 7, borderRadius: 99, background: card.accent, flexShrink: 0 }} />
+                      <span className="text-white font-semibold" style={{ fontSize: 13 }}>{card.title}</span>
+                    </div>
+                    <span className="text-[9px] font-bold tracking-[0.14em] uppercase px-2 py-0.5 rounded" style={{ background: card.accentBg, color: card.accent }}>{card.badge}</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>{card.desc}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span style={{ width: 3, height: 3, borderRadius: 99, background: card.accent }} />
+                    <span className="text-[10px] font-medium" style={{ color: card.accent }}>{card.lead}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Footer CTA */}
+            <div className="mt-4 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+              <p className="text-[11px] mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{rail.footerText}</p>
+              <a href={rail.waUrl} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[11px] font-semibold transition-colors"
+                style={{ color: '#25D366' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.99 0C5.373 0 0 5.373 0 12c0 2.118.554 4.104 1.523 5.828L.044 23.956l6.27-1.643A11.947 11.947 0 0 0 11.99 24C18.618 24 24 18.627 24 12S18.618 0 11.99 0zm.01 21.818a9.807 9.807 0 0 1-5.017-1.374l-.36-.213-3.722.977.993-3.624-.235-.371A9.833 9.833 0 0 1 2.18 12c0-5.419 4.41-9.818 9.82-9.818 5.42 0 9.82 4.399 9.82 9.818 0 5.419-4.4 9.818-9.82 9.818z"/></svg>
+                {rail.footerCta}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -749,7 +849,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      <HeroSection settings={settings.hero} lang={lang} />
+      <HeroSection settings={settings.hero} railSettings={settings.hero_rail} lang={lang} />
       <ContentBlockSection lang={lang} primaryColor={settings.layout.primary_color} />
       <PartnersSection partners={partners} />
 
@@ -759,10 +859,10 @@ export const HomePage: React.FC = () => {
         <Container className="max-w-7xl mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
-              <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
+              <h3 className="text-gray-900 leading-tight mb-3 md:mb-4 lg:mb-6" style={{ fontSize: 'clamp(1.5rem,2.5vw,2.5rem)', fontWeight: 600, letterSpacing: '-0.02em' }}>
                 {servicesTitle}
               </h3>
-              <p className="text-base md:text-lg text-gray-500 font-light leading-relaxed max-w-xl">
+              <p className="text-sm text-gray-500 leading-relaxed max-w-xl">
                 {servicesSubtitle}
               </p>
             </div>
@@ -856,14 +956,74 @@ export const HomePage: React.FC = () => {
         )}
       </section>
 
+      {/* How It Works */}
+      <section className="relative w-full py-16 md:py-24 overflow-hidden" style={{ background: '#0a0a0a' }}>
+        <div className="teal-stripes" style={{ opacity: 0.35 }} />
+        <Container className="max-w-7xl relative z-10">
+          <span className="eyebrow" style={{ color: '#00d4aa' }}>
+            {lang === 'he' ? 'איך זה עובד' : 'How it works'}
+          </span>
+          <h2 className="mt-3 mb-10 md:mb-16 font-semibold leading-tight text-white max-w-3xl"
+              style={{ fontSize: 'clamp(1.5rem,2.5vw,2.75rem)', letterSpacing: '-0.02em' }}>
+            {lang === 'he'
+              ? 'מהקובץ שלך או מהרעיון — לתוכנית עם מחיר תוך 24 שעות.'
+              : 'From your file or your idea — to a costed plan in under 24 hours.'}
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative">
+            {([
+              { n: '01', en: { t: 'Pick your route',      b: 'Catalog, project DXF, or custom brief — three doors, one team.' },          he: { t: 'בחר את המסלול שלך', b: 'קטלוג, DXF פרויקט, או בריף מותאם — שלושה פתחים, צוות אחד.' } },
+              { n: '02', en: { t: 'Send what you have',   b: 'DXF · XLS · PDF · or a description in your own words.' },                   he: { t: 'שלח מה שיש לך',      b: 'DXF · XLS · PDF · או תיאור במילים שלך.' } },
+              { n: '03', en: { t: 'Get a costed plan',    b: 'Within one business day. Materials, lead time, breakdown.' },                he: { t: 'קבל הצעת מחיר',      b: 'תוך יום עסקים אחד. חומרים, זמן אספקה, פירוט.' } },
+              { n: '04', en: { t: 'Production & delivery',b: 'You track the job. We deliver to your site or workshop.' },                  he: { t: 'ייצור ואספקה',        b: 'אתה עוקב אחרי הפרויקט. אנחנו מספקים לאתר או הסדנה שלך.' } },
+            ] as const).map((step, i) => (
+              <div key={step.n} className="relative flex flex-col gap-4 p-6 md:p-7 rounded-xl"
+                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span className="font-mono text-sm font-semibold" style={{ color: '#00d4aa' }}>{step.n}</span>
+                <h3 className="text-lg md:text-xl font-semibold text-white" style={{ letterSpacing: '-0.01em' }}>
+                  {lang === 'he' ? step.he.t : step.en.t}
+                </h3>
+                <p className="text-sm leading-relaxed font-light" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                  {lang === 'he' ? step.he.b : step.en.b}
+                </p>
+                {i < 3 && (
+                  <span className="hidden lg:block absolute -right-4 top-8 z-10" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 md:mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 md:p-6 rounded-xl"
+               style={{ background: 'rgba(0,212,170,0.07)', border: '1px solid rgba(0,212,170,0.22)' }}>
+            <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,212,170,0.15)', color: '#00d4aa' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            </div>
+            <div className="flex-1">
+              <div className="text-sm md:text-base font-semibold text-white mb-1">
+                {lang === 'he' ? 'אין קובץ CAD? שלח סקיצה, תמונה, או תאר את העבודה במילים.' : 'No CAD file? Send a sketch, a photo, or describe the job in words.'}
+              </div>
+              <span className="font-mono text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                {lang === 'he' ? 'מקובל: DXF · DWG · XLS · CSV · PDF · טקסט חופשי' : 'Accepted: DXF · DWG · XLS · CSV · PDF · plain text'}
+              </span>
+            </div>
+            <button onClick={() => navigate('/quote')} className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm transition-colors" style={{ background: '#fff', color: '#0a0a0a' }}>
+              {lang === 'he' ? 'התחל בריף' : 'Start a brief'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </Container>
+      </section>
+
       {/* Who We Work With Section */}
       <section className="bg-white pt-16 md:pt-24 xl:pt-32">
         {/* Header - aligned with other sections */}
         <Container className="max-w-7xl mb-10 md:mb-16 lg:mb-20">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
+            <h2 className="text-gray-900 leading-tight mb-3 md:mb-4 lg:mb-6" style={{ fontSize: 'clamp(1.5rem,2.5vw,2.5rem)', fontWeight: 600, letterSpacing: '-0.02em' }}>
               {lang === 'he' && settings.partners_section.section_title_he ? settings.partners_section.section_title_he : settings.partners_section.section_title_en}
             </h2>
-            <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
+            <p className="text-sm text-gray-500 leading-relaxed">
               {lang === 'he' && settings.partners_section.section_description_he ? settings.partners_section.section_description_he : settings.partners_section.section_description_en}
             </p>
         </Container>
@@ -895,7 +1055,7 @@ export const HomePage: React.FC = () => {
                 </span>
                 
                 {/* Title */}
-                <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 tracking-tight leading-tight text-white">
+                <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-5 tracking-tight leading-tight text-white">
                   {lang === 'he' && partner.title_he ? partner.title_he : partner.title_en}
                 </h3>
                 
@@ -931,7 +1091,7 @@ export const HomePage: React.FC = () => {
           <Container className="max-w-7xl mb-10 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
+                <h1 className="text-white" style={{ fontSize: 'clamp(1.5rem,2.5vw,2.5rem)', fontWeight: 600, letterSpacing: '-0.02em' }}>{storiesTitle}</h1>
                 <div className={`flex items-center gap-4 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                   <div className={`hidden md:flex gap-2 ${lang === 'he' ? 'flex-row-reverse' : ''}`}>
                     <button onClick={() => scrollStories('left')} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronLeft className="w-5 h-5" /></button>
@@ -961,14 +1121,14 @@ export const HomePage: React.FC = () => {
         {/* Masters of Materials Section */}
         <section className="relative w-full py-12 md:py-20 xl:py-24">
           <Container className="max-w-4xl text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-normal text-white leading-tight mb-4 md:mb-5">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
               ) : (
                 <>We work with materials at the level where <span className="text-emerald-400">production decisions define the final result.</span></>
               )}
             </h2>
-            <p className="text-sm md:text-base lg:text-lg text-white/60 font-light leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
+            <p className="text-sm md:text-base text-white/60 leading-relaxed mb-10 md:mb-16 max-w-3xl mx-auto">
               {lang === 'he' 
                 ? 'ממערכות ארונות מבניות ועד רכיבים מעובדי CNC ומשטחים גמורים, המומחיות שלנו מבטיחה עקביות, דיוק ואמינות בתהליכי ייצור אמיתיים.'
                 : 'From structural cabinet systems to CNC-processed components and finished surfaces, our expertise ensures consistency, precision, and reliability across real manufacturing workflows.'}
