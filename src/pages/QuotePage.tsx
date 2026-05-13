@@ -15,6 +15,7 @@ import {
 } from '../services/data/dataService';
 import { Service } from '../domain/types';
 import { ROUTES } from '../router';
+import { Container } from '../components/ui/Container';
 
 // ============================================================================
 // SHARED HELPERS
@@ -415,7 +416,7 @@ export const QuotePage: React.FC = () => {
     <div className="w-full bg-neutral-50">
       {/* Header */}
       <div className="text-white py-12 md:py-16" style={{ backgroundColor: accentBg }}>
-        <div className="max-w-4xl mx-auto px-6 md:px-12">
+        <Container className="max-w-4xl">
           <Link to={service ? ROUTES.SERVICE(service.slug) : ROUTES.HOME}
             className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -425,11 +426,11 @@ export const QuotePage: React.FC = () => {
             {service?.title || 'Order Request'}
           </h1>
           <p className="text-lg text-white/80">{subtitleMap[orderType]}</p>
-        </div>
+        </Container>
       </div>
 
       {/* Form area */}
-      <div className="max-w-4xl mx-auto px-6 md:px-12 py-12 md:py-16">
+      <Container className="max-w-4xl py-12 md:py-16">
         {service && orderType === 'browse-and-order' && (
           <BrowseOrderForm service={service} productTitle={productTitle} onSuccess={() => setSubmitted(true)} />
         )}
@@ -445,7 +446,7 @@ export const QuotePage: React.FC = () => {
             <Link to={ROUTES.CONTACT} className="mt-4 inline-block text-brand hover:underline">Go to Contact</Link>
           </div>
         )}
-      </div>
+      </Container>
     </div>
   );
 };

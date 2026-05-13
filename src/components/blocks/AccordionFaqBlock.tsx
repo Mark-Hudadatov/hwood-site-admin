@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { AccordionFaqData } from '../../domain/types';
+import { Container } from '../ui/Container';
 
 interface Props { data: AccordionFaqData; lang: 'en' | 'he'; }
 
@@ -10,10 +11,10 @@ export const AccordionFaqBlock: React.FC<Props> = ({ data, lang }) => {
   const heading = isHe && data.heading_he ? data.heading_he : data.heading_en;
 
   return (
-    <section className="w-full py-16 px-6 md:px-12"
+    <section className="w-full py-16"
              style={{ background: data.bg_color, color: data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="max-w-3xl mx-auto flex flex-col gap-6">
+      <Container className="max-w-3xl flex flex-col gap-6">
         {heading && <h2 className="text-3xl font-bold">{heading}</h2>}
         <div className="flex flex-col divide-y" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
           {(data.items || []).map((item, i) => {
@@ -36,7 +37,7 @@ export const AccordionFaqBlock: React.FC<Props> = ({ data, lang }) => {
             );
           })}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

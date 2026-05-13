@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 import { getCompanyInfo } from '../services/data/dataService';
 import { CompanyInfo } from '../domain/types';
+import { Container } from '../components/ui/Container';
 
 export const ContactPage: React.FC = () => {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
@@ -52,19 +53,19 @@ export const ContactPage: React.FC = () => {
     <div className="w-full">
       {/* Hero Section */}
       <section className="relative bg-brand text-white py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
+        <Container className="max-w-6xl">
           <h1 className="text-display-sm md:text-display mb-4">
             Contact
           </h1>
           <p className="text-body-lg text-white/70 max-w-2xl">
             Production inquiries and project consultation.
           </p>
-        </div>
+        </Container>
       </section>
 
       {/* Content Section */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
+        <Container className="max-w-6xl">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
             
             {/* Contact Info */}
@@ -198,7 +199,7 @@ export const ContactPage: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+        </Container>
       </section>
     </div>
   );

@@ -10,6 +10,7 @@ import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import { Story } from '../domain/types';
 import { getStoryBySlug, getStories } from '../services/data/dataService';
 import { ROUTES } from '../router';
+import { Container } from '../components/ui/Container';
 
 // Simple Markdown renderer
 const renderMarkdown = (content: string): string => {
@@ -125,7 +126,7 @@ export const StoryPage: React.FC = () => {
 
         {/* Title Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
-          <div className="max-w-4xl mx-auto">
+          <Container className="max-w-4xl">
             <div className="flex items-center gap-4 mb-4">
               <span className="px-3 py-1 bg-brand text-white text-xs font-semibold rounded-full uppercase tracking-wider">
                 {story.type}
@@ -138,12 +139,12 @@ export const StoryPage: React.FC = () => {
             <h1 className="text-3xl md:text-5xl font-medium text-white leading-tight">
               {story.title}
             </h1>
-          </div>
+          </Container>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+      <Container className="max-w-4xl py-12 md:py-16">
         {story.excerpt && (
           <p className="text-xl text-neutral-600 leading-relaxed mb-8 pb-8 border-b border-neutral-200">
             {story.excerpt}
@@ -160,12 +161,12 @@ export const StoryPage: React.FC = () => {
             Full article content coming soon.
           </p>
         )}
-      </div>
+      </Container>
 
       {/* Related Stories */}
       {relatedStories.length > 0 && (
         <div className="bg-neutral-50 py-16">
-          <div className="max-w-6xl mx-auto px-6">
+          <Container className="max-w-6xl">
             <h2 className="text-2xl font-medium text-neutral-900 mb-8">Related Stories</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedStories.map((relatedStory) => (
@@ -191,13 +192,13 @@ export const StoryPage: React.FC = () => {
                 </Link>
               ))}
             </div>
-          </div>
+          </Container>
         </div>
       )}
 
       {/* CTA */}
       <div className="bg-brand py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <Container className="max-w-4xl text-center">
           <h2 className="text-2xl md:text-3xl font-medium text-white mb-4">
             Ready to Start Your Project?
           </h2>
@@ -210,7 +211,7 @@ export const StoryPage: React.FC = () => {
           >
             Get in Touch
           </Link>
-        </div>
+        </Container>
       </div>
     </div>
   );

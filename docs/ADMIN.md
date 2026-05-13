@@ -109,6 +109,31 @@ Save pattern: per-section upsert `{ section: id, settings: data }` with `onConfl
 
 ---
 
+## Pages Admin
+
+Route: `/admin/pages`
+
+- `AdminPageList` lists all rows from the `pages` table (title, slug, status, sort_order).
+- Actions: Create new (→ `/admin/pages/new`), Edit (→ `/admin/pages/:pageId/edit`), Duplicate, Delete.
+- `AdminPageBuilder` is the full Gutenberg/Elementor-style canvas editor:
+  - Left panel (`BlockLibraryPanel`): drag-from-library to add a block.
+  - Center canvas (`CanvasBlock`): drag to reorder, toggle visibility, delete.
+  - Right panel (`SettingsPanel`): edit field values and `BlockCommonStyle` overrides for the selected block.
+  - EN/HE toggle in the toolbar switches which language variant is being edited.
+- Blocks saved as JSONB array in `pages.blocks`.
+
+---
+
+## Design Tokens Admin
+
+Route: `/admin/design-tokens`
+
+- `AdminDesignTokens` edits the singleton row (id=1) in the `design_tokens` table.
+- Fields: `brand`, `brand_hover`, `brand_dark`, `surface_dark`, `neutral_900`, `font_sans`, `base_radius`, `section_gap`.
+- Changes apply globally to the public site at runtime.
+
+---
+
 ## Database Tables
 
 | Table | Purpose |
@@ -124,6 +149,8 @@ Save pattern: per-section upsert `{ section: id, settings: data }` with `onConfl
 | `story_types` | Customizable story categories |
 | `specification_types` | Product spec master list |
 | `homepage_settings` | Per-section jsonb config |
+| `pages` | Custom pages built with page builder |
+| `design_tokens` | Global design token overrides (singleton, id=1) |
 | `contact_submissions` | Contact form entries |
 | `quote_submissions` | Quote request entries |
 | `admin_users` | Email/password auth |

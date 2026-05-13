@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ServiceCardsData, Service } from '../../domain/types';
 import { getServices } from '../../services/data/dataService';
+import { Container } from '../ui/Container';
 
 const COLS = { 2: 'md:grid-cols-2', 3: 'md:grid-cols-3', 4: 'md:grid-cols-4' };
 
@@ -33,8 +34,8 @@ export const ServiceCardsBlock: React.FC<Props> = ({ data, lang }) => {
       }));
 
   return (
-    <section className="w-full py-16 px-6 md:px-12" style={{ background: data.bg_color }} dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto">
+    <section className="w-full py-16" style={{ background: data.bg_color }} dir={isHe ? 'rtl' : 'ltr'}>
+      <Container className="max-w-6xl">
         {(heading || subheading) && (
           <div className="mb-10 flex flex-col gap-2">
             {heading    && <h2 className="text-3xl font-bold text-neutral-900">{heading}</h2>}
@@ -56,7 +57,7 @@ export const ServiceCardsBlock: React.FC<Props> = ({ data, lang }) => {
             </Link>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

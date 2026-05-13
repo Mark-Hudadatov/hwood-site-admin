@@ -70,6 +70,8 @@ export default {
           hover:   '#20BA5C',
         },
         'accent-mint': '#00d4aa', // admin logo accent — minimize new use
+        'accent-gold': '#D48F28', // default service accent color
+        success: '#10b981',
 
         // Legacy aliases (keep for backward compat — prefer brand.* above)
         teal: {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { ImageTextData } from '../../domain/types';
+import { Container } from '../ui/Container';
 
 const ASPECT = { square: 'aspect-square', portrait: 'aspect-[3/4]', landscape: 'aspect-video' };
 
@@ -15,10 +16,10 @@ export const ImageTextBlock: React.FC<Props> = ({ data, lang }) => {
   const imgRight = data.image_side === 'right';
 
   return (
-    <section className="w-full py-16 px-6 md:px-12"
+    <section className="w-full py-16"
              style={{ background: data.bg_color, color: data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <div className={`max-w-6xl mx-auto flex flex-col ${imgRight ? 'md:flex-row' : 'md:flex-row-reverse'} gap-12 items-center`}>
+      <Container className={`max-w-6xl flex flex-col ${imgRight ? 'md:flex-row' : 'md:flex-row-reverse'} gap-12 items-center`}>
         {data.image_url && (
           <div className={`w-full md:w-1/2 flex-shrink-0 overflow-hidden rounded-2xl ${ASPECT[data.image_aspect] ?? ASPECT.landscape}`}>
             <img src={data.image_url} alt={heading} className="w-full h-full object-cover" />
@@ -35,7 +36,7 @@ export const ImageTextBlock: React.FC<Props> = ({ data, lang }) => {
             </Link>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

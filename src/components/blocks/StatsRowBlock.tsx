@@ -1,6 +1,7 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import type { StatsRowData } from '../../domain/types';
+import { Container } from '../ui/Container';
 
 interface Props { data: StatsRowData; lang: 'en' | 'he'; }
 
@@ -10,10 +11,10 @@ export const StatsRowBlock: React.FC<Props> = ({ data, lang }) => {
   const isCard = data.style === 'cards';
 
   return (
-    <section className="w-full py-16 px-6 md:px-12"
+    <section className="w-full py-16"
              style={{ background: isDark ? '#002828' : data.bg_color, color: isDark ? '#ffffff' : data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      <Container className="max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-6">
         {(data.stats || []).map((s, i) => {
           const Icon = s.icon_name ? (LucideIcons as any)[s.icon_name] : null;
           const val   = isHe && s.value_he ? s.value_he : s.value_en;
@@ -26,7 +27,7 @@ export const StatsRowBlock: React.FC<Props> = ({ data, lang }) => {
             </div>
           );
         })}
-      </div>
+      </Container>
     </section>
   );
 };

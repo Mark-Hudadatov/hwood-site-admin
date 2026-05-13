@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { CtaBandData } from '../../domain/types';
+import { Container } from '../ui/Container';
 
 interface Props { data: CtaBandData; lang: 'en' | 'he'; }
 
@@ -13,10 +14,10 @@ export const CtaBandBlock: React.FC<Props> = ({ data, lang }) => {
   const isSplit = data.style === 'split';
 
   return (
-    <section className={`w-full py-16 px-6 md:px-12`}
+    <section className="w-full py-16"
              style={{ background: data.bg_color, color: data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <div className={`max-w-6xl mx-auto flex flex-col ${isSplit ? 'md:flex-row md:items-center md:justify-between' : 'items-center text-center'} gap-8`}>
+      <Container className={`max-w-6xl flex flex-col ${isSplit ? 'md:flex-row md:items-center md:justify-between' : 'items-center text-center'} gap-8`}>
         <div className="flex flex-col gap-2">
           {heading    && <h2 className="text-3xl md:text-4xl font-bold">{heading}</h2>}
           {subheading && <p className="text-lg opacity-80">{subheading}</p>}
@@ -36,7 +37,7 @@ export const CtaBandBlock: React.FC<Props> = ({ data, lang }) => {
             </Link>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };
