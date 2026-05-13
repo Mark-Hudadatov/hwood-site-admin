@@ -14,6 +14,7 @@ import { getServices, getStories } from '../services/data/dataService';
 import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
 import { ScrollReveal, StaggerReveal } from '../components/premium';
+import { Container } from '../components/ui/Container';
 
 // =============================================================================
 // CONSTANTS
@@ -509,8 +510,8 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
   const isRTL = lang === 'he';
 
   return (
-    <section ref={sectionRef} className="bg-white py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="max-w-7xl mx-auto">
+    <section ref={sectionRef} className="bg-white py-16 md:py-24 xl:py-32" dir={isRTL ? 'rtl' : 'ltr'}>
+      <Container className="max-w-7xl">
         <h2 className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 md:mb-12 tracking-tight text-gray-900 leading-tight transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {c.title} <span style={{ color: '#10b981' }}>{c.highlight}</span>
         </h2>
@@ -536,7 +537,7 @@ const ContentBlockSection: React.FC<{ lang: 'en' | 'he'; primaryColor: string }>
             </button>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 };
@@ -692,6 +693,7 @@ export const HomePage: React.FC = () => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasDragged, setHasDragged] = useState(false);
+  const [activeOrderTypeFilter, setActiveOrderTypeFilter] = useState<string>('all');
 
   const scrollServices = (direction: 'left' | 'right') => {
     servicesScrollRef.current?.scrollBy({ left: direction === 'right' ? 440 : -440, behavior: 'smooth' });
@@ -752,9 +754,9 @@ export const HomePage: React.FC = () => {
       <PartnersSection partners={partners} />
 
       {/* Services Section - CNC Industrial Style V2 */}
-      <section id="services" className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 overflow-hidden select-none">
+      <section id="services" className="bg-[#f8f8f8] py-16 md:py-24 xl:py-32 overflow-hidden select-none">
         {/* Header with Title and Subtitle stacked vertically */}
-        <div className="max-w-7xl mx-auto mb-12 md:mb-16 lg:mb-20">
+        <Container className="max-w-7xl mb-12 md:mb-16 lg:mb-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 pb-12 border-b border-gray-200">
             <div className="flex flex-col">
               <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
@@ -782,28 +784,68 @@ export const HomePage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+
+          {/* Order-type filter chips */}
+          <div className="flex flex-wrap gap-2 mt-6">
+            {[
+              { key: 'all',                   label: lang === 'he' ? 'הכל'       : 'All services',        count: services.length,                                              color: null       },
+              { key: 'browse-and-order',       label: lang === 'he' ? 'עיון והזמנה' : 'Browse & Order',   count: services.filter(s => s.orderType === 'browse-and-order').length,       color: '#005f5f' },
+              { key: 'send-file-and-process',  label: lang === 'he' ? 'שלח קובץ' : 'Send File & Process', count: services.filter(s => s.orderType === 'send-file-and-process').length,  color: '#1d4ed8' },
+              { key: 'describe-and-request',   label: lang === 'he' ? 'תאר ובקש' : 'Describe & Request',  count: services.filter(s => s.orderType === 'describe-and-request').length,   color: '#b45309' },
+              { key: 'coming_soon',            label: lang === 'he' ? 'בקרוב'    : 'Coming soon',          count: services.filter(s => s.visibilityStatus === 'coming_soon').length,    color: '#737373' },
+            ].filter(chip => chip.count > 0).map((chip) => {
+              const isActive = activeOrderTypeFilter === chip.key;
+              return (
+                <button
+                  key={chip.key}
+                  onClick={() => setActiveOrderTypeFilter(chip.key)}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-semibold tracking-wide border transition-all"
+                  style={{
+                    background: isActive ? '#0a0a0a' : '#fff',
+                    color: isActive ? '#fff' : '#262626',
+                    borderColor: isActive ? '#0a0a0a' : '#e0e0e0',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {chip.color && (
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: chip.color }} />
+                  )}
+                  {chip.label}
+                  <span className="font-mono text-[10px]" style={{ color: isActive ? 'rgba(255,255,255,0.5)' : '#a3a3a3' }}>
+                    {chip.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </Container>
 
         {/* Service Cards Slider - no max-w to allow cards to extend */}
-        <div 
+        <div
           ref={servicesScrollRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-5 md:gap-6 lg:gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing -mx-6 md:-mx-12 lg:-mx-20 xl:-mx-32 2xl:-mx-40 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40"
+          className="flex gap-5 md:gap-6 lg:gap-8 overflow-x-auto scrollbar-hide pb-12 cursor-grab active:cursor-grabbing px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {services.map((service, index) => (
-            <div key={service.id} className="flex-shrink-0">
-              <ServiceCard 
-                service={service} 
-                onClick={() => handleServiceClick(service.slug)} 
-                showDescription={settings.services_section.show_descriptions}
-                isPrimary={index === 0}
-              />
-            </div>
-          ))}
+          {services
+            .filter(service => {
+              if (activeOrderTypeFilter === 'all') return true;
+              if (activeOrderTypeFilter === 'coming_soon') return service.visibilityStatus === 'coming_soon';
+              return service.orderType === activeOrderTypeFilter;
+            })
+            .map((service, index) => (
+              <div key={service.id} className="flex-shrink-0">
+                <ServiceCard
+                  service={service}
+                  onClick={() => handleServiceClick(service.slug)}
+                  showDescription={settings.services_section.show_descriptions}
+                  isPrimary={index === 0}
+                />
+              </div>
+            ))}
           
           {/* Spacer for scroll end */}
           <div className="flex-shrink-0 w-32 md:w-64" />
@@ -817,16 +859,14 @@ export const HomePage: React.FC = () => {
       {/* Who We Work With Section */}
       <section className="bg-white pt-16 md:pt-24 xl:pt-32">
         {/* Header - aligned with other sections */}
-        <div className="px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40 mb-10 md:mb-16 lg:mb-20">
-          <div className="max-w-7xl mx-auto">
+        <Container className="max-w-7xl mb-10 md:mb-16 lg:mb-20">
             <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight text-gray-900 leading-none mb-3 md:mb-4 lg:mb-6">
               {lang === 'he' && settings.partners_section.section_title_he ? settings.partners_section.section_title_he : settings.partners_section.section_title_en}
             </h2>
             <p className="text-sm md:text-base lg:text-lg text-gray-500 font-light leading-relaxed">
               {lang === 'he' && settings.partners_section.section_description_he ? settings.partners_section.section_description_he : settings.partners_section.section_description_en}
             </p>
-          </div>
-        </div>
+        </Container>
 
         {/* Partner Cards Grid - Full Width */}
         <div className="grid grid-cols-1 lg:grid-cols-3 w-full">
@@ -887,8 +927,8 @@ export const HomePage: React.FC = () => {
           <div className="absolute left-32 -top-40 h-[200%] w-40 transform -skew-x-[20deg] opacity-60" style={{ backgroundColor: settings.layout.secondary_color }} />
         </div>
 
-        <section className="relative z-10 w-full text-white py-12 md:py-20 xl:py-24 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
-          <div className="max-w-7xl mx-auto mb-10 md:mb-16 lg:mb-20">
+        <section className="relative z-10 w-full text-white py-12 md:py-20 xl:py-24">
+          <Container className="max-w-7xl mb-10 md:mb-16 lg:mb-20">
             <ScrollReveal animation="fade-up">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold tracking-tight">{storiesTitle}</h1>
@@ -904,10 +944,10 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             </ScrollReveal>
-          </div>
+          </Container>
 
           {/* Stories slider - extends beyond max-w */}
-          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-5 md:gap-6 lg:gap-8 xl:gap-10 -mx-6 md:-mx-12 lg:-mx-20 xl:-mx-32 2xl:-mx-40 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
+          <div ref={storiesScrollRef} className="flex overflow-x-auto no-scrollbar pb-10 scroll-smooth snap-x snap-mandatory gap-5 md:gap-6 lg:gap-8 xl:gap-10 px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40">
             {stories.map((story) => (
               <div key={story.id} className="snap-start"><StoryCard story={story} lang={lang} /></div>
             ))}
@@ -920,7 +960,7 @@ export const HomePage: React.FC = () => {
         
         {/* Masters of Materials Section */}
         <section className="relative w-full py-12 md:py-20 xl:py-24">
-          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-20 text-center">
+          <Container className="max-w-4xl text-center">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-normal text-white leading-tight mb-4 md:mb-6">
               {lang === 'he' ? (
                 <>אנחנו עובדים עם חומרים ברמה שבה <span className="text-emerald-400">החלטות הייצור מגדירות את התוצאה הסופית.</span></>
@@ -940,7 +980,7 @@ export const HomePage: React.FC = () => {
               {lang === 'he' ? 'צור קשר' : 'Get in Touch'}
               <ChevronRight className={`w-4 h-4 ${lang === 'he' ? 'rotate-180' : ''}`} />
             </button>
-          </div>
+          </Container>
         </section>
       </div>
     </>
