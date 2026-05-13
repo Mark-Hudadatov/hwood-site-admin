@@ -1,6 +1,5 @@
 import React from 'react';
 import type { VideoEmbedData } from '../../domain/types';
-import { Container } from '../ui/Container';
 
 interface Props { data: VideoEmbedData; lang: 'en' | 'he'; }
 
@@ -12,8 +11,8 @@ export const VideoEmbedBlock: React.FC<Props> = ({ data, lang }) => {
   const isEmbed = data.video_url?.includes('youtube') || data.video_url?.includes('vimeo');
 
   return (
-    <section className="w-full py-12" style={{ background: data.bg_color }}>
-      <Container className="max-w-5xl flex flex-col gap-4" dir={isHe ? 'rtl' : 'ltr'}>
+    <section className="w-full py-12 px-6 md:px-12" style={{ background: data.bg_color }}>
+      <div className="max-w-5xl mx-auto flex flex-col gap-4" dir={isHe ? 'rtl' : 'ltr'}>
         {heading && <h2 className="text-2xl font-bold text-white">{heading}</h2>}
         <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
           {data.video_url && isEmbed ? (
@@ -33,7 +32,7 @@ export const VideoEmbedBlock: React.FC<Props> = ({ data, lang }) => {
           )}
         </div>
         {caption && <p className="text-sm text-white/60 text-center">{caption}</p>}
-      </Container>
+      </div>
     </section>
   );
 };

@@ -123,34 +123,6 @@ Route: `/stories/:storySlug` | Data: `stories`
 
 ---
 
-### `DynamicPage` — `src/pages/DynamicPage.tsx`
-Route: `/p/:slug` | Data: `pages` table via `getPageBySlug()`
-Renders a custom page by slug, iterating its `blocks` array through `BlockRenderer`.
-
----
-
-## Public Block Components
-Directory: `src/components/blocks/`
-
-| Component | File | Role |
-|-----------|------|------|
-| `BlockRenderer` | `src/components/blocks/BlockRenderer.tsx` | Dispatches rendering to the correct block component by `type`; applies `BlockCommonStyle` wrapper |
-| `AccordionFaqBlock` | `src/components/blocks/AccordionFaqBlock.tsx` | Accordion FAQ section |
-| `CtaBandBlock` | `src/components/blocks/CtaBandBlock.tsx` | Full-width call-to-action band |
-| `GalleryGridBlock` | `src/components/blocks/GalleryGridBlock.tsx` | Responsive image gallery grid |
-| `HeroBannerBlock` | `src/components/blocks/HeroBannerBlock.tsx` | Full-width hero banner with heading, subtitle, and CTA |
-| `ImageTextBlock` | `src/components/blocks/ImageTextBlock.tsx` | Side-by-side image + text layout |
-| `RichTextBlock` | `src/components/blocks/RichTextBlock.tsx` | Rendered rich/markdown text content |
-| `ServiceCardsBlock` | `src/components/blocks/ServiceCardsBlock.tsx` | Grid of service cards pulled from `services` |
-| `SpacerBlock` | `src/components/blocks/SpacerBlock.tsx` | Configurable vertical spacer |
-| `StatsRowBlock` | `src/components/blocks/StatsRowBlock.tsx` | Horizontal row of stat numbers |
-| `TestimonialBlock` | `src/components/blocks/TestimonialBlock.tsx` | Customer testimonial card or carousel |
-| `TextColumnsBlock` | `src/components/blocks/TextColumnsBlock.tsx` | Multi-column text layout |
-| `VideoEmbedBlock` | `src/components/blocks/VideoEmbedBlock.tsx` | Embedded video (YouTube / URL) |
-| `ContactFormEmbedBlock` | `src/components/blocks/ContactFormEmbedBlock.tsx` | Embeds the contact form within a page |
-
----
-
 ## Admin Pages
 
 ### `AdminLogin` — `src/admin/pages/AdminLogin.tsx`
@@ -247,35 +219,6 @@ Read-only view of `contact_submissions` + `quote_submissions`. Marks items as re
 
 ---
 
-### `AdminPageList` — `src/admin/pages/AdminPageList.tsx`
-Lists and manages custom pages from the `pages` table. Create, duplicate, delete, and navigate to editor.
-
----
-
-### `AdminPageBuilder` — `src/admin/pages/AdminPageBuilder.tsx`
-Main page builder canvas. Drag-and-drop block arrangement, EN/HE content toggle, block add/remove/reorder. Routes: `/admin/pages/new` and `/admin/pages/:pageId/edit`.
-
----
-
-### `AdminDesignTokens` — `src/admin/pages/AdminDesignTokens.tsx`
-Edits singleton row in `design_tokens` (brand colors, fonts, radius, spacing). Route: `/admin/design-tokens`.
-
----
-
-## Page Builder Sub-Components
-Directory: `src/admin/builder/`
-
-| Component | File | Role |
-|-----------|------|------|
-| `BlockLibraryPanel` | `src/admin/builder/BlockLibraryPanel.tsx` | Left-panel sidebar; drag-from-library block picker |
-| `CanvasBlock` | `src/admin/builder/CanvasBlock.tsx` | Individual block on the builder canvas with move/delete controls |
-| `FieldRenderer` | `src/admin/builder/FieldRenderer.tsx` | Per-field editing UI — text, image, color, repeater, etc. |
-| `RepeaterField` | `src/admin/builder/RepeaterField.tsx` | Repeater sub-field component used inside `FieldRenderer` |
-| `SettingsPanel` | `src/admin/builder/SettingsPanel.tsx` | Right-side panel for editing selected block fields and common styles |
-| `blockRegistry` | `src/admin/builder/blockRegistry.ts` | Registry of all block types with their schemas and default data |
-
----
-
 ## Shared Admin Components
 File: `src/admin/components/index.tsx`
 
@@ -296,7 +239,6 @@ Directory: `src/components/`
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| `Container` | `src/components/ui/Container.tsx` | Shared horizontal padding wrapper — `mx-auto px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40`; accepts all `HTMLDivElement` attributes; used in all public page sections and block components |
 | `LanguageSwitcher` | `components/LanguageSwitcher.tsx` | Standalone version (not used — inline copy in mainlayout.tsx is active) |
 | `BlurImage` | `components/premium/BlurImage.tsx` | Progressive image with blur-up placeholder |
 | `LoadingScreen` | `components/premium/LoadingScreen.tsx` | Full-screen spinner shown on first load |

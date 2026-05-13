@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { Factory, Users, Award, Truck } from 'lucide-react';
 import { getCompanyInfo } from '../services/data/dataService';
 import { CompanyInfo } from '../domain/types';
-import { Container } from '../components/ui/Container';
 
 export const AboutPage: React.FC = () => {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
@@ -33,7 +32,7 @@ export const AboutPage: React.FC = () => {
     <div className="w-full">
       {/* Hero Section */}
       <section className="relative bg-brand text-white py-16 md:py-24">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="max-w-3xl">
             <h1 className="text-display-sm md:text-display mb-6">
               {companyInfo?.name || 'HWOOD'}
@@ -42,13 +41,13 @@ export const AboutPage: React.FC = () => {
               {companyInfo?.description || 'Industrial carpentry and CNC production facility'}
             </p>
           </div>
-        </Container>
+        </div>
         <div className="absolute right-0 top-0 w-1/3 h-full bg-teal-600 -skew-x-12 origin-top-right opacity-30" />
       </section>
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, idx) => (
               <div key={idx} className="text-center">
@@ -60,12 +59,12 @@ export const AboutPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* Production Capability Section */}
       <section className="py-16 bg-neutral-50">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-h1 text-neutral-900 mb-6">
@@ -95,12 +94,12 @@ export const AboutPage: React.FC = () => {
               />
             </div>
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* Production Standards Section */}
       <section className="py-16 bg-white">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <h2 className="text-h1 text-neutral-900 mb-12 text-center">
             Production Standards
           </h2>
@@ -116,12 +115,12 @@ export const AboutPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-16 bg-brand text-white">
-        <Container className="max-w-4xl text-center">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-h1 mb-6">
             Project Inquiry
           </h2>
@@ -142,7 +141,7 @@ export const AboutPage: React.FC = () => {
               Contact
             </Link>
           </div>
-        </Container>
+        </div>
       </section>
     </div>
   );

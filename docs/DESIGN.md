@@ -51,20 +51,18 @@ Design references: biesse.com / rehau.com / cnccabinetry.com / addovisuals.com
 
 Шрифт: **Inter** → `system-ui` → `sans-serif`. Рендеринг: `-webkit-font-smoothing: antialiased`.
 
-### Tailwind-токены (9 уровней)
+### Tailwind-токены (5 уровней + расширения)
 
 | Токен | rem / px | Line-height | Letter-spacing | Weight | Назначение |
 |-------|----------|-------------|---------------|--------|-----------|
-| `text-display-lg` | 5.5rem / 88px | 0.98 | −0.028em | 600 | Hero — max format (large viewport only) |
-| `text-display` | 4.5rem / 72px | 1.0 | −0.025em | 600 | Hero headline |
-| `text-display-sm` | 3.5rem / 56px | 1.05 | −0.02em | 600 | Hero при малом вьюпорте |
+| `text-display` | 3.5rem / 56px | 1.1 | −0.02em | 600 | Hero headline |
+| `text-display-sm` | 2.75rem / 44px | 1.15 | −0.02em | 600 | Hero при малом вьюпорте |
 | `text-h1` | 2.25rem / 36px | 1.2 | −0.01em | 600 | Page title — один на страницу |
 | `text-h2` | 1.5rem / 24px | 1.3 | −0.01em | 500 | Section titles |
 | `text-body-lg` | 1.125rem / 18px | 1.6 | — | 400 | Intro-параграфы |
 | `text-body` | 1rem / 16px | 1.6 | — | 400 | Все параграфы |
 | `text-meta` | 0.875rem / 14px | 1.5 | — | 500 | Labels, captions |
 | `text-meta-sm` | 0.75rem / 12px | 1.5 | +0.02em | 500 | Specs, badges, теги |
-| `text-eyebrow` | 0.625rem / 10px | 1.0 | +0.2em | 700 | Section labels, overlines (ALL CAPS) |
 
 > Строгое правило: только эти токены. Не использовать `text-lg`, `text-xl` и т.д.
 
@@ -102,7 +100,7 @@ Design references: biesse.com / rehau.com / cnccabinetry.com / addovisuals.com
 | Padding карточки | `p-6` (24px) |
 | Gap между карточками | `gap-6` (24px) |
 | Padding секции (Y) | `py-16` → `py-24` |
-| Padding секции (X) | `px-6 md:px-12 lg:px-20 xl:px-32 2xl:px-40` — via shared `Container` component |
+| Padding секции (X) | `px-4` → `px-6` |
 | Border radius кнопки | `rounded-lg` (8px) |
 | Border radius карточки | `rounded-xl` / `rounded-2xl` |
 
@@ -121,22 +119,11 @@ Design references: biesse.com / rehau.com / cnccabinetry.com / addovisuals.com
 
 ## Анимации
 
-| Класс | Описание | Длительность | Источник |
-|-------|----------|-------------|---------|
-| `.animate-marquee` | Партнёры — прокрутка влево | 30s linear infinite | tailwind.config.js |
-| `.animate-slow-zoom` | Hero Ken Burns zoom | 20s ease-out | tailwind.config.js |
-| `.animate-fade-in` | Opacity 0→1 | 0.5s ease-out | tailwind.config.js |
-| `.animate-fade-in-up` | Fade + slide up 24px | 0.7s ease-out | tailwind.config.js |
-| `.animate-fade-in-right` | Fade + slide from left 30px | 0.8s ease-out | globals.css |
-| `.animate-pulse-glow` | CTA pulse ring | 2s infinite | tailwind.config.js |
-| `.animate-check-pop` | Success icon spring | 0.5s cubic spring | tailwind.config.js |
-| `.animate-scroll-down` | Scroll indicator | 2s infinite | tailwind.config.js |
-| `.animate-spin` | Spinner | 1s linear infinite | Tailwind native |
-| `.animate-loading-bar` | Progress bar | 1.2s ease-in-out | globals.css |
-| `.animate-ripple` | Touch feedback ripple | 0.6s ease-out | globals.css |
-| `.skeleton` | Shimmer skeleton | 1.5s infinite | globals.css |
-
-`.animate-marquee:hover` / `.hover\:pause:hover` → `animation-play-state: paused`
+| Класс | Описание | Длительность |
+|-------|----------|-------------|
+| `.animate-marquee` | Партнёры — прокрутка влево | 40s linear |
+| `.animate-spin` | Spinner | 1s linear |
+| `.skeleton` | Shimmer-загрузка | 1.5s |
 
 RTL: `.animate-marquee` воспроизводится в обратную сторону при `[dir="rtl"]`.
 `prefers-reduced-motion`: все анимации сбрасываются до 0.01ms.
@@ -145,29 +132,12 @@ RTL: `.animate-marquee` воспроизводится в обратную ст�
 
 ## Утилиты
 
-### Tailwind-native (используй класс напрямую)
-
 | Класс | Назначение |
 |-------|-----------|
-| `.no-scrollbar` / `.scrollbar-hide` | Скрыть scrollbar (cross-browser) |
-| `.line-clamp-{1,2,3}` | Обрезка текста (Tailwind v3.3+) |
+| `.no-scrollbar` | Скрыть scrollbar |
+| `.line-clamp-{1,2,3}` | Обрезка текста |
 | `.snap-x` / `.snap-start` | Горизонтальный snap-scroll |
 | `.touch-manipulation` | Оптимизация касаний |
-| `.tracking-tight` | Letter-spacing −0.025em |
-| `.backdrop-blur-sm/md` | Backdrop blur (Tailwind native) |
-
-### Кастомные классы (globals.css)
-
-| Класс | Назначение |
-|-------|-----------|
-| `.text-gradient` | Teal→mint gradient text (для premium заголовков) |
-| `.glass` | Frosted glass — светлый (rgba белый + blur 10px) |
-| `.glass-dark` | Frosted glass — тёмный (rgba чёрный + blur 10px) |
-| `.btn-hover-fill` | Subtle fill overlay on button hover (opacity 0→0.1) |
-| `.card-hover-lift` | translateY(−8px) + shadow lift on hover (0.3s) |
-| `.link-underline` | Animated underline expand from left (0.3s) |
-| `.ease-out-expo` | `cubic-bezier(0.19, 1, 0.22, 1)` — плавный вылет |
-| `.ease-in-out-expo` | `cubic-bezier(0.87, 0, 0.13, 1)` — экспоненциальный |
 
 ---
 

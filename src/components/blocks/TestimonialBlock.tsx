@@ -1,6 +1,5 @@
 import React from 'react';
 import type { TestimonialData } from '../../domain/types';
-import { Container } from '../ui/Container';
 
 interface Props { data: TestimonialData; lang: 'en' | 'he'; }
 
@@ -11,10 +10,10 @@ export const TestimonialBlock: React.FC<Props> = ({ data, lang }) => {
   const isSide = data.style === 'side-image';
 
   return (
-    <section className="w-full py-16"
+    <section className="w-full py-16 px-6 md:px-12"
              style={{ background: data.bg_color, color: data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <Container className={`max-w-4xl ${isSide ? 'flex gap-10 items-center' : 'text-center'}`}>
+      <div className={`max-w-4xl mx-auto ${isSide ? 'flex gap-10 items-center' : 'text-center'}`}>
         {isSide && data.author_image_url && (
           <img src={data.author_image_url} alt={data.author_name}
                className="w-24 h-24 rounded-full object-cover flex-shrink-0" />
@@ -26,7 +25,7 @@ export const TestimonialBlock: React.FC<Props> = ({ data, lang }) => {
             <span className="text-sm opacity-60">{title}{data.company_name ? ` · ${data.company_name}` : ''}</span>
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 };

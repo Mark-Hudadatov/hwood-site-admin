@@ -1,6 +1,5 @@
 import React from 'react';
 import type { RichTextData } from '../../domain/types';
-import { Container } from '../ui/Container';
 
 const MAX_W = { narrow: 'max-w-xl', normal: 'max-w-3xl', wide: 'max-w-5xl', full: 'max-w-none' };
 const PAD   = { tight: 'py-8', normal: 'py-14', spacious: 'py-24' };
@@ -24,10 +23,10 @@ export const RichTextBlock: React.FC<Props> = ({ data, lang }) => {
   const content = isHe && data.content_he ? data.content_he : data.content_en;
 
   return (
-    <section className={`w-full ${PAD[data.padding] ?? PAD.normal}`}
+    <section className={`w-full ${PAD[data.padding] ?? PAD.normal} px-6 md:px-12`}
              style={{ background: data.bg_color, color: data.text_color }}
              dir={isHe ? 'rtl' : 'ltr'}>
-      <Container className={`${MAX_W[data.max_width] ?? MAX_W.normal} prose prose-neutral`}
+      <div className={`mx-auto ${MAX_W[data.max_width] ?? MAX_W.normal} prose prose-neutral`}
            dangerouslySetInnerHTML={{ __html: `<p class="mb-4">${renderMd(content)}</p>` }} />
     </section>
   );

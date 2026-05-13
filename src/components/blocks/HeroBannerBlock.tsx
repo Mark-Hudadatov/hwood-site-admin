@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { HeroBannerData } from '../../domain/types';
-import { Container } from '../ui/Container';
 
 const HEIGHTS = { small: '40vh', medium: '60vh', large: '80vh', fullscreen: '100vh' };
 
@@ -30,8 +29,8 @@ export const HeroBannerBlock: React.FC<Props> = ({ data, lang }) => {
           <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${(data.overlay_opacity ?? 50) / 100})` }} />
         </>
       )}
-      <Container className={`relative z-10 w-full max-w-6xl py-20 text-${align}`}
-                 dir={isHe ? 'rtl' : 'ltr'}>
+      <div className={`relative z-10 w-full max-w-6xl mx-auto px-6 md:px-12 py-20 text-${align}`}
+           dir={isHe ? 'rtl' : 'ltr'}>
         {heading && (
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
               style={{ color: data.text_color }}>
@@ -50,7 +49,7 @@ export const HeroBannerBlock: React.FC<Props> = ({ data, lang }) => {
             {ctaText}
           </Link>
         )}
-      </Container>
+      </div>
     </section>
   );
 };

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
-import { Container } from '../components/ui/Container';
 
 export const TermsPage: React.FC = () => {
   const { i18n } = useTranslation();
@@ -10,7 +9,7 @@ export const TermsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white" dir={isHe ? 'rtl' : 'ltr'}>
-      <Container className="max-w-3xl py-16 md:py-24">
+      <div className="max-w-3xl mx-auto px-6 py-16 md:py-24">
 
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#005f5f] hover:underline mb-10">
           <ArrowLeft className="w-4 h-4" />
@@ -97,7 +96,7 @@ export const TermsPage: React.FC = () => {
           </section>
 
         </div>
-      </Container>
+      </div>
     </div>
   );
 };

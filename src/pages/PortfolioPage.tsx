@@ -11,7 +11,6 @@ import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, Filter, Clock } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
-import { Container } from '../components/ui/Container';
 
 const FALLBACK_IMAGE = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none"><rect width="800" height="600" fill="#1a1a1a"/><g transform="translate(340, 240)" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.3"><rect x="10" y="10" width="100" height="80" rx="4"/><circle cx="35" cy="35" r="10"/><polyline points="10,70 40,45 65,60 90,35 110,55"/></g><text x="400" y="340" fill="#ffffff" opacity="0.3" font-family="sans-serif" font-size="16" text-anchor="middle">HWOOD</text></svg>`)}`;
 
@@ -122,18 +121,18 @@ export const PortfolioPage: React.FC = () => {
     <div className="w-full">
       {/* Hero Section */}
       <section className="relative bg-brand text-white py-16 md:py-24">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <h1 className="text-4xl md:text-5xl font-medium mb-4">Projects & News</h1>
           <p className="text-xl text-white/90 max-w-2xl">
             Explore our latest projects, customer success stories, and company updates.
           </p>
-        </Container>
+        </div>
         <div className="absolute right-0 top-0 w-1/4 h-full bg-brand/90 -skew-x-12 origin-top-right opacity-50" />
       </section>
 
       {/* Filter Bar */}
       <section className="bg-white border-b border-neutral-200 sticky top-0 z-10">
-        <Container className="max-w-6xl py-4">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 py-4">
           <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
             <Filter className="w-5 h-5 text-neutral-400 flex-shrink-0" />
             <div className="flex gap-2">
@@ -158,12 +157,12 @@ export const PortfolioPage: React.FC = () => {
               ))}
             </div>
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* Stories Grid */}
       <section className="py-16 md:py-24 bg-neutral-50">
-        <Container className="max-w-6xl">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredStories.map((story) => {
               const isComingSoon = story.visibilityStatus === 'coming_soon';
@@ -245,12 +244,12 @@ export const PortfolioPage: React.FC = () => {
               <p className="text-neutral-500 text-lg">No stories found for this filter.</p>
             </div>
           )}
-        </Container>
+        </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-16 bg-white border-t border-neutral-200">
-        <Container className="max-w-4xl text-center">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-2xl md:text-3xl font-medium text-neutral-900 mb-4">Want to Be Featured?</h2>
           <p className="text-neutral-600 mb-8">
             We love showcasing successful projects. If you're a satisfied customer, we'd love to hear your story.
@@ -262,7 +261,7 @@ export const PortfolioPage: React.FC = () => {
             Get in Touch
             <ArrowRight className="w-5 h-5" />
           </Link>
-        </Container>
+        </div>
       </section>
     </div>
   );

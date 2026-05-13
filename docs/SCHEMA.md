@@ -290,46 +290,6 @@ RLS: anon can INSERT; authenticated has full access.
 
 ---
 
-## Page Builder
-
-### `pages`
-Custom pages built with the page builder. Blocks stored as JSONB.
-
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | UUID PK | `gen_random_uuid()` |
-| `slug` | VARCHAR(100) UNIQUE | URL key — **never change** |
-| `title_en` | VARCHAR | |
-| `title_he` | VARCHAR | |
-| `status` | VARCHAR(20) | `draft` · `published` |
-| `blocks` | JSONB | Array of `Block` objects (type + data + commonStyle + visible) |
-| `meta_description_en` | TEXT | |
-| `meta_description_he` | TEXT | |
-| `sort_order` | INTEGER | |
-| `created_at` | TIMESTAMPTZ | |
-| `updated_at` | TIMESTAMPTZ | Auto-updated trigger |
-
-Public route: `/p/:slug`. Public queries filter `status = 'published'`.
-
----
-
-### `design_tokens`
-Singleton row (id = 1). Stores global design token overrides applied at runtime.
-
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | INTEGER PK | Always 1 |
-| `brand` | VARCHAR | Primary brand color hex |
-| `brand_hover` | VARCHAR | |
-| `brand_dark` | VARCHAR | |
-| `surface_dark` | VARCHAR | |
-| `neutral_900` | VARCHAR | |
-| `font_sans` | VARCHAR | Font family stack |
-| `base_radius` | VARCHAR | CSS border-radius value |
-| `section_gap` | VARCHAR | CSS gap/padding value |
-
----
-
 ## Admin
 
 ### `admin_users`
@@ -370,8 +330,6 @@ Image records tracked via `images` table (queried in `adminStore.ts`).
 | `partners` | `is_visible = true` | — | Full |
 | `social_links` | `is_visible = true` | — | Full |
 | `company_info` | All | — | Full |
-| `pages` | `status = published` | — | Full |
-| `design_tokens` | All | — | Full |
 | `contact_submissions` | — | INSERT | Full |
 | `quote_submissions` | — | INSERT | Full |
 | `admin_users` | — | — | SELECT only |
