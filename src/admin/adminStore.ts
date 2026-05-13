@@ -812,6 +812,25 @@ export async function duplicateAdminPage(id: string): Promise<AdminPage> {
   });
 }
 
+// Gets the builder page for a known site page slug, creating it if it doesn't
+// exist yet. Reserved slugs: __home, __about, __contact, __portfolio.
+export async function getOrCreateBuilderPage(
+  reservedSlug: string,
+  titleEn: string,
+): Promise<AdminPage> {
+  const { data } = await supabase
+    .from('pages').select('*').eq('slug', reservedSlug).single();
+  if (data) return { ...data, blocks: (data.blocks as any) ?? [] } as AdminPage;
+  return createAdminPage({
+    slug: reservedSlug,
+    title_en: titleEn,
+    title_he: '',
+    status: 'draft',
+    blocks: [],
+    sort_order: 0,
+  });
+}
+
 // ============================================================================
 // DESIGN TOKENS
 // ============================================================================
