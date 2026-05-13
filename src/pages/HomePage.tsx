@@ -15,6 +15,7 @@ import { supabase } from '../services/supabase';
 import { ROUTES } from '../router';
 import { ScrollReveal, StaggerReveal } from '../components/premium';
 import { Container } from '../components/ui/Container';
+import { ORDER_TYPE_COLORS } from '../tokens';
 
 // =============================================================================
 // CONSTANTS
@@ -438,9 +439,9 @@ const HeroSection: React.FC<{ settings: HomepageSettings['hero']; railSettings: 
   const rail = {
     heading: L(rl.heading_en, rl.heading_he).split('\n'),
     eyebrow: L(rl.eyebrow_en, rl.eyebrow_he),
-    c1: { title: L(rl.card1_title_en, rl.card1_title_he), badge: L(rl.card1_badge_en, rl.card1_badge_he), desc: L(rl.card1_desc_en, rl.card1_desc_he), lead: L(rl.card1_lead_en, rl.card1_lead_he), link: rl.card1_link, accent: '#a8c47a', accentBg: 'rgba(168,196,122,.15)' },
-    c2: { title: L(rl.card2_title_en, rl.card2_title_he), badge: L(rl.card2_badge_en, rl.card2_badge_he), desc: L(rl.card2_desc_en, rl.card2_desc_he), lead: L(rl.card2_lead_en, rl.card2_lead_he), link: rl.card2_link, accent: '#5fa8d3', accentBg: 'rgba(95,168,211,.15)'  },
-    c3: { title: L(rl.card3_title_en, rl.card3_title_he), badge: L(rl.card3_badge_en, rl.card3_badge_he), desc: L(rl.card3_desc_en, rl.card3_desc_he), lead: L(rl.card3_lead_en, rl.card3_lead_he), link: rl.card3_link, accent: '#e8a87c', accentBg: 'rgba(232,168,124,.15)' },
+    c1: { title: L(rl.card1_title_en, rl.card1_title_he), badge: L(rl.card1_badge_en, rl.card1_badge_he), desc: L(rl.card1_desc_en, rl.card1_desc_he), lead: L(rl.card1_lead_en, rl.card1_lead_he), link: rl.card1_link, accent: ORDER_TYPE_COLORS.catalog.accent, accentBg: ORDER_TYPE_COLORS.catalog.tagBg },
+    c2: { title: L(rl.card2_title_en, rl.card2_title_he), badge: L(rl.card2_badge_en, rl.card2_badge_he), desc: L(rl.card2_desc_en, rl.card2_desc_he), lead: L(rl.card2_lead_en, rl.card2_lead_he), link: rl.card2_link, accent: ORDER_TYPE_COLORS.service.accent, accentBg: ORDER_TYPE_COLORS.service.tagBg },
+    c3: { title: L(rl.card3_title_en, rl.card3_title_he), badge: L(rl.card3_badge_en, rl.card3_badge_he), desc: L(rl.card3_desc_en, rl.card3_desc_he), lead: L(rl.card3_lead_en, rl.card3_lead_he), link: rl.card3_link, accent: ORDER_TYPE_COLORS.custom.accent,   accentBg: ORDER_TYPE_COLORS.custom.tagBg  },
     footerText: L(rl.footer_text_en, rl.footer_text_he),
     footerCta:  L(rl.footer_cta_en,  rl.footer_cta_he),
     waUrl: `https://wa.me/${rl.whatsapp_number}`,
@@ -888,11 +889,11 @@ export const HomePage: React.FC = () => {
           {/* Order-type filter chips */}
           <div className="flex flex-wrap gap-2 mt-6">
             {[
-              { key: 'all',                   label: lang === 'he' ? 'הכל'       : 'All services',        count: services.length,                                              color: null       },
-              { key: 'browse-and-order',       label: lang === 'he' ? 'עיון והזמנה' : 'Browse & Order',   count: services.filter(s => s.orderType === 'browse-and-order').length,       color: '#005f5f' },
-              { key: 'send-file-and-process',  label: lang === 'he' ? 'שלח קובץ' : 'Send File & Process', count: services.filter(s => s.orderType === 'send-file-and-process').length,  color: '#1d4ed8' },
-              { key: 'describe-and-request',   label: lang === 'he' ? 'תאר ובקש' : 'Describe & Request',  count: services.filter(s => s.orderType === 'describe-and-request').length,   color: '#b45309' },
-              { key: 'coming_soon',            label: lang === 'he' ? 'בקרוב'    : 'Coming soon',          count: services.filter(s => s.visibilityStatus === 'coming_soon').length,    color: '#737373' },
+              { key: 'all',                   label: lang === 'he' ? 'הכל'         : 'All services',        count: services.length,                                                      color: null },
+              { key: 'browse-and-order',       label: lang === 'he' ? 'עיון והזמנה' : 'Browse & Order',   count: services.filter(s => s.orderType === 'browse-and-order').length,       color: ORDER_TYPE_COLORS.catalog.filter },
+              { key: 'send-file-and-process',  label: lang === 'he' ? 'שלח קובץ'   : 'Send File & Process',count: services.filter(s => s.orderType === 'send-file-and-process').length,  color: ORDER_TYPE_COLORS.service.filter },
+              { key: 'describe-and-request',   label: lang === 'he' ? 'תאר ובקש'   : 'Describe & Request', count: services.filter(s => s.orderType === 'describe-and-request').length,   color: ORDER_TYPE_COLORS.custom.filter  },
+              { key: 'coming_soon',            label: lang === 'he' ? 'בקרוב'       : 'Coming soon',        count: services.filter(s => s.visibilityStatus === 'coming_soon').length,    color: ORDER_TYPE_COLORS.informational.filter },
             ].filter(chip => chip.count > 0).map((chip) => {
               const isActive = activeOrderTypeFilter === chip.key;
               return (

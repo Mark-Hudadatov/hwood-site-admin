@@ -59,6 +59,49 @@ export const COLORS = {
 export type ColorValue = (typeof COLORS)[keyof typeof COLORS];
 
 // ---------------------------------------------------------------------------
+// Order-type color tokens — named palette for Browse/Send/Describe/Informational
+// These mirror ORDER_TYPE_CONFIG in lib/OrderTypes.ts.
+// Use in inline style={{}} when you need order-type theming outside of OrderTypeTag.
+// ---------------------------------------------------------------------------
+
+export const ORDER_TYPE_COLORS = {
+  catalog: {
+    accent:    '#a8c47a',
+    accentDark:'#6b8a4a',
+    tagBg:     'rgba(168,196,122,.18)',
+    tagFg:     '#3d5a3a',
+    surface:   '#f4f6ee',
+    filter:    '#005f5f',
+  },
+  service: {
+    accent:    '#5fa8d3',
+    accentDark:'#2c6ea3',
+    tagBg:     'rgba(95,168,211,.16)',
+    tagFg:     '#1e3a5f',
+    surface:   '#eef3f7',
+    filter:    '#1d4ed8',
+  },
+  custom: {
+    accent:    '#e8a87c',
+    accentDark:'#b87149',
+    tagBg:     'rgba(232,168,124,.18)',
+    tagFg:     '#7a3a1a',
+    surface:   '#f5ede5',
+    filter:    '#b45309',
+  },
+  informational: {
+    accent:    '#00d4aa',
+    accentDark:'#005f5f',
+    tagBg:     'rgba(0,95,95,.12)',
+    tagFg:     '#005f5f',
+    surface:   '#f4f8f8',
+    filter:    '#737373',
+  },
+} as const;
+
+export type OrderTypeColorKey = keyof typeof ORDER_TYPE_COLORS;
+
+// ---------------------------------------------------------------------------
 // Admin CSS variable references
 // Use inside inline style={{}} on admin pages only. Never in public pages.
 // ---------------------------------------------------------------------------
